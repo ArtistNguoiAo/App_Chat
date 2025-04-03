@@ -1,25 +1,27 @@
-import 'package:app_chat/core/utils/color_utils.dart';
-import 'package:app_chat/core/utils/media_utils.dart';
-import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../core/utils/color_utils.dart';
+import '../../core/utils/media_utils.dart';
+import '../../core/utils/text_style_utils.dart';
 import '../../core/widget/base_text_field.dart';
 
 @RoutePage()
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isObscure = true;
+  bool _isObscureConfirm = true;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 16),
               Text(
-                'Login',
+                'Register',
                 style: TextStyleUtils.bold(
                   fontSize: 32,
                   color: ColorUtils.textColor,
@@ -117,26 +119,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: _isObscure,
                 ),
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Checkbox(
-                    value: true,
-                    checkColor: ColorUtils.backgroundColor,
-                    activeColor: ColorUtils.primaryColor,
-                    onChanged: (value) {
-
-                    },
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: BaseTextField(
+                  controller: _confirmPasswordController,
+                  labelText: 'Confirm Password',
+                  hintText: 'Confirm Password',
+                  prefixIcon: Icon(
+                    FontAwesomeIcons.key,
+                    size: 16,
+                    color: ColorUtils.textColor,
                   ),
-                  Text(
-                    'Remember me',
-                    style: TextStyleUtils.normal(
+                  suffixIcon: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _isObscureConfirm = !_isObscureConfirm;
+                      });
+                    },
+                    child: Icon(
+                      _isObscureConfirm ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye,
+                      size: 16,
                       color: ColorUtils.textColor,
                     ),
                   ),
-                ],
+                  obscureText: _isObscureConfirm,
+                ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(child: Container()),
@@ -153,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               )),
                           child: Center(
                             child: Text(
-                              'Login',
+                              'Register',
                               style: TextStyleUtils.bold(
                                 color: ColorUtils.backgroundColor,
                               ),
