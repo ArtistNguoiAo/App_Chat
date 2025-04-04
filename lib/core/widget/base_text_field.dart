@@ -63,7 +63,7 @@ class _BaseTextFieldState extends State<BaseTextField> {
         ),
         labelText: widget.labelText,
         labelStyle: widget.hintStyle ?? TextStyleUtils.normal(
-          color: ColorUtils.textColor,
+          color: ColorUtils.borderColor,
         ),
         prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon,

@@ -1,7 +1,7 @@
 class MediaUtils {
   MediaUtils._();
 
-  static String get baseIcon => 'assets/icon';
-  static String get baseImage => 'assets/image';
+  static String get baseImage => 'assets/images';
 
+  static String get imgBackground => '$baseImage/img_background.svg';
 }
