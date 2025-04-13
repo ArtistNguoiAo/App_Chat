@@ -11,4 +11,5 @@ class ColorUtils {
   static Color borderColor = const Color(0xFF9E9E9E);
   static Color redColor = Colors.red;
   static Color yellowColor = Colors.yellow;
+  static Color yellowGold = const Color(0xFFFFDF00);
 }
