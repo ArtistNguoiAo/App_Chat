@@ -1,3 +1,4 @@
+import 'package:app_chat/core/utils/color_utils.dart';
 import 'package:flutter/material.dart';
 import 'core/router/app_router.dart';
 
@@ -12,6 +13,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: ColorUtils.yellowGold),
+        useMaterial3: true,
+      ),
       routerConfig: appRouter.config(),
       debugShowCheckedModeBanner: false,
     );

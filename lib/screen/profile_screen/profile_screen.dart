@@ -9,31 +9,28 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: MediaQuery.of(context).padding,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Center(
-              child: Column(
-                children: [
-                  _basicInfo(),
-                  const SizedBox(height: 16),
-                  _changeSetting(
-                    icon: FontAwesomeIcons.globe,
-                    title: "Language",
-                    content: "English",
-                  ),
-                  const SizedBox(height: 16),
-                  _changeSetting(
-                    icon: FontAwesomeIcons.sun,
-                    title: "Theme",
-                    content: "Light",
-                  ),
-                  const SizedBox(height: 16),
-                  _accountManagement(),
-                ],
-              ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: Column(
+              children: [
+                _basicInfo(),
+                const SizedBox(height: 16),
+                _changeSetting(
+                  icon: FontAwesomeIcons.globe,
+                  title: "Language",
+                  content: "English",
+                ),
+                const SizedBox(height: 16),
+                _changeSetting(
+                  icon: FontAwesomeIcons.sun,
+                  title: "Theme",
+                  content: "Light",
+                ),
+                const SizedBox(height: 16),
+                _accountManagement(),
+              ],
             ),
           ),
         ),
@@ -59,7 +56,7 @@ class ProfileScreen extends StatelessWidget {
               color: ColorUtils.borderColor,
               image: const DecorationImage(
                 image: NetworkImage(
-                  'https://example.com/profile.jpg',
+                  '',
                 ),
                 fit: BoxFit.cover,
               ),

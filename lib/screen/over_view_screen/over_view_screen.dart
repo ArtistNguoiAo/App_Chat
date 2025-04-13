@@ -21,68 +21,70 @@ class _OverViewScreenState extends State<OverViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: const [
-          HomeScreen(),
-          ProfileScreen(),
-          ListMessageScreen(),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _currentIndex = 2;
-          });
-        },
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),
+    return SafeArea(
+      child: Scaffold(
+        body: IndexedStack(
+          index: _currentIndex,
+          children: const [
+            HomeScreen(),
+            ProfileScreen(),
+            ListMessageScreen(),
+          ],
         ),
-        child: Icon(
-          FontAwesomeIcons.facebookMessenger,
-          color: _currentIndex == 2
-              ? ColorUtils.primaryColor
-              : ColorUtils.textColor,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              _currentIndex = 2;
+            });
+          },
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100),
+          ),
+          child: Icon(
+            FontAwesomeIcons.facebookMessenger,
+            color: _currentIndex == 2
+                ? ColorUtils.primaryColor
+                : ColorUtils.textColor,
+          ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AnimatedBottomNavigationBar.builder(
-        itemCount: 2,
-        notchMargin: 8,
-        tabBuilder: (index, isSelected) {
-          return Container(
-            margin: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Icon(
-                  index == 0
-                      ? FontAwesomeIcons.house
-                      : FontAwesomeIcons.userLarge,
-                  color: _currentIndex == index
-                      ? ColorUtils.primaryColor
-                      : ColorUtils.textColor,
-                  size: 18,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  index == 0 ? 'Home' : 'Profile',
-                  style: TextStyleUtils.normal(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: AnimatedBottomNavigationBar.builder(
+          itemCount: 2,
+          notchMargin: 8,
+          tabBuilder: (index, isSelected) {
+            return Container(
+              margin: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Icon(
+                    index == 0
+                        ? FontAwesomeIcons.house
+                        : FontAwesomeIcons.userLarge,
                     color: _currentIndex == index
                         ? ColorUtils.primaryColor
                         : ColorUtils.textColor,
-                    fontSize: 12,
+                    size: 18,
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-        activeIndex: _currentIndex,
-        gapLocation: GapLocation.center,
-        notchSmoothness: NotchSmoothness.softEdge,
-        onTap: (index) => setState(() => _currentIndex = index),
+                  const SizedBox(height: 4),
+                  Text(
+                    index == 0 ? 'Home' : 'Profile',
+                    style: TextStyleUtils.normal(
+                      color: _currentIndex == index
+                          ? ColorUtils.primaryColor
+                          : ColorUtils.textColor,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          activeIndex: _currentIndex,
+          gapLocation: GapLocation.center,
+          notchSmoothness: NotchSmoothness.softEdge,
+          onTap: (index) => setState(() => _currentIndex = index),
+        ),
       ),
     );
   }
