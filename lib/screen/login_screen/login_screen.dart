@@ -166,6 +166,26 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
+        const SizedBox(height: 16),
+        Text.rich(
+          TextSpan(
+            text: "Don't have an account?",
+            children: [
+              TextSpan(
+                text: ' Sign up',
+                style: TextStyleUtils.normal(
+                  fontSize: 14,
+                  color: ColorUtils.primaryColor,
+                ),
+              ),
+            ],
+          ),
+          style: TextStyleUtils.normal(
+            fontSize: 14,
+            color: ColorUtils.textColor,
+          ),
+        ),
+        const SizedBox(height: 16),
       ],
     );
   }
