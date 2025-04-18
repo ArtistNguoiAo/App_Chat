@@ -1,4 +1,4 @@
-import 'package:app_chat/core/utils/color_utils.dart';
+import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/utils/media_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
               height: 150,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               width: double.infinity,
-              color: ColorUtils.primaryColor,
+              color: context.theme.primaryColor,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,10 +38,11 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          "Welcome to ChitChat world!",
+                          context.language.welcomeApp,
                           style: TextStyleUtils.bold(
                             fontSize: 20,
-                            color: ColorUtils.backgroundColor,
+                            color: context.theme.backgroundColor,
+                            context: context,
                           ),
                         ),
                       ),
@@ -51,16 +52,17 @@ class HomeScreen extends StatelessWidget {
                         },
                         child: FaIcon(
                           FontAwesomeIcons.bell,
-                          color: ColorUtils.backgroundColor,
+                          color: context.theme.backgroundColor,
                         ),
                       ),
                     ],
                   ),
                   Text(
-                    "I'm virtual assistant CC_Bot. How can I help you?",
+                    context.language.introduceBot,
                     style: TextStyleUtils.normal(
                       fontSize: 16,
-                      color: ColorUtils.backgroundColor,
+                      color: context.theme.backgroundColor,
+                      context: context,
                     ),
                   ),
                 ],
@@ -80,11 +82,11 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 width: MediaQuery.of(context).size.width - 32,
                 decoration: BoxDecoration(
-                  color: ColorUtils.backgroundColor,
+                  color: context.theme.backgroundColor,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: ColorUtils.borderColor.withAlpha((0.5 * 255).round()),
+                      color: context.theme.borderColor.withAlpha((0.5 * 255).round()),
                       spreadRadius: 2,
                       blurRadius: 6,
                       offset: const Offset(0, 3),
@@ -105,24 +107,27 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Hello,',
+                            '${context.language.hello},',
                             style: TextStyleUtils.normal(
                               fontSize: 16,
-                              color: ColorUtils.textColor,
+                              color: context.theme.textColor,
+                              context: context,
                             ),
                           ),
                           Text(
                             'Lê Quốc Trung',
                             style: TextStyleUtils.bold(
                               fontSize: 20,
-                              color: ColorUtils.textColor,
+                              color: context.theme.textColor,
+                              context: context,
                             ),
                           ),
                           Text(
-                            'Have a good day!',
+                            '${context.language.haveAGoodDay}!',
                             style: TextStyleUtils.normal(
                               fontSize: 16,
-                              color: ColorUtils.textColor,
+                              color: context.theme.textColor,
+                              context: context,
                             ),
                           ),
                         ],
@@ -131,7 +136,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 10),
                     FaIcon(
                       FontAwesomeIcons.feather,
-                      color: ColorUtils.textColor,
+                      color: context.theme.textColor,
                     ),
                   ],
                 ),

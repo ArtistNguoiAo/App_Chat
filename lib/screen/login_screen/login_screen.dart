@@ -1,7 +1,9 @@
-import 'package:app_chat/core/utils/color_utils.dart';
+import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/router/app_router.gr.dart';
 import 'package:app_chat/core/utils/media_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -40,10 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(width: 16),
                 Text(
-                  'ChitChat',
+                  context.language.appName,
                   style: TextStyleUtils.bold(
                     fontSize: 48,
-                    color: ColorUtils.backgroundColor,
+                    color: context.theme.backgroundColor,
+                    context: context,
                   ),
                 ),
               ],
@@ -61,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: ColorUtils.backgroundColor,
+            color: context.theme.backgroundColor,
             borderRadius: BorderRadius.circular(10),
           ),
           margin: const EdgeInsets.all(16),
@@ -70,10 +73,11 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 16),
               Text(
-                'Login',
+                context.language.login,
                 style: TextStyleUtils.bold(
                   fontSize: 32,
-                  color: ColorUtils.textColor,
+                  color: context.theme.textColor,
+                  context: context,
                 ),
               ),
               const SizedBox(height: 16),
@@ -81,12 +85,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: BaseTextField(
                   controller: _usernameController,
-                  labelText: 'Username',
-                  hintText: 'Username',
+                  labelText: context.language.username,
+                  hintText: context.language.username,
                   prefixIcon: Icon(
                     FontAwesomeIcons.userLarge,
                     size: 16,
-                    color: ColorUtils.textColor,
+                    color: context.theme.textColor,
                   ),
                 ),
               ),
@@ -95,12 +99,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: BaseTextField(
                   controller: _passwordController,
-                  labelText: 'Password',
-                  hintText: 'Password',
+                  labelText: context.language.password,
+                  hintText: context.language.password,
                   prefixIcon: Icon(
                     FontAwesomeIcons.key,
                     size: 16,
-                    color: ColorUtils.textColor,
+                    color: context.theme.textColor,
                   ),
                   suffixIcon: InkWell(
                     onTap: () {
@@ -111,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Icon(
                       _isObscure ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye,
                       size: 16,
-                      color: ColorUtils.textColor,
+                      color: context.theme.textColor,
                     ),
                   ),
                   obscureText: _isObscure,
@@ -122,16 +126,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   Checkbox(
                     value: true,
-                    checkColor: ColorUtils.backgroundColor,
-                    activeColor: ColorUtils.primaryColor,
+                    checkColor: context.theme.backgroundColor,
+                    activeColor: context.theme.primaryColor,
                     onChanged: (value) {
 
                     },
                   ),
                   Text(
-                    'Remember me',
+                    context.language.rememberMe,
                     style: TextStyleUtils.normal(
-                      color: ColorUtils.textColor,
+                      color: context.theme.textColor,
+                      context: context,
                     ),
                   ),
                 ],
@@ -142,20 +147,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   Expanded(child: Container()),
                   Expanded(
                     child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          AutoRouter.of(context).push(const OverViewRoute());
+                        },
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: ColorUtils.primaryColor,
+                              color: context.theme.primaryColor,
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 bottomRight: Radius.circular(10),
                               )),
                           child: Center(
                             child: Text(
-                              'Login',
+                              context.language.login,
                               style: TextStyleUtils.bold(
-                                color: ColorUtils.backgroundColor,
+                                color: context.theme.backgroundColor,
+                                context: context,
                               ),
                             ),
                           ),
@@ -169,20 +177,26 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 16),
         Text.rich(
           TextSpan(
-            text: "Don't have an account?",
+            text: context.language.notHaveAnAccount,
             children: [
               TextSpan(
-                text: ' Sign up',
+                text: ' ${context.language.register}',
                 style: TextStyleUtils.normal(
                   fontSize: 14,
-                  color: ColorUtils.primaryColor,
+                  color: context.theme.primaryColor,
+                  context: context,
                 ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    AutoRouter.of(context).push(const RegisterRoute());
+                  },
               ),
             ],
           ),
           style: TextStyleUtils.normal(
             fontSize: 14,
-            color: ColorUtils.textColor,
+            color: context.theme.textColor,
+            context: context,
           ),
         ),
         const SizedBox(height: 16),

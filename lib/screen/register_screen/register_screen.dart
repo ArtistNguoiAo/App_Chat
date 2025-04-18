@@ -1,9 +1,9 @@
+import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../core/utils/color_utils.dart';
 import '../../core/utils/media_utils.dart';
 import '../../core/utils/text_style_utils.dart';
 import '../../core/widget/base_text_field.dart';
@@ -42,28 +42,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(width: 16),
                 Text(
-                  'ChitChat',
+                  context.language.appName,
                   style: TextStyleUtils.bold(
                     fontSize: 48,
-                    color: ColorUtils.backgroundColor,
+                    color: context.theme.backgroundColor,
+                    context: context,
                   ),
                 ),
               ],
             ),
           ),
-          _loginWidget()
+          _loginWidget(context)
         ],
       ),
     );
   }
 
-  Widget _loginWidget() {
+  Widget _loginWidget(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
           decoration: BoxDecoration(
-            color: ColorUtils.backgroundColor,
+            color: context.theme.backgroundColor,
             borderRadius: BorderRadius.circular(10),
           ),
           margin: const EdgeInsets.all(16),
@@ -72,10 +73,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               const SizedBox(height: 16),
               Text(
-                'Register',
+                context.language.register,
                 style: TextStyleUtils.bold(
                   fontSize: 32,
-                  color: ColorUtils.textColor,
+                  color: context.theme.textColor,
+                  context: context,
                 ),
               ),
               const SizedBox(height: 16),
@@ -83,12 +85,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: BaseTextField(
                   controller: _usernameController,
-                  labelText: 'Username',
-                  hintText: 'Username',
+                  labelText: context.language.username,
+                  hintText: context.language.username,
                   prefixIcon: Icon(
                     FontAwesomeIcons.userLarge,
                     size: 16,
-                    color: ColorUtils.textColor,
+                    color: context.theme.textColor,
                   ),
                 ),
               ),
@@ -97,12 +99,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: BaseTextField(
                   controller: _passwordController,
-                  labelText: 'Password',
-                  hintText: 'Password',
+                  labelText: context.language.password,
+                  hintText: context.language.password,
                   prefixIcon: Icon(
                     FontAwesomeIcons.key,
                     size: 16,
-                    color: ColorUtils.textColor,
+                    color: context.theme.textColor,
                   ),
                   suffixIcon: InkWell(
                     onTap: () {
@@ -113,7 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Icon(
                       _isObscure ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye,
                       size: 16,
-                      color: ColorUtils.textColor,
+                      color: context.theme.textColor,
                     ),
                   ),
                   obscureText: _isObscure,
@@ -124,12 +126,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: BaseTextField(
                   controller: _confirmPasswordController,
-                  labelText: 'Confirm Password',
-                  hintText: 'Confirm Password',
+                  labelText: context.language.confirmPassword,
+                  hintText: context.language.confirmPassword,
                   prefixIcon: Icon(
                     FontAwesomeIcons.key,
                     size: 16,
-                    color: ColorUtils.textColor,
+                    color: context.theme.textColor,
                   ),
                   suffixIcon: InkWell(
                     onTap: () {
@@ -140,7 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Icon(
                       _isObscureConfirm ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye,
                       size: 16,
-                      color: ColorUtils.textColor,
+                      color: context.theme.textColor,
                     ),
                   ),
                   obscureText: _isObscureConfirm,
@@ -156,16 +158,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: ColorUtils.primaryColor,
+                              color: context.theme.primaryColor,
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(10),
                                 bottomRight: Radius.circular(10),
                               )),
                           child: Center(
                             child: Text(
-                              'Register',
+                              context.language.register,
                               style: TextStyleUtils.bold(
-                                color: ColorUtils.backgroundColor,
+                                color: context.theme.backgroundColor,
+                                context: context,
                               ),
                             ),
                           ),

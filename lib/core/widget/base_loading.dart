@@ -1,7 +1,6 @@
+import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-import '../utils/color_utils.dart';
 
 class BaseLoading extends StatelessWidget {
   const BaseLoading({super.key});
@@ -13,7 +12,7 @@ class BaseLoading extends StatelessWidget {
       width: double.infinity,
       child: Center(
         child: LoadingAnimationWidget.staggeredDotsWave(
-          color: ColorUtils.primaryColor,
+          color: context.theme.primaryColor,
           size: 40,
         ),
       ),
