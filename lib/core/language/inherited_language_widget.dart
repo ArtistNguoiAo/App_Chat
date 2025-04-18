@@ -23,7 +23,7 @@ class InheritedLanguageWidget extends InheritedWidget {
     return context.dependOnInheritedWidgetOfExactType<InheritedLanguageWidget>();
   }
 
-  BaseLanguage getThemeData() {
+  BaseLanguage getLanguageData() {
     switch (languageModeEnum) {
       case LanguageModeEnum.en:
         return EnLanguage();

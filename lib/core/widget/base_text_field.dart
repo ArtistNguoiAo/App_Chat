@@ -1,6 +1,6 @@
+import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/color_utils.dart';
 import '../utils/text_style_utils.dart';
 
 class BaseTextField extends StatefulWidget {
@@ -48,27 +48,29 @@ class _BaseTextFieldState extends State<BaseTextField> {
     return TextField(
       controller: widget.controller,
       decoration: InputDecoration(
-        border: widget.border ?? OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.borderColor)),
+        border: widget.border ?? OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.borderColor)),
         focusedBorder: widget.focusedBorder ??
-            OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.primaryColor)),
+            OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.primaryColor)),
         errorBorder:
-            widget.errorBorder ?? OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.borderColor)),
+            widget.errorBorder ?? OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.borderColor)),
         enabledBorder: widget.enabledBorder ??
-            OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.borderColor)),
+            OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.borderColor)),
         disabledBorder: widget.disabledBorder ??
-            OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: ColorUtils.borderColor)),
+            OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.borderColor)),
         hintText: widget.hintText,
         hintStyle: widget.labelStyle ?? TextStyleUtils.normal(
-          color: ColorUtils.borderColor,
+          color: context.theme.borderColor,
+          context: context,
         ),
         labelText: widget.labelText,
         labelStyle: widget.hintStyle ?? TextStyleUtils.normal(
-          color: ColorUtils.borderColor,
+          color: context.theme.borderColor,
+          context: context,
         ),
         prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon,
       ),
-      style: widget.style ?? TextStyleUtils.normal(),
+      style: widget.style ?? TextStyleUtils.normal(context: context),
       obscureText: widget.obscureText ?? false,
     );
   }

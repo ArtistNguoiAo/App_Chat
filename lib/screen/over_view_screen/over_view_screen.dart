@@ -1,5 +1,5 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
-import 'package:app_chat/core/utils/color_utils.dart';
+import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/screen/home_screen/home_screen.dart';
 import 'package:app_chat/screen/list_message_screen/list_message_screen.dart';
@@ -44,8 +44,8 @@ class _OverViewScreenState extends State<OverViewScreen> {
           child: Icon(
             FontAwesomeIcons.facebookMessenger,
             color: _currentIndex == 2
-                ? ColorUtils.primaryColor
-                : ColorUtils.textColor,
+                ? context.theme.primaryColor
+                : context.theme.textColor,
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -62,8 +62,8 @@ class _OverViewScreenState extends State<OverViewScreen> {
                         ? FontAwesomeIcons.house
                         : FontAwesomeIcons.userLarge,
                     color: _currentIndex == index
-                        ? ColorUtils.primaryColor
-                        : ColorUtils.textColor,
+                        ? context.theme.primaryColor
+                        : context.theme.textColor,
                     size: 18,
                   ),
                   const SizedBox(height: 4),
@@ -71,9 +71,10 @@ class _OverViewScreenState extends State<OverViewScreen> {
                     index == 0 ? 'Home' : 'Profile',
                     style: TextStyleUtils.normal(
                       color: _currentIndex == index
-                          ? ColorUtils.primaryColor
-                          : ColorUtils.textColor,
+                          ? context.theme.primaryColor
+                          : context.theme.textColor,
                       fontSize: 12,
+                      context: context,
                     ),
                   ),
                 ],

@@ -1,6 +1,6 @@
+import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:flutter/material.dart';
 
-import 'color_utils.dart';
 import 'font_utils.dart';
 
 class TextStyleUtils {
@@ -10,10 +10,11 @@ class TextStyleUtils {
     double fontSize = 16,
     Color? color,
     TextDecoration decoration = TextDecoration.none,
+    required BuildContext context,
   }) {
     return TextStyle(
       fontSize: fontSize,
-      color: color ?? ColorUtils.textColor,
+      color: color ?? context.theme.textColor,
       fontWeight: FontWeight.w400,
       decoration: decoration,
       fontFamily: FontUtils.nunito,
@@ -24,10 +25,11 @@ class TextStyleUtils {
     double fontSize = 16,
     Color? color,
     TextDecoration decoration = TextDecoration.none,
+    required BuildContext context,
   }) {
     return TextStyle(
       fontSize: fontSize,
-      color: color ?? ColorUtils.textColor,
+      color: color ?? context.theme.textColor,
       fontWeight: FontWeight.w400,
       decoration: decoration,
       fontFamily: FontUtils.nunito,
@@ -39,10 +41,11 @@ class TextStyleUtils {
     double fontSize = 16,
     Color? color,
     TextDecoration decoration = TextDecoration.none,
+    required BuildContext context,
   }) {
     return TextStyle(
       fontSize: fontSize,
-      color: color ?? ColorUtils.textColor,
+      color: color ?? context.theme.textColor,
       fontWeight: FontWeight.w700,
       decoration: decoration,
       fontFamily: FontUtils.nunito,

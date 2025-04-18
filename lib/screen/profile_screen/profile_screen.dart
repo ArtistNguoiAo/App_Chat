@@ -1,4 +1,4 @@
-import 'package:app_chat/core/utils/color_utils.dart';
+import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -15,21 +15,23 @@ class ProfileScreen extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                _basicInfo(),
+                _basicInfo(context),
                 const SizedBox(height: 16),
                 _changeSetting(
                   icon: FontAwesomeIcons.globe,
-                  title: "Language",
+                  title: context.language.language,
                   content: "English",
+                  context: context,
                 ),
                 const SizedBox(height: 16),
                 _changeSetting(
                   icon: FontAwesomeIcons.sun,
-                  title: "Theme",
+                  title: context.language.theme,
                   content: "Light",
+                  context: context,
                 ),
                 const SizedBox(height: 16),
-                _accountManagement(),
+                _accountManagement(context),
               ],
             ),
           ),
@@ -38,12 +40,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _basicInfo() {
+  Widget _basicInfo(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorUtils.backgroundColor,
+        color: context.theme.backgroundColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -53,7 +55,7 @@ class ProfileScreen extends StatelessWidget {
             height: 100,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: ColorUtils.borderColor,
+              color: context.theme.borderColor,
               image: const DecorationImage(
                 image: NetworkImage(
                   '',
@@ -62,13 +64,13 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             child: Center(
-              child: Icon(Icons.add_a_photo, color: ColorUtils.backgroundColor),
+              child: Icon(Icons.add_a_photo, color: context.theme.backgroundColor),
             ),
           ),
           const SizedBox(height: 16),
           Container(
             decoration: BoxDecoration(
-              color: ColorUtils.textColor,
+              color: context.theme.textColor,
               borderRadius: BorderRadius.circular(32),
             ),
             padding: const EdgeInsets.symmetric(
@@ -79,7 +81,8 @@ class ProfileScreen extends StatelessWidget {
               '@johndoe',
               style: TextStyleUtils.bold(
                 fontSize: 16,
-                color: ColorUtils.backgroundColor,
+                color: context.theme.backgroundColor,
+                context: context,
               ),
             ),
           ),
@@ -88,7 +91,8 @@ class ProfileScreen extends StatelessWidget {
             'John Doe',
             style: TextStyleUtils.bold(
               fontSize: 24,
-              color: ColorUtils.textColor,
+              color: context.theme.textColor,
+              context: context,
             ),
           ),
           const SizedBox(height: 8),
@@ -97,15 +101,16 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Icon(
                 FontAwesomeIcons.calendarDay,
-                color: ColorUtils.borderColor,
+                color: context.theme.borderColor,
                 size: 16,
               ),
               const SizedBox(width: 8),
               Text(
                 'Joined on 01 Jan 2023',
                 style: TextStyleUtils.normal(
-                  color: ColorUtils.borderColor,
+                  color: context.theme.borderColor,
                   fontSize: 16,
+                  context: context,
                 ),
               )
             ],
@@ -114,10 +119,10 @@ class ProfileScreen extends StatelessWidget {
           Container(
             height: 1,
             width: double.infinity,
-            color: ColorUtils.borderColor,
+            color: context.theme.borderColor,
           ),
           const SizedBox(height: 16),
-          _name(firstName: "John", lastName: "Doe")
+          _name(firstName: "John", lastName: "Doe", context: context),
         ],
       ),
     );
@@ -126,6 +131,7 @@ class ProfileScreen extends StatelessWidget {
   Widget _name({
     required String firstName,
     required String lastName,
+    required BuildContext context,
   }) {
     return Row(
       children: [
@@ -133,17 +139,19 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                "First Name",
+                context.language.firstName,
                 style: TextStyleUtils.normal(
-                  color: ColorUtils.borderColor,
+                  color: context.theme.borderColor,
                   fontSize: 16,
+                  context: context,
                 ),
               ),
               Text(
                 firstName,
                 style: TextStyleUtils.normal(
-                  color: ColorUtils.textColor,
+                  color: context.theme.textColor,
                   fontSize: 20,
+                  context: context,
                 ),
               ),
             ],
@@ -152,23 +160,25 @@ class ProfileScreen extends StatelessWidget {
         Container(
           width: 1,
           height: 60,
-          color: ColorUtils.borderColor,
+          color: context.theme.borderColor,
         ),
         Expanded(
           child: Column(
             children: [
               Text(
-                "Last Name",
+                context.language.lastName,
                 style: TextStyleUtils.normal(
-                  color: ColorUtils.borderColor,
+                  color: context.theme.borderColor,
                   fontSize: 16,
+                  context: context,
                 ),
               ),
               Text(
                 lastName,
                 style: TextStyleUtils.normal(
-                  color: ColorUtils.textColor,
+                  color: context.theme.textColor,
                   fontSize: 20,
+                  context: context,
                 ),
               ),
             ],
@@ -178,48 +188,53 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _accountManagement() {
+  Widget _accountManagement(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: ColorUtils.backgroundColor,
+        color: context.theme.backgroundColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Text(
-            'Account Management',
+            context.language.accountManagement,
             style: TextStyleUtils.bold(
               fontSize: 24,
-              color: ColorUtils.textColor,
+              color: context.theme.textColor,
+              context: context,
             ),
           ),
           const SizedBox(height: 16),
           _accountItem(
             icon: FontAwesomeIcons.crown,
-            title: 'Premium Account',
-            color: ColorUtils.yellowColor,
+            title: context.language.premiumAccount,
+            color: context.theme.yellowColor,
             onTap: () {},
+            context: context,
           ),
           const SizedBox(height: 16),
           _accountItem(
             icon: FontAwesomeIcons.lock,
-            title: 'Change Password',
+            title: context.language.changeLanguage,
             onTap: () {},
+            context: context,
           ),
           const SizedBox(height: 16),
           _accountItem(
             icon: FontAwesomeIcons.arrowRightFromBracket,
-            title: 'Logout',
+            title: context.language.logout,
             onTap: () {},
+            context: context,
           ),
           const SizedBox(height: 16),
           _accountItem(
             icon: FontAwesomeIcons.trashCan,
-            title: 'Delete Account',
-            color: ColorUtils.redColor,
+            title: context.language.deleteAccount,
+            color: context.theme.redColor,
             onTap: () {},
+            context: context,
           ),
         ],
       ),
@@ -231,6 +246,7 @@ class ProfileScreen extends StatelessWidget {
     required String title,
     required String content,
     VoidCallback? onTap,
+    required BuildContext context,
   }) {
     return InkWell(
       onTap: onTap,
@@ -238,14 +254,14 @@ class ProfileScreen extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: ColorUtils.backgroundColor,
+          color: context.theme.backgroundColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: ColorUtils.textColor,
+              color: context.theme.textColor,
               size: 16,
             ),
             const SizedBox(width: 16),
@@ -253,8 +269,9 @@ class ProfileScreen extends StatelessWidget {
               child: Text(
                 title,
                 style: TextStyleUtils.normal(
-                  color: ColorUtils.textColor,
+                  color: context.theme.textColor,
                   fontSize: 18,
+                  context: context,
                 ),
               ),
             ),
@@ -262,8 +279,9 @@ class ProfileScreen extends StatelessWidget {
             Text(
               content,
               style: TextStyleUtils.bold(
-                color: ColorUtils.textColor,
+                color: context.theme.textColor,
                 fontSize: 14,
+                context: context,
               ),
             )
           ],
@@ -277,6 +295,7 @@ class ProfileScreen extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
     Color? color,
+    required BuildContext context,
   }) {
     return InkWell(
       onTap: onTap,
@@ -284,7 +303,7 @@ class ProfileScreen extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: color ?? ColorUtils.textColor,
+            color: color ?? context.theme.textColor,
             size: 16,
           ),
           const SizedBox(width: 16),
@@ -292,15 +311,16 @@ class ProfileScreen extends StatelessWidget {
             child: Text(
               title,
               style: TextStyleUtils.normal(
-                color: color ?? ColorUtils.textColor,
+                color: color ?? context.theme.textColor,
                 fontSize: 18,
+                context: context,
               ),
             ),
           ),
           const SizedBox(width: 16),
           Icon(
             FontAwesomeIcons.chevronRight,
-            color: color ?? ColorUtils.textColor,
+            color: color ?? context.theme.textColor,
             size: 16,
           ),
         ],
