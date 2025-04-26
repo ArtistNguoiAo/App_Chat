@@ -75,4 +75,25 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get deleteAccount => 'Xóa tài khoản';
+
+  @override
+  String get cannotBeEmpty => 'Không được để trống';
+
+  @override
+  String get characters => 'ký tự';
+
+  @override
+  String get mustBeAtLeast => 'Phải có ít nhất';
+
+  @override
+  String get passwordsDoNotMatch => 'Mật khẩu không khớp';
+
+  @override
+  String get pleaseEnterValid => 'Vui lòng nhập đúng định dạng';
+
+  @override
+  String get registrationSuccessful => 'Đăng ký thành công';
+
+  @override
+  String get email => 'Email';
 }

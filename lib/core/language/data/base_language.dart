@@ -22,4 +22,11 @@ abstract class BaseLanguage {
   String get changeLanguage;
   String get logout;
   String get deleteAccount;
+  String get cannotBeEmpty;
+  String get pleaseEnterValid;
+  String get mustBeAtLeast;
+  String get passwordsDoNotMatch;
+  String get characters;
+  String get registrationSuccessful;
+  String get email;
 }

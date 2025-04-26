@@ -20,6 +20,7 @@ class BaseTextField extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.obscureText,
+    this.validator,
   });
 
   final TextEditingController controller;
@@ -36,6 +37,7 @@ class BaseTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final bool? obscureText;
+  final String? Function(String?)? validator;
 
   @override
   State<BaseTextField> createState() => _BaseTextFieldState();
@@ -45,14 +47,15 @@ class _BaseTextFieldState extends State<BaseTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField( // Change to TextFormField
       controller: widget.controller,
+      validator: widget.validator, // Add validator
       decoration: InputDecoration(
         border: widget.border ?? OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.borderColor)),
         focusedBorder: widget.focusedBorder ??
             OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.primaryColor)),
         errorBorder:
-            widget.errorBorder ?? OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.borderColor)),
+        widget.errorBorder ?? OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.borderColor)),
         enabledBorder: widget.enabledBorder ??
             OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: context.theme.borderColor)),
         disabledBorder: widget.disabledBorder ??
