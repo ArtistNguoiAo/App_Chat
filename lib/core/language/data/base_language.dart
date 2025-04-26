@@ -29,4 +29,8 @@ abstract class BaseLanguage {
   String get characters;
   String get registrationSuccessful;
   String get email;
+  String get updateProfile;
+  String get changePassword;
+  String get lightTheme;
+  String get darkTheme;
 }

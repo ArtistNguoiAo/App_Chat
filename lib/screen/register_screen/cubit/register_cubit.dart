@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 
-import '../../../data/repository/AuthRepository.dart';
+import '../../../data/repository/auth_repository.dart';
 
 part 'register_state.dart';
 

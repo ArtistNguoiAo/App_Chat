@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/di/config_di.dart';
 import 'core/router/app_router.dart';
+import 'data/local_cache.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -17,6 +18,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await LocalCache.init();
   ConfigDI();
   runApp(MyApp());
 }

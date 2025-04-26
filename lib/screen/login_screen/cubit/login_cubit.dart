@@ -1,9 +1,8 @@
-import 'package:app_chat/data/model/UserModel.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 
-import '../../../data/repository/AuthRepository.dart';
+import '../../../data/repository/auth_repository.dart';
 
 part 'login_state.dart';
 

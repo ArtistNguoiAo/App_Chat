@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 
-import '../../../data/model/UserModel.dart';
-import '../../../data/repository/AuthRepository.dart';
+import '../../../data/model/user_model.dart';
+import '../../../data/repository/auth_repository.dart';
 
 part 'auth_state.dart';
 
@@ -25,10 +25,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final currentUser = _auth.currentUser;
       if (currentUser != null) {
-        final userDoc = await _firestore
-            .collection('users')
-            .doc(currentUser.uid)
-            .get();
+        final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
 
         if (userDoc.exists) {
           emit(AuthAuthenticated(UserModel.fromMap(userDoc.data()!)));

@@ -76,7 +76,6 @@ class EnLanguage extends BaseLanguage {
   @override
   String get deleteAccount => 'Delete Account';
 
-
   @override
   String get cannotBeEmpty => 'Cannot be empty';
 
@@ -97,4 +96,16 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get email => 'Email';
+
+  @override
+  String get updateProfile => 'Update Profile';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get lightTheme => 'Light';
+
+  @override
+  String get darkTheme => 'Dark';
 }
