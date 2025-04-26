@@ -3,12 +3,21 @@ import 'package:app_chat/core/language/cubit/language_cubit.dart';
 import 'package:app_chat/core/language/inherited_language_widget.dart';
 import 'package:app_chat/core/theme/cubit/theme_cubit.dart';
 import 'package:app_chat/core/theme/inherited_theme_widget.dart';
+import 'package:app_chat/screen/auth/cubit/auth_cubit.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'core/di/config_di.dart';
 import 'core/router/app_router.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  ConfigDI();
   runApp(MyApp());
 }
 
@@ -27,6 +36,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<ThemeCubit>(
           create: (context) => ThemeCubit(),
         ),
+        BlocProvider<AuthCubit>(
+          create: (context) => AuthCubit(),
+        ),
       ],
       child: BlocBuilder<LanguageCubit, LanguageState>(
         builder: (context, languageState) {
@@ -38,7 +50,8 @@ class MyApp extends StatelessWidget {
                   themeModeEnum: themeState.themeModeEnum,
                   child: MaterialApp.router(
                     theme: ThemeData(
-                      colorScheme: ColorScheme.fromSeed(seedColor: context.theme.yellowGold),
+                      colorScheme: ColorScheme.fromSeed(
+                          seedColor: context.theme.yellowGold),
                       useMaterial3: true,
                     ),
                     routerConfig: appRouter.config(),

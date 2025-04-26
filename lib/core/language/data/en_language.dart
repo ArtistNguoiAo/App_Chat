@@ -75,4 +75,26 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get deleteAccount => 'Delete Account';
+
+
+  @override
+  String get cannotBeEmpty => 'Cannot be empty';
+
+  @override
+  String get characters => 'characters';
+
+  @override
+  String get mustBeAtLeast => 'Must be at least';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get pleaseEnterValid => 'Please enter valid format';
+
+  @override
+  String get registrationSuccessful => 'Registration successful';
+
+  @override
+  String get email => 'Email';
 }

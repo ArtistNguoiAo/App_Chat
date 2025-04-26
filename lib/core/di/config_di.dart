@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 
+import '../../data/repository/AuthRepository.dart';
+
 class ConfigDI {
   static final ConfigDI _singleton = ConfigDI._internal();
 
@@ -7,7 +9,10 @@ class ConfigDI {
     return _singleton;
   }
 
-  ConfigDI._internal();
+  ConfigDI._internal(){
+    // Register your dependencies here
+    injector.registerLazySingleton<AuthRepository>(() => AuthRepository());
+  }
 
   GetIt injector = GetIt.instance;
 }
