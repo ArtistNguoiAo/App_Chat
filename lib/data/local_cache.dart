@@ -1,4 +1,11 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../core/language/cubit/language_cubit.dart';
+import '../core/language/inherited_language_widget.dart';
+import '../core/theme/cubit/theme_cubit.dart';
+import '../core/theme/inherited_theme_widget.dart';
 
 class LocalCache {
   LocalCache._();
@@ -7,6 +14,7 @@ class LocalCache {
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
+
   }
 
   static Future<void> setBool(String key, bool value) async {
@@ -34,4 +42,6 @@ class StringCache {
   static String email = 'cached_email';
   static String password = 'cached_password';
   static String rememberMe = 'cache_remember_me';
+  static String accessToken = 'cached_access_token';
+  static String refreshToken = 'cached_refresh_token';
 }

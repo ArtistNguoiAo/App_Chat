@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../local_cache.dart';
+import '../model/token_model.dart';
 import '../model/user_model.dart';
 
 class AuthRepository {
@@ -36,7 +38,7 @@ class AuthRepository {
     }
   }
 
-  Future<UserModel> loginUser({
+  Future<(UserModel, TokenModel)> loginUser({
     required String email,
     required String password,
   }) async {
@@ -46,14 +48,40 @@ class AuthRepository {
         password: password,
       );
 
-      final userDoc = await _firestore
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .get();
+      final user = await _firestore.collection('users').doc(userCredential.user!.uid).get();
 
-      return UserModel.fromMap(userDoc.data()!);
+      final tokens = await userCredential.user!.getIdTokenResult();
+      final refreshToken = userCredential.user?.refreshToken ?? '';
+      print('Access token: ${tokens.token}');
+      print('Refresh token: $refreshToken');
+      final tokenModel = TokenModel(accessToken: tokens.token ?? '', refreshToken: refreshToken);
+
+      await LocalCache.setString(StringCache.accessToken, tokenModel.accessToken);
+      await LocalCache.setString(StringCache.refreshToken, tokenModel.refreshToken);
+
+      return (UserModel.fromMap(user.data()!), tokenModel);
     } catch (e) {
-      throw Exception('Đăng nhập thất bại: $e');
+      throw Exception('Login failed: $e');
+    }
+  }
+
+  Future<TokenModel> refreshToken() async {
+    try {
+      final refreshToken = await LocalCache.getString(StringCache.refreshToken);
+      if (refreshToken.isEmpty) throw Exception('No refresh token');
+
+      await _auth.signInWithCustomToken(refreshToken);
+      final tokens = await _auth.currentUser!.getIdTokenResult(true);
+      final newRefreshToken = _auth.currentUser!.refreshToken ?? '';
+
+      final tokenModel = TokenModel(accessToken: tokens.token ?? '', refreshToken: newRefreshToken);
+
+      await LocalCache.setString(StringCache.accessToken, tokenModel.accessToken);
+      await LocalCache.setString(StringCache.refreshToken, tokenModel.refreshToken);
+
+      return tokenModel;
+    } catch (e) {
+      throw Exception('Token refresh failed: $e');
     }
   }
 }

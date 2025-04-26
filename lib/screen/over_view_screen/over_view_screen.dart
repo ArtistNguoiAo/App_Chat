@@ -62,7 +62,7 @@ class _OverViewScreenState extends State<OverViewScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    index == 0 ? 'Home' : 'Profile',
+                    index == 0 ? context.language.home : context.language.profile,
                     style: TextStyleUtils.normal(
                       color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
                       fontSize: 12,
