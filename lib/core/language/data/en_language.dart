@@ -108,4 +108,58 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get darkTheme => 'Dark';
+
+  @override
+  String get firstNameRequired => 'First name cannot be empty';
+
+  @override
+  String get lastNameRequired => 'Last name cannot be empty';
+
+  @override
+  String get profileUpdateSuccess => 'Profile updated successfully';
+
+  @override
+  String get usernameRequired => 'Username cannot be empty';
+
+  @override
+  String get passwordChangeSuccess => 'Password changed successfully';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get currentPasswordRequired => 'Current password cannot be empty';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get newPasswordRequired => 'New password cannot be empty';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get confirmPasswordRequired => 'Confirm password cannot be empty';
+
+  @override
+  String get resetPassword => 'Reset Password';
+
+  @override
+  String get resetPasswordEmailSent => 'Reset password email sent';
+
+  @override
+  String get enterEmail => 'Enter your email';
+
+  @override
+  String get forgotPasswordDescription => 'Please enter your email to reset your password';
+
+  @override
+  String get forgotPassword => 'Forgot Password';
+
+  @override
+  String get emailRequired => 'Email cannot be empty';
+
+  @override
+  String get passwordRequired => 'Password cannot be empty';
 }

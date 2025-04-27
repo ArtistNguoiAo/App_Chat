@@ -52,8 +52,6 @@ class AuthRepository {
 
       final tokens = await userCredential.user!.getIdTokenResult();
       final refreshToken = userCredential.user?.refreshToken ?? '';
-      print('Access token: ${tokens.token}');
-      print('Refresh token: $refreshToken');
       final tokenModel = TokenModel(accessToken: tokens.token ?? '', refreshToken: refreshToken);
 
       await LocalCache.setString(StringCache.accessToken, tokenModel.accessToken);
@@ -82,6 +80,46 @@ class AuthRepository {
       return tokenModel;
     } catch (e) {
       throw Exception('Token refresh failed: $e');
+    }
+  }
+
+  Future<bool> verifyCurrentPassword(String password) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User not found');
+
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception('User not found');
+
+      // Verify current password first
+      final isValid = await verifyCurrentPassword(currentPassword);
+      if (!isValid) throw Exception('Current password is incorrect');
+
+      await user.updatePassword(newPassword);
+    } catch (e) {
+      throw Exception('Failed to change password: $e');
+    }
+  }
+
+  Future<void> forgotPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw Exception('Failed to send password reset email: $e');
     }
   }
 }
