@@ -1,11 +1,12 @@
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 
-import '../../../data/model/UserModel.dart';
-import '../../../data/repository/AuthRepository.dart';
+import '../../../data/local_cache.dart';
+import '../../../data/model/user_model.dart';
+import '../../../data/repository/auth_repository.dart';
 
 part 'auth_state.dart';
 
@@ -23,20 +24,37 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> checkAuthState() async {
     emit(AuthLoading());
     try {
-      final currentUser = _auth.currentUser;
-      if (currentUser != null) {
-        final userDoc = await _firestore
-            .collection('users')
-            .doc(currentUser.uid)
-            .get();
+      final accessToken = await LocalCache.getString(StringCache.accessToken);
+      final rememberMe = await LocalCache.getBool(StringCache.rememberMe);
 
-        if (userDoc.exists) {
-          emit(AuthAuthenticated(UserModel.fromMap(userDoc.data()!)));
-        } else {
-          emit(AuthUnauthenticated());
-        }
-      } else {
+      if (!rememberMe || accessToken.isEmpty) {
         emit(AuthUnauthenticated());
+        return;
+      }
+
+      try {
+        final currentUser = _auth.currentUser;
+        if (currentUser == null) {
+          // Try auto login if remember me is enabled
+          final email = await LocalCache.getString(StringCache.email);
+          final password = await LocalCache.getString(StringCache.password);
+
+          if (email.isNotEmpty && password.isNotEmpty) {
+            final (user, _) = await _authRepository.loginUser(
+              email: email,
+              password: password,
+            );
+            emit(AuthAuthenticated(user));
+            return;
+          }
+          throw Exception();
+        }
+
+        final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
+        emit(AuthAuthenticated(UserModel.fromMap(userDoc.data()!)));
+      } catch (e) {
+        await _authRepository.refreshToken();
+        await checkAuthState();
       }
     } catch (e) {
       emit(AuthError(e.toString()));
@@ -46,6 +64,8 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signOut() async {
     try {
       await _auth.signOut();
+      await LocalCache.setString(StringCache.accessToken, '');
+      await LocalCache.setString(StringCache.refreshToken, '');
       emit(AuthUnauthenticated());
     } catch (e) {
       emit(AuthError(e.toString()));

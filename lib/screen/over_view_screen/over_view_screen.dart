@@ -43,9 +43,7 @@ class _OverViewScreenState extends State<OverViewScreen> {
           ),
           child: Icon(
             FontAwesomeIcons.facebookMessenger,
-            color: _currentIndex == 2
-                ? context.theme.primaryColor
-                : context.theme.textColor,
+            color: _currentIndex == 2 ? context.theme.primaryColor : context.theme.textColor,
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -58,21 +56,15 @@ class _OverViewScreenState extends State<OverViewScreen> {
               child: Column(
                 children: [
                   Icon(
-                    index == 0
-                        ? FontAwesomeIcons.house
-                        : FontAwesomeIcons.userLarge,
-                    color: _currentIndex == index
-                        ? context.theme.primaryColor
-                        : context.theme.textColor,
+                    index == 0 ? FontAwesomeIcons.house : FontAwesomeIcons.userLarge,
+                    color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
                     size: 18,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    index == 0 ? 'Home' : 'Profile',
+                    index == 0 ? context.language.home : context.language.profile,
                     style: TextStyleUtils.normal(
-                      color: _currentIndex == index
-                          ? context.theme.primaryColor
-                          : context.theme.textColor,
+                      color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
                       fontSize: 12,
                       context: context,
                     ),

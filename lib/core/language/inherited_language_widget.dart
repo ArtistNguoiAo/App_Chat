@@ -3,7 +3,13 @@ import 'package:app_chat/core/language/data/en_language.dart';
 import 'package:app_chat/core/language/data/vi_language.dart';
 import 'package:flutter/material.dart';
 
-enum LanguageModeEnum { en, vi }
+enum LanguageModeEnum {
+  en('English'),
+  vi('Tiếng Việt');
+
+  final String displayName;
+  const LanguageModeEnum(this.displayName);
+}
 
 class InheritedLanguageWidget extends InheritedWidget {
   final LanguageModeEnum? languageModeEnum;

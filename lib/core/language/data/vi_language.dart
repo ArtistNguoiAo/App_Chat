@@ -96,4 +96,16 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get email => 'Email';
+
+  @override
+  String get updateProfile => 'Cập nhật hồ sơ';
+
+  @override
+  String get changePassword => 'Thay đổi mật khẩu';
+
+  @override
+  String get lightTheme => 'Sáng';
+
+  @override
+  String get darkTheme => 'Tối';
 }

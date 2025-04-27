@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 
-import '../../data/repository/AuthRepository.dart';
+import '../../data/repository/auth_repository.dart';
 
 class ConfigDI {
   static final ConfigDI _singleton = ConfigDI._internal();

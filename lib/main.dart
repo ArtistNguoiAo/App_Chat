@@ -10,6 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/di/config_di.dart';
 import 'core/router/app_router.dart';
+import 'core/router/app_router.gr.dart';
+import 'data/local_cache.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -17,6 +19,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await LocalCache.init();
   ConfigDI();
   runApp(MyApp());
 }
@@ -31,37 +34,45 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<LanguageCubit>(
-          create: (context) => LanguageCubit(),
+          create: (context) => LanguageCubit()..init(),
         ),
         BlocProvider<ThemeCubit>(
-          create: (context) => ThemeCubit(),
+          create: (context) => ThemeCubit()..init(),
         ),
         BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(),
+          create: (context) => AuthCubit()..checkAuthState(),
         ),
       ],
-      child: BlocBuilder<LanguageCubit, LanguageState>(
-        builder: (context, languageState) {
-          return InheritedLanguageWidget(
-            languageModeEnum: languageState.languageModeEnum,
-            child: BlocBuilder<ThemeCubit, ThemeState>(
-              builder: (context, themeState) {
-                return InheritedThemeWidget(
-                  themeModeEnum: themeState.themeModeEnum,
-                  child: MaterialApp.router(
-                    theme: ThemeData(
-                      colorScheme: ColorScheme.fromSeed(
-                          seedColor: context.theme.yellowGold),
-                      useMaterial3: true,
-                    ),
-                    routerConfig: appRouter.config(),
-                    debugShowCheckedModeBanner: false,
-                  ),
-                );
-              },
-            ),
-          );
+      child: BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state is AuthAuthenticated) {
+            appRouter.replace(const OverViewRoute());
+          } else if (state is AuthUnauthenticated) {
+            appRouter.replace(const LoginRoute());
+          }
         },
+        child: BlocBuilder<LanguageCubit, LanguageState>(
+          builder: (context, languageState) {
+            return InheritedLanguageWidget(
+              languageModeEnum: languageState.languageModeEnum,
+              child: BlocBuilder<ThemeCubit, ThemeState>(
+                builder: (context, themeState) {
+                  return InheritedThemeWidget(
+                    themeModeEnum: themeState.themeModeEnum,
+                    child: MaterialApp.router(
+                      theme: ThemeData(
+                        colorScheme: ColorScheme.fromSeed(seedColor: context.theme.yellowGold),
+                        useMaterial3: true,
+                      ),
+                      routerConfig: appRouter.config(),
+                      debugShowCheckedModeBanner: false,
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }

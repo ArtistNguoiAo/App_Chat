@@ -22,46 +22,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
   bool _rememberMe = false;
   late final LoginCubit _loginCubit;
 
-  void _loadSavedCredentials() async {
-    final rememberMe = await LocalCache.getBool(StringCache.rememberMe);
-    if (rememberMe) {
-      final email = await LocalCache.getString(StringCache.email);
-      final password = await LocalCache.getString(StringCache.password);
-      print(email);
-      print(password);
-      setState(() {
-        _emailController.text = email;
-        _passwordController.text = password;
-        _rememberMe = true;
-      });
-    }
-  }
-
-  void _saveCredentials() async {
-    print(_rememberMe);
-    if (_rememberMe) {
-      await LocalCache.setString(StringCache.email, _emailController.text);
-      await LocalCache.setString(StringCache.password, _passwordController.text);
-      await LocalCache.setBool(StringCache.rememberMe, true);
-    } else {
-      await LocalCache.setString(StringCache.email, '');
-      await LocalCache.setString(StringCache.password, '');
-      await LocalCache.setBool(StringCache.rememberMe, false);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     _loginCubit = LoginCubit();
-    _loadSavedCredentials();
   }
 
   @override
@@ -209,10 +179,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: state is LoginLoading
                               ? null
                               : () {
-                                  _saveCredentials();
                                   context.read<LoginCubit>().login(
                                         email: _emailController.text,
                                         password: _passwordController.text,
+                                        rememberMe: _rememberMe,
                                       );
                                 },
                           child: Container(

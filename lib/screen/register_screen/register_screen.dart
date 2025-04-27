@@ -26,8 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isObscure = true;
   bool _isObscureConfirm = true;
 
@@ -74,127 +73,123 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _registerWidget() {
-    return Builder(
-      builder: (context) {
-        return SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-              Container(
-                decoration: BoxDecoration(
-                  color: context.theme.backgroundColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                margin: const EdgeInsets.all(16),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 16),
-                      Text(
-                        context.language.register,
-                        style: TextStyleUtils.bold(
-                          fontSize: 32,
-                          color: context.theme.textColor,
-                          context: context,
-                        ),
+    return Builder(builder: (context) {
+      return SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+            Container(
+              decoration: BoxDecoration(
+                color: context.theme.backgroundColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 16),
+                    Text(
+                      context.language.register,
+                      style: TextStyleUtils.bold(
+                        fontSize: 32,
+                        color: context.theme.textColor,
+                        context: context,
                       ),
-                      const SizedBox(height: 16),
-                      _buildTextField(
-                        controller: _emailController,
-                        icon: FontAwesomeIcons.envelope,
-                        labelText: 'Email',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Email ${context.language.cannotBeEmpty}';
-                          }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                              .hasMatch(value)) {
-                            return '${context.language.pleaseEnterValid} email';
-                          }
-                          return null;
-                        },
-                      ),
-                      _buildTextField(
-                        controller: _firstNameController,
-                        icon: FontAwesomeIcons.user,
-                        labelText: context.language.firstName,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '${context.language.firstName} ${context.language.cannotBeEmpty}';
-                          }
-                          return null;
-                        },
-                      ),
-                      _buildTextField(
-                        controller: _lastNameController,
-                        icon: FontAwesomeIcons.user,
-                        labelText: context.language.lastName,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '${context.language.lastName} ${context.language.cannotBeEmpty}';
-                          }
-                          return null;
-                        },
-                      ),
-                      _buildTextField(
-                        controller: _usernameController,
-                        icon: FontAwesomeIcons.userLarge,
-                        labelText: context.language.username,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '${context.language.username} ${context.language.cannotBeEmpty}';
-                          }
-                          return null;
-                        },
-                      ),
-                      _buildPasswordField(
-                        controller: _passwordController,
-                        labelText: context.language.password,
-                        isObscure: _isObscure,
-                        onToggle: () => setState(() => _isObscure = !_isObscure),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '${context.language.password} ${context.language.cannotBeEmpty}';
-                          }
-                          if (value.length < 6) {
-                            return '${context.language.password} ${context.language.mustBeAtLeast} 6 ${context.language.characters}';
-                          }
-                          return null;
-                        },
-                      ),
-                      _buildPasswordField(
-                        controller: _confirmPasswordController,
-                        labelText: context.language.confirmPassword,
-                        isObscure: _isObscureConfirm,
-                        onToggle: () =>
-                            setState(() => _isObscureConfirm = !_isObscureConfirm),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '${context.language.confirmPassword} ${context.language.cannotBeEmpty}';
-                          }
-                          if (value != _passwordController.text) {
-                            return context.language.passwordsDoNotMatch;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      _buildRegisterButton(),
-                      const SizedBox(height: 16),
-                      _buildLoginLink(),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _emailController,
+                      icon: FontAwesomeIcons.envelope,
+                      labelText: 'Email',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Email ${context.language.cannotBeEmpty}';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                          return '${context.language.pleaseEnterValid} email';
+                        }
+                        return null;
+                      },
+                    ),
+                    _buildTextField(
+                      controller: _firstNameController,
+                      icon: FontAwesomeIcons.user,
+                      labelText: context.language.firstName,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '${context.language.firstName} ${context.language.cannotBeEmpty}';
+                        }
+                        return null;
+                      },
+                    ),
+                    _buildTextField(
+                      controller: _lastNameController,
+                      icon: FontAwesomeIcons.user,
+                      labelText: context.language.lastName,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '${context.language.lastName} ${context.language.cannotBeEmpty}';
+                        }
+                        return null;
+                      },
+                    ),
+                    _buildTextField(
+                      controller: _usernameController,
+                      icon: FontAwesomeIcons.userLarge,
+                      labelText: context.language.username,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '${context.language.username} ${context.language.cannotBeEmpty}';
+                        }
+                        return null;
+                      },
+                    ),
+                    _buildPasswordField(
+                      controller: _passwordController,
+                      labelText: context.language.password,
+                      isObscure: _isObscure,
+                      onToggle: () => setState(() => _isObscure = !_isObscure),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '${context.language.password} ${context.language.cannotBeEmpty}';
+                        }
+                        if (value.length < 6) {
+                          return '${context.language.password} ${context.language.mustBeAtLeast} 6 ${context.language.characters}';
+                        }
+                        return null;
+                      },
+                    ),
+                    _buildPasswordField(
+                      controller: _confirmPasswordController,
+                      labelText: context.language.confirmPassword,
+                      isObscure: _isObscureConfirm,
+                      onToggle: () => setState(() => _isObscureConfirm = !_isObscureConfirm),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '${context.language.confirmPassword} ${context.language.cannotBeEmpty}';
+                        }
+                        if (value != _passwordController.text) {
+                          return context.language.passwordsDoNotMatch;
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    _buildRegisterButton(),
+                    const SizedBox(height: 16),
+                    _buildLoginLink(),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
-            ],
-          ),
-        );
-      }
-    );
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildTextField({
@@ -332,8 +327,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               color: context.theme.primaryColor,
               context: context,
             ),
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => context.router.pop(),
+            recognizer: TapGestureRecognizer()..onTap = () => context.router.pop(),
           ),
         ],
       ),
