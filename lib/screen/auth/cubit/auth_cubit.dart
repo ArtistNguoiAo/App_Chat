@@ -83,4 +83,10 @@ class AuthCubit extends Cubit<AuthState> {
       return null;
     }
   }
+
+  void updateCurrentUser(UserModel user) {
+    if (state is AuthAuthenticated) {
+      emit(AuthAuthenticated(user));
+    }
+  }
 }

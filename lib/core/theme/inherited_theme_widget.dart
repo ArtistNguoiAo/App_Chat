@@ -3,7 +3,7 @@ import 'package:app_chat/core/theme/data/dark_theme.dart';
 import 'package:app_chat/core/theme/data/light_theme.dart';
 import 'package:flutter/material.dart';
 
-enum ThemeModeEnum { dark, light}
+enum ThemeModeEnum { light, dark }
 
 class InheritedThemeWidget extends InheritedWidget {
   final ThemeModeEnum? themeModeEnum;

@@ -97,9 +97,6 @@ class ProfileScreen extends StatelessWidget {
                 onError: (error, stackTrace) => const Icon(Icons.person),
               ),
             ),
-            child: Center(
-              child: Icon(Icons.add_a_photo, color: context.theme.backgroundColor),
-            ),
           ),
           const SizedBox(height: 16),
           Container(
@@ -259,14 +256,14 @@ class ProfileScreen extends StatelessWidget {
           _accountItem(
             icon: FontAwesomeIcons.userPen,
             title: context.language.updateProfile,
-            onTap: () => context.read<AuthCubit>().signOut(),
+            onTap: () => context.router.push(const UpdateProfileRoute()),
             context: context,
           ),
           const SizedBox(height: 16),
           _accountItem(
             icon: FontAwesomeIcons.lock,
             title: context.language.changePassword,
-            onTap: () => context.read<AuthCubit>().signOut(),
+            onTap: () => context.router.push(const ChangePasswordRoute()),
             context: context,
           ),
           const SizedBox(height: 16),

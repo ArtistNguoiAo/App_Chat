@@ -108,4 +108,58 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get darkTheme => 'Tối';
+
+  @override
+  String get firstNameRequired => 'Họ không được để trống';
+
+  @override
+  String get lastNameRequired => 'Tên không được để trống';
+
+  @override
+  String get profileUpdateSuccess => 'Cập nhật hồ sơ thành công';
+
+  @override
+  String get usernameRequired => 'Username không được để trống';
+
+  @override
+  String get passwordChangeSuccess => 'Đổi mật khẩu thành công';
+
+  @override
+  String get currentPassword => 'Mật khẩu hiện tại';
+
+  @override
+  String get currentPasswordRequired => 'Mật khẩu hiện tại không được để trống';
+
+  @override
+  String get newPassword => 'Mật khẩu mới';
+
+  @override
+  String get newPasswordRequired => 'Mật khẩu mới không được để trống';
+
+  @override
+  String get passwordTooShort => 'Mật khẩu phải có ít nhất 6 ký tự';
+
+  @override
+  String get confirmPasswordRequired => 'Xác nhận mật khẩu không được để trống';
+
+  @override
+  String get resetPassword => 'Đặt lại mật khẩu';
+
+  @override
+  String get resetPasswordEmailSent => 'Email đặt lại mật khẩu đã được gửi';
+
+  @override
+  String get enterEmail => 'Nhập email';
+
+  @override
+  String get forgotPasswordDescription => 'Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn một liên kết để đặt lại mật khẩu của bạn.';
+
+  @override
+  String get forgotPassword => 'Quên mật khẩu?';
+
+  @override
+  String get emailRequired => 'Email không được để trống';
+
+  @override
+  String get passwordRequired => 'Mật khẩu không được để trống';
 }

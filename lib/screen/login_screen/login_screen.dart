@@ -11,7 +11,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../core/widget/base_text_field.dart';
-import '../../data/local_cache.dart';
 
 @RoutePage()
 class LoginScreen extends StatefulWidget {
@@ -22,6 +21,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
@@ -92,156 +92,186 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _loginWidget() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: context.theme.backgroundColor,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16),
-              Text(
-                context.language.login,
-                style: TextStyleUtils.bold(
-                  fontSize: 32,
-                  color: context.theme.textColor,
-                  context: context,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: BaseTextField(
-                  controller: _emailController,
-                  labelText: context.language.email,
-                  hintText: context.language.email,
-                  prefixIcon: Icon(
-                    FontAwesomeIcons.envelope,
-                    size: 16,
+    return Form(
+      key: formKey,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: context.theme.backgroundColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 16),
+                Text(
+                  context.language.login,
+                  style: TextStyleUtils.bold(
+                    fontSize: 32,
                     color: context.theme.textColor,
+                    context: context,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: BaseTextField(
-                  controller: _passwordController,
-                  labelText: context.language.password,
-                  hintText: context.language.password,
-                  prefixIcon: Icon(
-                    FontAwesomeIcons.key,
-                    size: 16,
-                    color: context.theme.textColor,
-                  ),
-                  suffixIcon: InkWell(
-                    onTap: () => setState(() => _isObscure = !_isObscure),
-                    child: Icon(
-                      _isObscure ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye,
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: BaseTextField(
+                    controller: _emailController,
+                    labelText: context.language.email,
+                    hintText: context.language.email,
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.envelope,
                       size: 16,
                       color: context.theme.textColor,
                     ),
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return context.language.emailRequired;
+                      }
+                      return null;
+                    },
                   ),
-                  obscureText: _isObscure,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Checkbox(
-                    value: _rememberMe,
-                    checkColor: context.theme.backgroundColor,
-                    activeColor: context.theme.primaryColor,
-                    onChanged: (value) => setState(() => _rememberMe = value ?? false),
-                  ),
-                  Text(
-                    context.language.rememberMe,
-                    style: TextStyleUtils.normal(
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: BaseTextField(
+                    controller: _passwordController,
+                    labelText: context.language.password,
+                    hintText: context.language.password,
+                    validator: (value) {
+                      if (value?.isEmpty ?? true) {
+                        return context.language.passwordRequired;
+                      }
+                      return null;
+                    },
+                    prefixIcon: Icon(
+                      FontAwesomeIcons.key,
+                      size: 16,
                       color: context.theme.textColor,
-                      context: context,
+                    ),
+                    suffixIcon: InkWell(
+                      onTap: () => setState(() => _isObscure = !_isObscure),
+                      child: Icon(
+                        _isObscure ? FontAwesomeIcons.eyeSlash : FontAwesomeIcons.eye,
+                        size: 16,
+                        color: context.theme.textColor,
+                      ),
+                    ),
+                    obscureText: _isObscure,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => context.router.push(const ForgotPasswordRoute()),
+                    child: Text(
+                      context.language.forgotPassword,
+                      style: TextStyleUtils.normal(
+                        color: context.theme.primaryColor,
+                        context: context,
+                      ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              BlocBuilder<LoginCubit, LoginState>(
-                builder: (context, state) {
-                  return Row(
-                    children: [
-                      Expanded(child: Container()),
-                      Expanded(
-                        child: InkWell(
-                          onTap: state is LoginLoading
-                              ? null
-                              : () {
-                                  context.read<LoginCubit>().login(
-                                        email: _emailController.text,
-                                        password: _passwordController.text,
-                                        rememberMe: _rememberMe,
-                                      );
-                                },
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: context.theme.primaryColor,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                bottomRight: Radius.circular(10),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _rememberMe,
+                      checkColor: context.theme.backgroundColor,
+                      activeColor: context.theme.primaryColor,
+                      onChanged: (value) => setState(() => _rememberMe = value ?? false),
+                    ),
+                    Text(
+                      context.language.rememberMe,
+                      style: TextStyleUtils.normal(
+                        color: context.theme.textColor,
+                        context: context,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                BlocBuilder<LoginCubit, LoginState>(
+                  builder: (context, state) {
+                    return Row(
+                      children: [
+                        Expanded(child: Container()),
+                        Expanded(
+                          child: InkWell(
+                            onTap: state is LoginLoading
+                                ? null
+                                : () {
+                                    if (formKey.currentState?.validate() ?? false) {
+                                      context.read<LoginCubit>().login(
+                                            email: _emailController.text,
+                                            password: _passwordController.text,
+                                            rememberMe: _rememberMe,
+                                          );
+                                    }
+                                  },
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: context.theme.primaryColor,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  bottomRight: Radius.circular(10),
+                                ),
                               ),
-                            ),
-                            child: Center(
-                              child: state is LoginLoading
-                                  ? const CircularProgressIndicator(color: Colors.white)
-                                  : Text(
-                                      context.language.login,
-                                      style: TextStyleUtils.bold(
-                                        color: context.theme.backgroundColor,
-                                        context: context,
+                              child: Center(
+                                child: state is LoginLoading
+                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    : Text(
+                                        context.language.login,
+                                        style: TextStyleUtils.bold(
+                                          color: context.theme.backgroundColor,
+                                          context: context,
+                                        ),
                                       ),
-                                    ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              )
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text.rich(
-          TextSpan(
-            text: context.language.notHaveAnAccount,
-            children: [
-              TextSpan(
-                text: ' ${context.language.register}',
-                style: TextStyleUtils.normal(
-                  fontSize: 14,
-                  color: context.theme.primaryColor,
-                  context: context,
-                ),
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () {
-                    AutoRouter.of(context).push(const RegisterRoute());
+                      ],
+                    );
                   },
-              ),
-            ],
+                )
+              ],
+            ),
           ),
-          style: TextStyleUtils.normal(
-            fontSize: 14,
-            color: context.theme.textColor,
-            context: context,
+          const SizedBox(height: 16),
+          Text.rich(
+            TextSpan(
+              text: context.language.notHaveAnAccount,
+              children: [
+                TextSpan(
+                  text: ' ${context.language.register}',
+                  style: TextStyleUtils.normal(
+                    fontSize: 14,
+                    color: context.theme.primaryColor,
+                    context: context,
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      AutoRouter.of(context).push(const RegisterRoute());
+                    },
+                ),
+              ],
+            ),
+            style: TextStyleUtils.normal(
+              fontSize: 14,
+              color: context.theme.textColor,
+              context: context,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-      ],
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

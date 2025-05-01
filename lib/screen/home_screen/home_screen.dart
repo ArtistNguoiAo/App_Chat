@@ -1,5 +1,4 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
-import 'package:app_chat/core/utils/media_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/auth/cubit/auth_cubit.dart';
@@ -126,9 +125,18 @@ class HomeScreen extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(MediaUtils.imgBackground),
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: context.theme.borderColor,
+                          image: DecorationImage(
+                            image: NetworkImage(user.avatar ?? ''),
+                            fit: BoxFit.cover,
+                            onError: (error, stackTrace) => const Icon(Icons.person),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -136,28 +144,34 @@ class HomeScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '${context.language.hello},',
-                              style: TextStyleUtils.normal(
-                                fontSize: 16,
-                                color: context.theme.textColor,
-                                context: context,
+                            Flexible(
+                              child: Text(
+                                '${context.language.hello},',
+                                style: TextStyleUtils.normal(
+                                  fontSize: 16,
+                                  color: context.theme.textColor,
+                                  context: context,
+                                ),
                               ),
                             ),
-                            Text(
-                              user.fullName,
-                              style: TextStyleUtils.bold(
-                                fontSize: 20,
-                                color: context.theme.textColor,
-                                context: context,
+                            Flexible(
+                              child: Text(
+                                user.fullName,
+                                style: TextStyleUtils.bold(
+                                  fontSize: 20,
+                                  color: context.theme.textColor,
+                                  context: context,
+                                ),
                               ),
                             ),
-                            Text(
-                              '${context.language.haveAGoodDay}!',
-                              style: TextStyleUtils.normal(
-                                fontSize: 16,
-                                color: context.theme.textColor,
-                                context: context,
+                            Flexible(
+                              child: Text(
+                                '${context.language.haveAGoodDay}!',
+                                style: TextStyleUtils.normal(
+                                  fontSize: 16,
+                                  color: context.theme.textColor,
+                                  context: context,
+                                ),
                               ),
                             ),
                           ],
