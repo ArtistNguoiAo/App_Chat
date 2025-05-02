@@ -162,4 +162,10 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get passwordRequired => 'Mật khẩu không được để trống';
+
+  @override
+  String get recentChat => 'Trò chuyện gần đây';
+
+  @override
+  String get favoriteChat => 'Trò chuyện yêu thích';
 }

@@ -42,6 +42,10 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _header(user),
+                  const SizedBox(height: 16),
+                  _recentChat(context),
+                  const SizedBox(height: 16),
+                  _favoriteChat(context),
                 ],
               ),
             ),
@@ -191,5 +195,138 @@ class HomeScreen extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Widget _recentChat(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            context.language.recentChat,
+            style: TextStyleUtils.bold(
+              fontSize: 20,
+              color: context.theme.textColor,
+              context: context,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _itemRecentChat(context),
+              _itemRecentChat(context),
+              _itemRecentChat(context),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _itemRecentChat(BuildContext context) {
+    return InkWell(
+      onTap: () {
+
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.theme.backgroundColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: context.theme.borderColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'User Name',
+              style: TextStyleUtils.bold(
+                fontSize: 16,
+                color: context.theme.textColor,
+                context: context,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _favoriteChat(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            context.language.favoriteChat,
+            style: TextStyleUtils.bold(
+              fontSize: 20,
+              color: context.theme.textColor,
+              context: context,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _itemFavoriteChat(context),
+              const SizedBox(height: 8),
+              _itemFavoriteChat(context),
+              const SizedBox(height: 8),
+              _itemFavoriteChat(context),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _itemFavoriteChat(BuildContext context) {
+    return InkWell(
+      onTap: () {
+
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: context.theme.backgroundColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: context.theme.borderColor,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              'User Name',
+              style: TextStyleUtils.bold(
+                fontSize: 16,
+                color: context.theme.textColor,
+                context: context,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

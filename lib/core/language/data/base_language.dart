@@ -102,4 +102,8 @@ abstract class BaseLanguage {
   String get emailRequired;
 
   String get passwordRequired;
+
+  String get recentChat;
+
+  String get favoriteChat;
 }

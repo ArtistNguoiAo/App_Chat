@@ -162,4 +162,10 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get passwordRequired => 'Password cannot be empty';
+
+  @override
+  String get recentChat => 'Recent Chat';
+
+  @override
+  String get favoriteChat => 'Favorite Chat';
 }
