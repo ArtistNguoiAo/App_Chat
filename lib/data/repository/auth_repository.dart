@@ -122,4 +122,18 @@ class AuthRepository {
       throw Exception('Failed to send password reset email: $e');
     }
   }
+
+  Future<List<UserModel>> getAllUsers() async {
+    try {
+      final querySnapshot = await _firestore.collection('users').get();
+      final users = querySnapshot.docs.map((doc) {
+        return UserModel.fromMap(doc.data());
+      }).toList();
+
+      return users;
+    } catch (e) {
+      throw Exception('Lấy danh sách người dùng thất bại: $e');
+    }
+  }
+
 }
