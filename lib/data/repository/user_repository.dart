@@ -6,11 +6,11 @@ import '../../core/utils/cloudinary_utils.dart';
 import '../model/user_model.dart';
 
 class UserRepository {
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore _fireStore;
   final CloudinaryUtils _cloudinary;
 
   UserRepository()
-      : _firestore = FirebaseFirestore.instance,
+      : _fireStore = FirebaseFirestore.instance,
         _cloudinary = CloudinaryUtils();
 
   Future<UserModel> updateProfile({
@@ -39,7 +39,7 @@ class UserRepository {
         avatar: avatarUrl,
       );
 
-      await _firestore.collection('users').doc(user.uid).update(updatedUser.toMap());
+      await _fireStore.collection('users').doc(user.uid).update(updatedUser.toMap());
 
       return updatedUser;
     } catch (e) {

@@ -8,6 +8,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:app_chat/data/model/user_model.dart' as _i12;
 import 'package:app_chat/screen/login_screen/forgot_password_screen.dart'
     as _i2;
 import 'package:app_chat/screen/login_screen/login_screen.dart' as _i4;
@@ -23,6 +24,7 @@ import 'package:app_chat/screen/profile_screen/update_profile_screen.dart'
     as _i9;
 import 'package:app_chat/screen/register_screen/register_screen.dart' as _i7;
 import 'package:auto_route/auto_route.dart' as _i10;
+import 'package:flutter/material.dart' as _i11;
 
 abstract class $AppRouter extends _i10.RootStackRouter {
   $AppRouter({super.navigatorKey});
@@ -54,9 +56,13 @@ abstract class $AppRouter extends _i10.RootStackRouter {
       );
     },
     MessageRoute.name: (routeData) {
+      final args = routeData.argsAs<MessageRouteArgs>();
       return _i10.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i5.MessageScreen(),
+        child: _i5.MessageScreen(
+          key: args.key,
+          user: args.user,
+        ),
       );
     },
     OverViewRoute.name: (routeData) {
@@ -144,16 +150,40 @@ class LoginRoute extends _i10.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i5.MessageScreen]
-class MessageRoute extends _i10.PageRouteInfo<void> {
-  const MessageRoute({List<_i10.PageRouteInfo>? children})
-      : super(
+class MessageRoute extends _i10.PageRouteInfo<MessageRouteArgs> {
+  MessageRoute({
+    _i11.Key? key,
+    required _i12.UserModel user,
+    List<_i10.PageRouteInfo>? children,
+  }) : super(
           MessageRoute.name,
+          args: MessageRouteArgs(
+            key: key,
+            user: user,
+          ),
           initialChildren: children,
         );
 
   static const String name = 'MessageRoute';
 
-  static const _i10.PageInfo<void> page = _i10.PageInfo<void>(name);
+  static const _i10.PageInfo<MessageRouteArgs> page =
+      _i10.PageInfo<MessageRouteArgs>(name);
+}
+
+class MessageRouteArgs {
+  const MessageRouteArgs({
+    this.key,
+    required this.user,
+  });
+
+  final _i11.Key? key;
+
+  final _i12.UserModel user;
+
+  @override
+  String toString() {
+    return 'MessageRouteArgs{key: $key, user: $user}';
+  }
 }
 
 /// generated route for

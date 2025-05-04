@@ -66,7 +66,7 @@ class ListMessageScreen extends StatelessWidget {
       itemBuilder: (context, index) =>
           InkWell(
             onTap: () {
-              context.router.push(const MessageRoute());
+              context.router.push(MessageRoute(user: listUser[index]));
             },
             child: Container(
                 decoration: BoxDecoration(
@@ -84,9 +84,10 @@ class ListMessageScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
                     Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'User Name: ${listUser[index].firstName} ${listUser[index].lastName}',
+                          '${listUser[index].firstName} ${listUser[index].lastName}',
                           style: TextStyleUtils.bold(
                             fontSize: 16,
                             color: context.theme.textColor,
@@ -95,7 +96,7 @@ class ListMessageScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Email: ${listUser[index].email}',
+                          listUser[index].email,
                           style: TextStyleUtils.normal(
                             fontSize: 14,
                             color: context.theme.textColor,
