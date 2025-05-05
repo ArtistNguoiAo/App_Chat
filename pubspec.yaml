@@ -17,6 +17,7 @@ dependencies:
   auto_route: ^8.0.3
   shared_preferences: ^2.5.3
   rxdart: ^0.28.0
+  intl: ^0.20.2
 
   # ui
   cupertino_icons: ^1.0.6

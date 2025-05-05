@@ -9,6 +9,7 @@ import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+@RoutePage()
 class ListMessageScreen extends StatelessWidget {
   ListMessageScreen({super.key});
 
@@ -33,7 +34,12 @@ class ListMessageScreen extends StatelessWidget {
           if (state is ListMessageLoaded) {
             return Scaffold(
               body: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 16,
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                ),
                 child: Column(
                   children: [
                     _searchBar(context),
@@ -64,7 +70,12 @@ class ListMessageScreen extends StatelessWidget {
     return ListView.separated(
       itemBuilder: (context, index) => InkWell(
         onTap: () {
-          AutoRouter.of(context).push(MessageRoute(user: listUser[index], currentUser: currentUser));
+          AutoRouter.of(context).push(
+            MessageRoute(
+              listSeenBy: [listUser[index]],
+              currentUser: currentUser,
+            ),
+          );
         },
         child: Container(
             decoration: BoxDecoration(

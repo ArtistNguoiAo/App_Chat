@@ -8,7 +8,15 @@ class AppRouter extends $AppRouter {
   List<AutoRoute> get routes => [
         AutoRoute(page: LoginRoute.page, path: '/login'),
         AutoRoute(page: RegisterRoute.page, path: '/register'),
-        AutoRoute(page: OverViewRoute.page, path: '/over-view'),
+        AutoRoute(
+          page: OverViewRoute.page,
+          path: '/over-view',
+          children: [
+            AutoRoute(page: HomeRoute.page, path: 'home'),
+            AutoRoute(page: ProfileRoute.page, path: 'profile'),
+          ],
+        ),
+        AutoRoute(page: ListMessageRoute.page, path: '/list-message'),
         AutoRoute(page: LanguageSettingRoute.page, path: '/change-language'),
         AutoRoute(page: ThemeSettingRoute.page, path: '/change-theme'),
         AutoRoute(page: UpdateProfileRoute.page, path: '/update-profile'),

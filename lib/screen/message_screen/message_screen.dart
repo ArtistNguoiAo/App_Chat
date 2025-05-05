@@ -6,22 +6,19 @@ import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/message_screen/cubit/message_cubit.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:avatar_plus/avatar_plus.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../data/repository/message_repository.dart';
+import 'package:intl/intl.dart';
 
 @RoutePage()
 class MessageScreen extends StatefulWidget {
   const MessageScreen({
     super.key,
-    required this.user,
+    required this.listOtherUser,
     required this.currentUser,
   });
 
-  final UserModel user;
+  final List<UserModel> listOtherUser;
   final UserModel currentUser;
 
   @override
@@ -30,15 +27,21 @@ class MessageScreen extends StatefulWidget {
 
 class _MessageScreenState extends State<MessageScreen> {
   final _messageController = TextEditingController();
+  final List<String> listSeenBy = [];
+
+  @override
+  void initState() {
+    super.initState();
+    listSeenBy.addAll(widget.listOtherUser.map((e) => e.uid).toList());
+    listSeenBy.add(widget.currentUser.uid);
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MessageCubit()
-        ..loadMessage(
-          userIdFrom: widget.currentUser.uid,
-          userIdTo: widget.user.uid,
-        ),
+      create: (context) => MessageCubit()..loadMessage(
+        seenBy: listSeenBy,
+      ),
       child: Scaffold(
         body: Padding(
           padding: EdgeInsets.only(
@@ -127,24 +130,24 @@ class _MessageScreenState extends State<MessageScreen> {
               const SizedBox(width: 8),
               widget.currentUser.avatar.isNotEmpty
                   ? Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: context.theme.borderColor,
-                ),
-                child: ClipOval(
-                  child: Image.network(
-                    widget.currentUser.avatar,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              )
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: context.theme.borderColor,
+                      ),
+                      child: ClipOval(
+                        child: Image.network(
+                          widget.currentUser.avatar,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
                   : AvatarPlus(
-                widget.currentUser.uid,
-                height: 30,
-                width: 30,
-              ),
+                      widget.currentUser.uid,
+                      height: 30,
+                      width: 30,
+                    ),
             ],
           );
         } else {
@@ -153,24 +156,24 @@ class _MessageScreenState extends State<MessageScreen> {
             children: [
               widget.currentUser.avatar.isNotEmpty
                   ? Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: context.theme.borderColor,
-                ),
-                child: ClipOval(
-                  child: Image.network(
-                    widget.user.avatar,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              )
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: context.theme.borderColor,
+                      ),
+                      child: ClipOval(
+                        child: Image.network(
+                          widget.listOtherUser.first.avatar,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
                   : AvatarPlus(
-                widget.user.uid,
-                height: 30,
-                width: 30,
-              ),
+                      widget.listOtherUser.first.uid,
+                      height: 30,
+                      width: 30,
+                    ),
               const SizedBox(width: 8),
               Flexible(
                 child: Container(
@@ -198,26 +201,27 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 
   Widget _sendMessage() {
-    return Row(
-      children: [
-        Expanded(
-          child: BaseTextField(
-            controller: _messageController,
-            hintText: context.language.typeMessage,
-            suffixIcon: InkWell(
-              onTap: () {
-                // if (_messageController.text.trim().isEmpty) return;
-                //
-                // _messageController.clear();
-              },
-              child: Icon(
-                Icons.send,
-                color: context.theme.textColor,
-              ),
-            ),
+    return Builder(builder: (context) {
+      return BaseTextField(
+        controller: _messageController,
+        hintText: context.language.typeMessage,
+        suffixIcon: InkWell(
+          onTap: () {
+            if (_messageController.text.trim().isEmpty) return;
+            context.read<MessageCubit>().sendMessage(
+                  userIdSend: widget.currentUser.uid,
+                  text: _messageController.text,
+                  createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
+                  seenBy: listSeenBy,
+                );
+            _messageController.clear();
+          },
+          child: Icon(
+            Icons.send,
+            color: context.theme.textColor,
           ),
         ),
-      ],
-    );
+      );
+    });
   }
 }

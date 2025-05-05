@@ -5,6 +5,7 @@ class UserModel {
   final String lastName;
   final String email;
   final String avatar;
+  final List<String> friends;
 
   String get fullName => '$firstName $lastName';
 
@@ -15,6 +16,7 @@ class UserModel {
     required this.lastName,
     required this.email,
     this.avatar = '',
+    this.friends = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -25,6 +27,7 @@ class UserModel {
       'lastName': lastName,
       'email': email,
       'avatar': avatar,
+      'friends': friends,
     };
   }
 
@@ -36,6 +39,7 @@ class UserModel {
       lastName: map['lastName'] as String,
       email: map['email'] as String,
       avatar: map['avatar'] as String? ?? '',
+      friends: List<String>.from(map['friends'] as List<dynamic>? ?? []),
     );
   }
 }

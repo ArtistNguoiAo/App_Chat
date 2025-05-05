@@ -1,5 +1,6 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/router/app_router.gr.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/screen/home_screen/home_screen.dart';
 import 'package:app_chat/screen/list_message_screen/list_message_screen.dart';
@@ -21,67 +22,75 @@ class _OverViewScreenState extends State<OverViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top,
-        ),
-        child: IndexedStack(
-          index: _currentIndex,
-          children: [
-            HomeScreen(),
-            ProfileScreen(),
-            ListMessageScreen(),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _currentIndex = 2;
-          });
-        },
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: Icon(
-          FontAwesomeIcons.facebookMessenger,
-          color: _currentIndex == 2 ? context.theme.primaryColor : context.theme.textColor,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AnimatedBottomNavigationBar.builder(
-        itemCount: 2,
-        notchMargin: 8,
-        tabBuilder: (index, isSelected) {
-          return Container(
-            margin: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Icon(
-                  index == 0 ? FontAwesomeIcons.house : FontAwesomeIcons.userLarge,
-                  color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
-                  size: 18,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  index == 0 ? context.language.home : context.language.profile,
-                  style: TextStyleUtils.normal(
-                    color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
-                    fontSize: 12,
-                    context: context,
-                  ),
-                ),
-              ],
+    return AutoTabsRouter.tabBar(
+      routes: const [
+        HomeRoute(),
+        ProfileRoute(),
+      ],
+      physics: const NeverScrollableScrollPhysics(),
+      builder: (context, child, animation) {
+        final tabsRouter = AutoTabsRouter.of(context);
+        return Scaffold(
+          body: Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top,
             ),
-          );
-        },
-        activeIndex: _currentIndex,
-        gapLocation: GapLocation.center,
-        notchSmoothness: NotchSmoothness.softEdge,
-        onTap: (index) => setState(() => _currentIndex = index),
-      ),
+            child: child,
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              AutoRouter.of(context).push(
+                ListMessageRoute(),
+              );
+            },
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Icon(
+              FontAwesomeIcons.facebookMessenger,
+              color: context.theme.textColor,
+            ),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: AnimatedBottomNavigationBar.builder(
+            itemCount: 2,
+            notchMargin: 8,
+            tabBuilder: (index, isSelected) {
+              return Container(
+                margin: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Icon(
+                      index == 0 ? FontAwesomeIcons.house : FontAwesomeIcons.userLarge,
+                      color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
+                      size: 18,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      index == 0 ? context.language.home : context.language.profile,
+                      style: TextStyleUtils.normal(
+                        color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
+                        fontSize: 12,
+                        context: context,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            activeIndex: _currentIndex,
+            gapLocation: GapLocation.center,
+            notchSmoothness: NotchSmoothness.softEdge,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+              tabsRouter.setActiveIndex(index);
+            },
+          ),
+        );
+      },
     );
   }
 }

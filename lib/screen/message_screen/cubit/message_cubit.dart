@@ -16,15 +16,13 @@ class MessageCubit extends Cubit<MessageState> {
   final MessageRepository _repository = GetIt.instance<MessageRepository>();
 
   void loadMessage({
-    required String userIdFrom,
-    required String userIdTo,
+    required List<String> seenBy,
   }) {
-    // _messageSubscription?.cancel();
-    //
-    // _messageSubscription = _repository.getMessages(userIdFrom, userIdTo).listen((listMessage) {
-    //   emit(MessageLoaded(listMessage: listMessage));
-    // });
-    emit(MessageLoaded(listMessage: []));
+    _messageSubscription?.cancel();
+
+    _messageSubscription = _repository.getMessage(seenBy).listen((listMessage) {
+      emit(MessageLoaded(listMessage: listMessage));
+    });
   }
 
   Future<void> sendMessage({
@@ -40,12 +38,14 @@ class MessageCubit extends Cubit<MessageState> {
       seenBy: seenBy,
     );
 
-    await _repository.sendMessage(messageModel);
+    await _repository.sendMessage(
+      messageModel: messageModel,
+    );
   }
 
-  // @override
-  // Future<void> close() {
-  //   _messageSubscription?.cancel();
-  //   return super.close();
-  // }
+  @override
+  Future<void> close() {
+    _messageSubscription?.cancel();
+    return super.close();
+  }
 }

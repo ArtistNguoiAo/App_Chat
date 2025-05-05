@@ -13,6 +13,7 @@ import '../../core/theme/inherited_theme_widget.dart';
 import '../../data/model/user_model.dart';
 import '../auth/cubit/auth_cubit.dart';
 
+@RoutePage()
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
