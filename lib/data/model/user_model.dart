@@ -14,7 +14,7 @@ class UserModel {
     required this.firstName,
     required this.lastName,
     required this.email,
-    this.avatar = 'https://ui-avatars.com/api/?name=User&background=random',
+    this.avatar = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -35,7 +35,7 @@ class UserModel {
       firstName: map['firstName'] as String,
       lastName: map['lastName'] as String,
       email: map['email'] as String,
-      avatar: map['avatar'] as String? ?? 'https://ui-avatars.com/api/?name=User&background=random',
+      avatar: map['avatar'] as String? ?? '',
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/message_model.dart';
 import 'package:app_chat/data/repository/message_repository.dart';
 import 'package:bloc/bloc.dart';
@@ -7,35 +9,43 @@ import 'package:meta/meta.dart';
 part 'message_state.dart';
 
 class MessageCubit extends Cubit<MessageState> {
-  final MessageRepository _repository;
+  StreamSubscription<List<MessageModel>>? _messageSubscription;
 
-  MessageCubit()
-      : _repository = GetIt.instance<MessageRepository>(),
-        super(MessageInitial());
+  MessageCubit() : super(MessageInitial());
+
+  final MessageRepository _repository = GetIt.instance<MessageRepository>();
 
   void loadMessage({
     required String userIdFrom,
     required String userIdTo,
   }) {
-    _repository.getMessages(userIdFrom, userIdTo).listen((listMessage) {
-      emit(MessageLoaded(listMessage: listMessage));
-    });
+    // _messageSubscription?.cancel();
+    //
+    // _messageSubscription = _repository.getMessages(userIdFrom, userIdTo).listen((listMessage) {
+    //   emit(MessageLoaded(listMessage: listMessage));
+    // });
+    emit(MessageLoaded(listMessage: []));
   }
-
 
   Future<void> sendMessage({
-    required String userIdFrom,
-    required String userIdTo,
+    required String userIdSend,
     required String text,
+    required String createdAt,
+    required List<String> seenBy,
   }) async {
-    await _repository.sendMessage(
-      MessageModel(
-        userIdFrom: userIdFrom,
-        userIdTo: userIdTo,
-        text: text,
-        createdAt: DateTime.now().toString(),
-      ),
+    final messageModel = MessageModel(
+      userIdSend: userIdSend,
+      text: text,
+      createdAt: createdAt,
+      seenBy: seenBy,
     );
-  }
-}
 
+    await _repository.sendMessage(messageModel);
+  }
+
+  // @override
+  // Future<void> close() {
+  //   _messageSubscription?.cancel();
+  //   return super.close();
+  // }
+}

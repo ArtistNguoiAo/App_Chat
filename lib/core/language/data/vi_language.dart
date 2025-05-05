@@ -168,4 +168,7 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get favoriteChat => 'Trò chuyện yêu thích';
+
+  @override
+  String get typeMessage => 'Nhập tin nhắn...';
 }

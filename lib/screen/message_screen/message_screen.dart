@@ -1,6 +1,11 @@
+import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_text_field.dart';
+import 'package:app_chat/data/model/message_model.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/message_screen/cubit/message_cubit.dart';
 import 'package:auto_route/annotations.dart';
+import 'package:avatar_plus/avatar_plus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,108 +15,209 @@ import '../../data/repository/message_repository.dart';
 
 @RoutePage()
 class MessageScreen extends StatefulWidget {
-  const MessageScreen({super.key, required this.user});
+  const MessageScreen({
+    super.key,
+    required this.user,
+    required this.currentUser,
+  });
 
   final UserModel user;
+  final UserModel currentUser;
 
   @override
   State<MessageScreen> createState() => _MessageScreenState();
 }
 
 class _MessageScreenState extends State<MessageScreen> {
-
-  final _controller = TextEditingController();
-  String _message = '';
+  final _messageController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser!;
     return BlocProvider(
-      create: (context) => MessageCubit()..loadMessage(
-        userIdFrom: currentUser.uid,
-        userIdTo: widget.user.uid,
-      ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Chat with ${widget.user.fullName}'),
+      create: (context) => MessageCubit()
+        ..loadMessage(
+          userIdFrom: widget.currentUser.uid,
+          userIdTo: widget.user.uid,
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: BlocBuilder<MessageCubit, MessageState>(
-                builder: (context, state) {
-                  if (state is MessageLoaded) {
-                    final messages = state.listMessage;
-                    return ListView.builder(
-                      reverse: true,
-                      itemCount: messages.length,
-                      itemBuilder: (ctx, index) {
-                        final message = messages[index];
-                        final isMe = message.userIdFrom == currentUser.uid;
-                        return ListTile(
-                          title: Align(
-                            alignment:
-                            isMe ? Alignment.centerRight : Alignment.centerLeft,
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: isMe ? Colors.blue : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                message.text,
-                                style: TextStyle(color: isMe ? Colors.white : Colors.black),
+      child: Scaffold(
+        body: Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top,
+            left: 16,
+            right: 16,
+            bottom: 16,
+          ),
+          child: BlocConsumer<MessageCubit, MessageState>(
+            listener: (context, state) {
+              // TODO: implement listener
+            },
+            builder: (context, state) {
+              if (state is MessageLoaded) {
+                return Column(
+                  children: [
+                    widget.currentUser.avatar.isNotEmpty
+                        ? Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: context.theme.borderColor,
+                            ),
+                            child: ClipOval(
+                              child: Image.network(
+                                widget.currentUser.avatar,
+                                fit: BoxFit.cover,
                               ),
                             ),
+                          )
+                        : AvatarPlus(
+                            widget.currentUser.uid,
+                            height: 60,
+                            width: 60,
                           ),
-                        );
-                      },
-                    );
-                  }
-                  return Container();
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(labelText: 'Send a message...'),
-                      onChanged: (val) {
-                        setState(() {
-                          _message = val;
-                        });
-                      },
+                    Expanded(
+                      child: _listMessage(
+                        state.listMessage,
+                      ),
                     ),
-                  ),
-                  Builder(
-                    builder: (context) {
-                      return IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: () {
-                          if (_message.trim().isEmpty) return;
-                          context.read<MessageCubit>().sendMessage(
-                            userIdFrom: currentUser.uid,
-                            userIdTo: widget.user.uid,
-                            text: _message,
-                          );
-                          _controller.clear();
-                          setState(() {
-                            _message = '';
-                          });
-                        },
-                      );
-                    }
-                  )
-                ],
-              ),
-            )
-          ],
+                    _sendMessage(),
+                  ],
+                );
+              }
+              return Container();
+            },
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _listMessage(
+    List<MessageModel> listMessage,
+  ) {
+    return ListView.separated(
+      reverse: true,
+      itemCount: listMessage.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (ctx, index) {
+        final message = listMessage[index];
+        final isMe = message.userIdSend == widget.currentUser.uid;
+        if (isMe) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const SizedBox(width: 38),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isMe ? context.theme.primaryColor : context.theme.grey300Color,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    message.text,
+                    style: TextStyleUtils.normal(
+                      fontSize: 16,
+                      color: isMe ? context.theme.backgroundColor : context.theme.textColor,
+                      context: context,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              widget.currentUser.avatar.isNotEmpty
+                  ? Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: context.theme.borderColor,
+                ),
+                child: ClipOval(
+                  child: Image.network(
+                    widget.currentUser.avatar,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
+                  : AvatarPlus(
+                widget.currentUser.uid,
+                height: 30,
+                width: 30,
+              ),
+            ],
+          );
+        } else {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              widget.currentUser.avatar.isNotEmpty
+                  ? Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: context.theme.borderColor,
+                ),
+                child: ClipOval(
+                  child: Image.network(
+                    widget.user.avatar,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              )
+                  : AvatarPlus(
+                widget.user.uid,
+                height: 30,
+                width: 30,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isMe ? context.theme.primaryColor : context.theme.grey300Color,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    message.text,
+                    style: TextStyleUtils.normal(
+                      fontSize: 16,
+                      color: isMe ? context.theme.backgroundColor : context.theme.textColor,
+                      context: context,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 38),
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  Widget _sendMessage() {
+    return Row(
+      children: [
+        Expanded(
+          child: BaseTextField(
+            controller: _messageController,
+            hintText: context.language.typeMessage,
+            suffixIcon: InkWell(
+              onTap: () {
+                // if (_messageController.text.trim().isEmpty) return;
+                //
+                // _messageController.clear();
+              },
+              child: Icon(
+                Icons.send,
+                color: context.theme.textColor,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

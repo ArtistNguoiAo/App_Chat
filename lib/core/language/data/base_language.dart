@@ -106,4 +106,6 @@ abstract class BaseLanguage {
   String get recentChat;
 
   String get favoriteChat;
+
+  String get typeMessage;
 }

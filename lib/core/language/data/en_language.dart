@@ -168,4 +168,7 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get favoriteChat => 'Favorite Chat';
+
+  @override
+  String get typeMessage => 'Type a message...';
 }

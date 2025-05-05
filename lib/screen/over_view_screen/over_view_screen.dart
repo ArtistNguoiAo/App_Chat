@@ -21,9 +21,12 @@ class _OverViewScreenState extends State<OverViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: IndexedStack(
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).padding.top,
+        ),
+        child: IndexedStack(
           index: _currentIndex,
           children: [
             HomeScreen(),
@@ -31,53 +34,53 @@ class _OverViewScreenState extends State<OverViewScreen> {
             ListMessageScreen(),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              _currentIndex = 2;
-            });
-          },
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Icon(
-            FontAwesomeIcons.facebookMessenger,
-            color: _currentIndex == 2 ? context.theme.primaryColor : context.theme.textColor,
-          ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _currentIndex = 2;
+          });
+        },
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(100),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        bottomNavigationBar: AnimatedBottomNavigationBar.builder(
-          itemCount: 2,
-          notchMargin: 8,
-          tabBuilder: (index, isSelected) {
-            return Container(
-              margin: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Icon(
-                    index == 0 ? FontAwesomeIcons.house : FontAwesomeIcons.userLarge,
+        child: Icon(
+          FontAwesomeIcons.facebookMessenger,
+          color: _currentIndex == 2 ? context.theme.primaryColor : context.theme.textColor,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: AnimatedBottomNavigationBar.builder(
+        itemCount: 2,
+        notchMargin: 8,
+        tabBuilder: (index, isSelected) {
+          return Container(
+            margin: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Icon(
+                  index == 0 ? FontAwesomeIcons.house : FontAwesomeIcons.userLarge,
+                  color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
+                  size: 18,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  index == 0 ? context.language.home : context.language.profile,
+                  style: TextStyleUtils.normal(
                     color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
-                    size: 18,
+                    fontSize: 12,
+                    context: context,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    index == 0 ? context.language.home : context.language.profile,
-                    style: TextStyleUtils.normal(
-                      color: _currentIndex == index ? context.theme.primaryColor : context.theme.textColor,
-                      fontSize: 12,
-                      context: context,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-          activeIndex: _currentIndex,
-          gapLocation: GapLocation.center,
-          notchSmoothness: NotchSmoothness.softEdge,
-          onTap: (index) => setState(() => _currentIndex = index),
-        ),
+                ),
+              ],
+            ),
+          );
+        },
+        activeIndex: _currentIndex,
+        gapLocation: GapLocation.center,
+        notchSmoothness: NotchSmoothness.softEdge,
+        onTap: (index) => setState(() => _currentIndex = index),
       ),
     );
   }

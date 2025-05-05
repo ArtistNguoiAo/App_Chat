@@ -9,9 +9,11 @@ final class ListMessageLoading extends ListMessageState {}
 
 final class ListMessageLoaded extends ListMessageState {
   final List<UserModel> listUser;
+  final UserModel currentUser;
 
   ListMessageLoaded({
     required this.listUser,
+    required this.currentUser,
   });
 }
 

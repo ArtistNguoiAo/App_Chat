@@ -16,9 +16,9 @@ class ListMessageCubit extends Cubit<ListMessageState> {
   Future<void> getListUser() async {
     emit(ListMessageLoading());
     try {
-      // Simulate a network call
       final listUser = await _authRepository.getAllUsers();
-      emit(ListMessageLoaded(listUser: listUser));
+      final currentUser = await _authRepository.getCurrentUser();
+      emit(ListMessageLoaded(listUser: listUser, currentUser: currentUser));
     } catch (e) {
       emit(ListMessageError(message: e.toString()));
     }

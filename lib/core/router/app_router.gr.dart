@@ -62,6 +62,7 @@ abstract class $AppRouter extends _i10.RootStackRouter {
         child: _i5.MessageScreen(
           key: args.key,
           user: args.user,
+          currentUser: args.currentUser,
         ),
       );
     },
@@ -154,12 +155,14 @@ class MessageRoute extends _i10.PageRouteInfo<MessageRouteArgs> {
   MessageRoute({
     _i11.Key? key,
     required _i12.UserModel user,
+    required _i12.UserModel currentUser,
     List<_i10.PageRouteInfo>? children,
   }) : super(
           MessageRoute.name,
           args: MessageRouteArgs(
             key: key,
             user: user,
+            currentUser: currentUser,
           ),
           initialChildren: children,
         );
@@ -174,15 +177,18 @@ class MessageRouteArgs {
   const MessageRouteArgs({
     this.key,
     required this.user,
+    required this.currentUser,
   });
 
   final _i11.Key? key;
 
   final _i12.UserModel user;
 
+  final _i12.UserModel currentUser;
+
   @override
   String toString() {
-    return 'MessageRouteArgs{key: $key, user: $user}';
+    return 'MessageRouteArgs{key: $key, user: $user, currentUser: $currentUser}';
   }
 }
 

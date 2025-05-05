@@ -1,31 +1,31 @@
 class MessageModel {
-  final String userIdFrom;
-  final String userIdTo;
+  final String userIdSend;
   final String text;
   final String createdAt;
+  final List<String> seenBy;
 
   MessageModel({
-    required this.userIdFrom,
-    required this.userIdTo,
+    required this.userIdSend,
     required this.text,
     required this.createdAt,
+    required this.seenBy,
   });
 
   factory MessageModel.fromMap(Map<String, dynamic> map) {
     return MessageModel(
-      userIdFrom: map['userIdFrom'] as String,
-      userIdTo: map['userIdTo'] as String,
+      userIdSend: map['userIdSend'] as String,
       text: map['text'] as String,
       createdAt: map['createdAt'] as String,
+      seenBy: List<String>.from(map['seenBy'] as List),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'userIdFrom': userIdFrom,
-      'userIdTo': userIdTo,
+      'userIdSend': userIdSend,
       'text': text,
       'createdAt': createdAt,
+      'seenBy': seenBy,
     };
   }
 }

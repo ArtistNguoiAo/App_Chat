@@ -8,4 +8,5 @@ abstract class BaseTheme {
   Color get redColor;
   Color get yellowColor;
   Color get yellowGold;
+  Color get grey300Color;
 }

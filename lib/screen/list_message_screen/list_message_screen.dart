@@ -5,6 +5,7 @@ import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/list_message_screen/cubit/list_message_cubit.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,9 +17,7 @@ class ListMessageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-      ListMessageCubit()
-        ..getListUser(),
+      create: (context) => ListMessageCubit()..getListUser(),
       child: BlocConsumer<ListMessageCubit, ListMessageState>(
         listener: (context, state) {
           // TODO: implement listener
@@ -31,7 +30,7 @@ class ListMessageScreen extends StatelessWidget {
               ),
             );
           }
-          if(state is ListMessageLoaded) {
+          if (state is ListMessageLoaded) {
             return Scaffold(
               body: Padding(
                 padding: const EdgeInsets.all(16),
@@ -40,7 +39,7 @@ class ListMessageScreen extends StatelessWidget {
                     _searchBar(context),
                     const SizedBox(height: 16),
                     Expanded(
-                      child: _listMessage(context, state.listUser),
+                      child: _listMessage(context, state.listUser, state.currentUser),
                     ),
                   ],
                 ),
@@ -61,53 +60,64 @@ class ListMessageScreen extends StatelessWidget {
     );
   }
 
-  Widget _listMessage(BuildContext context, List<UserModel> listUser) {
+  Widget _listMessage(BuildContext context, List<UserModel> listUser, UserModel currentUser) {
     return ListView.separated(
-      itemBuilder: (context, index) =>
-          InkWell(
-            onTap: () {
-              context.router.push(MessageRoute(user: listUser[index]));
-            },
-            child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
+      itemBuilder: (context, index) => InkWell(
+        onTap: () {
+          AutoRouter.of(context).push(MessageRoute(user: listUser[index], currentUser: currentUser));
+        },
+        child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                listUser[index].avatar.isNotEmpty
+                    ? Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: context.theme.borderColor,
+                        ),
+                        child: ClipOval(
+                          child: Image.network(
+                            listUser[index].avatar,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                    : AvatarPlus(
+                        listUser[index].uid,
+                        height: 60,
+                        width: 60,
+                      ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: context.theme.borderColor,
+                    Text(
+                      '${listUser[index].firstName} ${listUser[index].lastName}',
+                      style: TextStyleUtils.bold(
+                        fontSize: 16,
+                        color: context.theme.textColor,
+                        context: context,
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${listUser[index].firstName} ${listUser[index].lastName}',
-                          style: TextStyleUtils.bold(
-                            fontSize: 16,
-                            color: context.theme.textColor,
-                            context: context,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          listUser[index].email,
-                          style: TextStyleUtils.normal(
-                            fontSize: 14,
-                            color: context.theme.textColor,
-                            context: context,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      listUser[index].email,
+                      style: TextStyleUtils.normal(
+                        fontSize: 14,
+                        color: context.theme.textColor,
+                        context: context,
+                      ),
                     ),
                   ],
-                )),
-          ),
+                ),
+              ],
+            )),
+      ),
       separatorBuilder: (context, index) => const Divider(),
       itemCount: listUser.length,
     );

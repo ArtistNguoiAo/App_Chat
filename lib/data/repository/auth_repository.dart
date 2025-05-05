@@ -130,10 +130,24 @@ class AuthRepository {
         return UserModel.fromMap(doc.data());
       }).toList();
 
+      users.removeWhere((user) => user.uid == _auth.currentUser!.uid);
+
       return users;
     } catch (e) {
       throw Exception('Lấy danh sách người dùng thất bại: $e');
     }
   }
 
+  Future<UserModel> getCurrentUser() async {
+    try {
+      final querySnapshot = await _firestore.collection('users').get();
+      final users = querySnapshot.docs.map((doc) {
+        return UserModel.fromMap(doc.data());
+      }).toList();
+      return users.firstWhere((user) => user.uid == _auth.currentUser!.uid);
+
+    } catch (e) {
+      throw Exception('Lấy thông tin người dùng thất bại: $e');
+    }
+  }
 }
