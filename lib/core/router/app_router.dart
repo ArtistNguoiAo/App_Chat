@@ -23,5 +23,6 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: ChangePasswordRoute.page, path: '/change-password'),
         AutoRoute(page: ForgotPasswordRoute.page, path: '/forgot-password'),
         AutoRoute(page: MessageRoute.page, path: '/message'),
+        AutoRoute(page: AddFriendRoute.page, path: '/add-friend'),
       ];
 }

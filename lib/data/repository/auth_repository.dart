@@ -7,7 +7,7 @@ import '../model/user_model.dart';
 
 class AuthRepository {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
   Future<UserModel> registerUser({
     required String email,
@@ -30,7 +30,7 @@ class AuthRepository {
         email: email,
       );
 
-      await _firestore.collection('users').doc(user.uid).set(user.toMap());
+      await _fireStore.collection('users').doc(user.uid).set(user.toMap());
 
       return user;
     } catch (e) {
@@ -48,7 +48,7 @@ class AuthRepository {
         password: password,
       );
 
-      final user = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+      final user = await _fireStore.collection('users').doc(userCredential.user!.uid).get();
 
       final tokens = await userCredential.user!.getIdTokenResult();
       final refreshToken = userCredential.user?.refreshToken ?? '';
@@ -125,7 +125,7 @@ class AuthRepository {
 
   Future<List<UserModel>> getAllUsers() async {
     try {
-      final querySnapshot = await _firestore.collection('users').get();
+      final querySnapshot = await _fireStore.collection('users').get();
       final users = querySnapshot.docs.map((doc) {
         return UserModel.fromMap(doc.data());
       }).toList();
@@ -140,7 +140,7 @@ class AuthRepository {
 
   Future<UserModel> getCurrentUser() async {
     try {
-      final querySnapshot = await _firestore.collection('users').get();
+      final querySnapshot = await _fireStore.collection('users').get();
       final users = querySnapshot.docs.map((doc) {
         return UserModel.fromMap(doc.data());
       }).toList();

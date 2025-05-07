@@ -1,0 +1,166 @@
+import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_text_field.dart';
+import 'package:app_chat/data/model/user_model.dart';
+import 'package:app_chat/screen/add_friend_screen/cubit/add_friend_cubit.dart';
+import 'package:auto_route/annotations.dart';
+import 'package:avatar_plus/avatar_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+@RoutePage()
+class AddFriendScreen extends StatelessWidget {
+  AddFriendScreen({super.key});
+
+  final TextEditingController searchController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+      AddFriendCubit()
+        ..getListUser(),
+      child: BlocConsumer<AddFriendCubit, AddFriendState>(
+        listener: (context, state) {
+          // TODO: implement listener
+        },
+        builder: (context, state) {
+          if (state is AddFriendLoading) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          if (state is AddFriendLoaded) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Add Friend',
+                  style: TextStyleUtils.bold(
+                    fontSize: 20,
+                    color: context.theme.textColor,
+                    context: context,
+                  ),
+                ),
+                centerTitle: true,
+                backgroundColor: context.theme.backgroundColor,
+                elevation: 0,
+              ),
+              body: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _searchBar(context),
+                    Expanded(
+                      child: _listUser(context, state.listUser, state.currentUser),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          return Container();
+        },
+      ),
+    );
+  }
+
+  Widget _searchBar(BuildContext context) {
+    return BaseTextField(
+      controller: searchController,
+      prefixIcon: const Icon(Icons.search),
+      fillColor: context.theme.backgroundColor,
+      hintText: 'Search',
+    );
+  }
+
+  Widget _listUser(BuildContext context, List<UserModel> listUser, UserModel currentUser) {
+    return ListView.separated(
+      padding: const EdgeInsets.only(top: 16),
+      itemBuilder: (context, index) {
+        final isFriend = currentUser.friends.contains(listUser[index].uid);
+        return InkWell(
+          onTap: () {
+         
+          },
+          child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  listUser[index].avatar.isNotEmpty
+                      ? Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: context.theme.borderColor,
+                    ),
+                    child: ClipOval(
+                      child: Image.network(
+                        listUser[index].avatar,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  )
+                      : AvatarPlus(
+                    listUser[index].uid,
+                    height: 60,
+                    width: 60,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${listUser[index].firstName} ${listUser[index].lastName}',
+                          style: TextStyleUtils.bold(
+                            fontSize: 16,
+                            color: context.theme.textColor,
+                            context: context,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '@${listUser[index].username}',
+                          style: TextStyleUtils.normal(
+                            fontSize: 14,
+                            color: context.theme.textColor,
+                            context: context,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: context.theme.borderColor,
+                      ),
+                    ),
+                    child: FaIcon(
+                      isFriend
+                          ? FontAwesomeIcons.userGroup
+                          : FontAwesomeIcons.userPlus,
+                      color: isFriend
+                          ? context.theme.primaryColor
+                          : context.theme.borderColor,
+                      size: 16,
+                    ),
+                  )
+                ],
+              )),
+        );
+      },
+      separatorBuilder: (context, index) => const Divider(),
+      itemCount: listUser.length,
+    );
+  }
+}

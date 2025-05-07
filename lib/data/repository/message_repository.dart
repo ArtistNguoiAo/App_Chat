@@ -8,7 +8,6 @@ class MessageRepository {
     required MessageModel messageModel,
   }) async {
     await _fireStore.collection('messages').add(messageModel.toMap());
-
   }
 
   Stream<List<MessageModel>> getMessage(List<String> targetSeenBy) {

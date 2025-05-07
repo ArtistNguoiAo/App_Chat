@@ -52,7 +52,6 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         }
-
         return const SizedBox();
       },
     );
@@ -85,6 +84,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 16),
                         InkWell(
                           onTap: () {},
                           child: FaIcon(
@@ -94,6 +94,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 8),
                     Text(
                       context.language.introduceBot,
                       style: TextStyleUtils.normal(

@@ -8,6 +8,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 @RoutePage()
 class ListMessageScreen extends StatelessWidget {
@@ -43,7 +44,6 @@ class ListMessageScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _searchBar(context),
-                    const SizedBox(height: 16),
                     Expanded(
                       child: _listMessage(context, state.listUser, state.currentUser),
                     ),
@@ -59,20 +59,49 @@ class ListMessageScreen extends StatelessWidget {
   }
 
   Widget _searchBar(BuildContext context) {
-    return BaseTextField(
-      controller: searchController,
-      prefixIcon: const Icon(Icons.search),
-      hintText: 'Search',
+    return Row(
+      children: [
+        Expanded(
+          child: BaseTextField(
+            controller: searchController,
+            prefixIcon: const Icon(Icons.search),
+            hintText: 'Search',
+          ),
+        ),
+        const SizedBox(width: 8),
+        InkWell(
+          onTap: () {
+            AutoRouter.of(context).push(AddFriendRoute());
+          },
+          child: Container(
+            height: 48,
+            width: 48,
+            decoration: BoxDecoration(
+              color: context.theme.primaryColor,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: context.theme.primaryColor,
+              ),
+            ),
+            child: const Icon(
+              FontAwesomeIcons.userPlus,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+        )
+      ],
     );
   }
 
   Widget _listMessage(BuildContext context, List<UserModel> listUser, UserModel currentUser) {
     return ListView.separated(
+      padding: const EdgeInsets.only(top: 16),
       itemBuilder: (context, index) => InkWell(
         onTap: () {
           AutoRouter.of(context).push(
             MessageRoute(
-              listSeenBy: [listUser[index]],
+              listOtherUser: [listUser[index]],
               currentUser: currentUser,
             ),
           );
