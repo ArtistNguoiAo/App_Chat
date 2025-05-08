@@ -18,9 +18,7 @@ class AddFriendScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-      AddFriendCubit()
-        ..getListUser(),
+      create: (context) => AddFriendCubit()..getListUser(),
       child: BlocConsumer<AddFriendCubit, AddFriendState>(
         listener: (context, state) {
           // TODO: implement listener
@@ -80,83 +78,102 @@ class AddFriendScreen extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.only(top: 16),
       itemBuilder: (context, index) {
-        final isFriend = currentUser.friends.contains(listUser[index].uid);
+        final isFriend = listUser[index].friends.contains(currentUser.uid);
+        final isFriendRequest = listUser[index].friendRequests.contains(currentUser.uid);
         return InkWell(
-          onTap: () {
-         
-          },
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          onTap: () {},
           child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  listUser[index].avatar.isNotEmpty
-                      ? Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                listUser[index].avatar.isNotEmpty
+                    ? Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: context.theme.borderColor,
+                        ),
+                        child: ClipOval(
+                          child: Image.network(
+                            listUser[index].avatar,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                    : AvatarPlus(
+                        listUser[index].uid,
+                        height: 60,
+                        width: 60,
+                      ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${listUser[index].firstName} ${listUser[index].lastName}',
+                        style: TextStyleUtils.bold(
+                          fontSize: 16,
+                          color: context.theme.textColor,
+                          context: context,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '@${listUser[index].username}',
+                        style: TextStyleUtils.normal(
+                          fontSize: 14,
+                          color: context.theme.textColor,
+                          context: context,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
                       color: context.theme.borderColor,
                     ),
-                    child: ClipOval(
-                      child: Image.network(
-                        listUser[index].avatar,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  )
-                      : AvatarPlus(
-                    listUser[index].uid,
-                    height: 60,
-                    width: 60,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${listUser[index].firstName} ${listUser[index].lastName}',
-                          style: TextStyleUtils.bold(
-                            fontSize: 16,
-                            color: context.theme.textColor,
-                            context: context,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '@${listUser[index].username}',
-                          style: TextStyleUtils.normal(
-                            fontSize: 14,
-                            color: context.theme.textColor,
-                            context: context,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: context.theme.borderColor,
-                      ),
-                    ),
+                  child: InkWell(
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    onTap: () {
+                      if (isFriendRequest) {
+                        context.read<AddFriendCubit>().unRequestAddFriend(listUser[index]);
+                      } else {
+                        if (!isFriend) {
+                          context.read<AddFriendCubit>().requestAddFriend(listUser[index]);
+                        }
+                      }
+                    },
                     child: FaIcon(
                       isFriend
                           ? FontAwesomeIcons.userGroup
-                          : FontAwesomeIcons.userPlus,
+                          : isFriendRequest
+                              ? FontAwesomeIcons.userCheck
+                              : FontAwesomeIcons.userPlus,
                       color: isFriend
                           ? context.theme.primaryColor
-                          : context.theme.borderColor,
+                          : isFriendRequest
+                              ? context.theme.primaryColor
+                              : context.theme.borderColor,
                       size: 16,
                     ),
-                  )
-                ],
-              )),
+                  ),
+                )
+              ],
+            ),
+          ),
         );
       },
       separatorBuilder: (context, index) => const Divider(),

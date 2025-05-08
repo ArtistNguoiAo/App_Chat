@@ -86,7 +86,9 @@ class HomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 16),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            AutoRouter.of(context).push(const NotifyRoute());
+                          },
                           child: FaIcon(
                             FontAwesomeIcons.bell,
                             color: context.theme.backgroundColor,

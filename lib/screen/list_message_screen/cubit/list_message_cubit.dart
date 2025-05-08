@@ -20,6 +20,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
       final currentUser = await _authRepository.getCurrentUser();
       emit(ListMessageLoaded(listUser: listUser, currentUser: currentUser));
     } catch (e) {
+      print('Error: $e');
       emit(ListMessageError(message: e.toString()));
     }
   }

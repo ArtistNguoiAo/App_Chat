@@ -25,6 +25,7 @@ class ListMessageScreen extends StatelessWidget {
           // TODO: implement listener
         },
         builder: (context, state) {
+          print('state: $state');
           if (state is ListMessageLoading) {
             return const Scaffold(
               body: Center(

@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,6 +36,8 @@ class UserRepository {
         lastName: lastName,
         email: user.email,
         avatar: avatarUrl,
+        friends: user.friends,
+        friendRequests: user.friendRequests,
       );
 
       await _fireStore.collection('users').doc(user.uid).update(updatedUser.toMap());
@@ -52,13 +55,95 @@ class UserRepository {
         return UserModel.fromMap(doc.data());
       }).toList();
       final currentUser = users.firstWhere((user) => user.uid == _auth.currentUser!.uid);
-      final friendRequest = {
-        'fromId': currentUser.uid,
-        'toId': userModel.uid,
-      };
-      await _fireStore.collection('requestAddFriend').add(
-        friendRequest,
+
+      final listRequest = userModel.friendRequests;
+      listRequest.add(currentUser.uid);
+      final updatedUser = UserModel(
+        uid: userModel.uid,
+        username: userModel.username,
+        firstName: userModel.firstName,
+        lastName: userModel.lastName,
+        email: userModel.email,
+        avatar: userModel.avatar,
+        friends: userModel.friends,
+        friendRequests: listRequest,
       );
+      await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
+
+    } catch (e) {
+      throw Exception('Lấy thông tin người dùng thất bại: $e');
+    }
+  }
+
+  Future<void> unRequestAddFriend(UserModel userModel) async {
+    try {
+      final querySnapshot = await _fireStore.collection('users').get();
+      final users = querySnapshot.docs.map((doc) {
+        return UserModel.fromMap(doc.data());
+      }).toList();
+      final currentUser = users.firstWhere((user) => user.uid == _auth.currentUser!.uid);
+
+      final listRequest = userModel.friendRequests;
+      listRequest.remove(currentUser.uid);
+      final updatedUser = UserModel(
+        uid: userModel.uid,
+        username: userModel.username,
+        firstName: userModel.firstName,
+        lastName: userModel.lastName,
+        email: userModel.email,
+        avatar: userModel.avatar,
+        friends: userModel.friends,
+        friendRequests: listRequest,
+      );
+      await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
+
+    } catch (e) {
+      throw Exception('Lấy thông tin người dùng thất bại: $e');
+    }
+  }
+
+  Future<void> acceptFriend(UserModel userModel, bool check) async {
+    try {
+      final querySnapshot = await _fireStore.collection('users').get();
+      final users = querySnapshot.docs.map((doc) {
+        return UserModel.fromMap(doc.data());
+      }).toList();
+      final currentUser = users.firstWhere((user) => user.uid == _auth.currentUser!.uid);
+
+      final listRequest = currentUser.friendRequests;
+      listRequest.remove(userModel.uid);
+      final listFriend = currentUser.friends;
+
+      final listFriendUser = userModel.friends;
+
+      if(check) {
+        listFriend.add(userModel.uid);
+        listFriendUser.add(currentUser.uid);
+      }
+
+      final updatedUser = UserModel(
+        uid: userModel.uid,
+        username: userModel.username,
+        firstName: userModel.firstName,
+        lastName: userModel.lastName,
+        email: userModel.email,
+        avatar: userModel.avatar,
+        friends: listFriendUser,
+        friendRequests: userModel.friendRequests,
+      );
+      await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
+
+      final updatedCurrentUser = UserModel(
+        uid: currentUser.uid,
+        username: currentUser.username,
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        email: currentUser.email,
+        avatar: currentUser.avatar,
+        friends: listFriend,
+        friendRequests: listRequest,
+      );
+      await _fireStore.collection('users').doc(currentUser.uid).update(updatedCurrentUser.toMap());
 
     } catch (e) {
       throw Exception('Lấy thông tin người dùng thất bại: $e');
