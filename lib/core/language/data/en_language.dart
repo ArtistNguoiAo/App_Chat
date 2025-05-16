@@ -44,7 +44,7 @@ class EnLanguage extends BaseLanguage {
   String get haveAGoodDay => 'Have a good day';
 
   @override
-  String get welcomeApp => 'Welcome to ChitChat world!';
+  String get welcomeApp => 'Welcome to ChitChat!';
 
   @override
   String get introduceBot => "I'm virtual assistant CC_Bot. How can I help you?";
@@ -171,4 +171,16 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get typeMessage => 'Type a message...';
+
+  @override
+  String get notify => 'Notify';
+
+  @override
+  String get notifyAcceptFriend => 'You have a friend request from ';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get cancel => 'Cancel';
 }

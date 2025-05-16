@@ -1,8 +1,11 @@
+import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/core/widget/base_loading.dart';
 import 'package:app_chat/screen/notify_screen/cubit/notify_cubit.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 @RoutePage()
 class NotifyScreen extends StatelessWidget {
@@ -13,10 +16,25 @@ class NotifyScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Notify',
+          context.language.notify,
+          style: TextStyleUtils.bold(
+            fontSize: 20,
+            color: context.theme.backgroundColor,
+            context: context,
+          ),
+        ),
+        leading: InkWell(
+          onTap: () {
+            AutoRouter.of(context).maybePop();
+          },
+          child: Icon(
+            FontAwesomeIcons.chevronLeft,
+            color: context.theme.backgroundColor,
+            size: 18,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: context.theme.primaryColor,
         elevation: 0,
       ),
       body: BlocProvider(
@@ -30,41 +48,82 @@ class NotifyScreen extends StatelessWidget {
               return const BaseLoading();
             }
             if (state is NotifyLoaded) {
-              return ListView.separated(
-                itemBuilder: (context, index) {
-                  return Row(
-                    children: [
-                      Text(
-                        state.listUser[index].fullName,
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    return Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: context.theme.backgroundColor,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: context.theme.borderColor),
                       ),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () {
-                          context.read<NotifyCubit>().acceptRequest(state.listUser[index], true);
-                        },
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.green,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.language.notifyAcceptFriend + state.listUser[index].fullName,
+                            style: TextStyleUtils.normal(
+                              context: context,
+                              fontSize: 16,
+                              color: context.theme.textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(child: Container()),
+                              InkWell(
+                                onTap: () {
+                                  context.read<NotifyCubit>().acceptRequest(state.listUser[index], true);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: context.theme.primaryColor,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    context.language.accept,
+                                    style: TextStyleUtils.normal(
+                                      context: context,
+                                      fontSize: 16,
+                                      color: context.theme.backgroundColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              InkWell(
+                                onTap: () {
+                                  context.read<NotifyCubit>().acceptRequest(state.listUser[index], false);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: context.theme.redColor,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    context.language.cancel,
+                                    style: TextStyleUtils.normal(
+                                      context: context,
+                                      fontSize: 16,
+                                      color: context.theme.backgroundColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () {
-                          context.read<NotifyCubit>().acceptRequest(state.listUser[index], false);
-                        },
-                        child: const Icon(
-                          Icons.close,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-                separatorBuilder: (context, index) => const Divider(),
-                itemCount: state.listUser.length,
+                    );
+                  },
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemCount: state.listUser.length,
+                ),
               );
             }
             return Container();
