@@ -183,4 +183,28 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get cancel => 'Hủy bỏ';
+
+  @override
+  String get notRequestFriend => 'Không có lời mời kết bạn nào';
+
+  @override
+  String get message => 'Tin nhắn';
+
+  @override
+  String get pleaseChooseMin2Friends => 'Vui lòng chọn ít nhất 2 bạn bè';
+
+  @override
+  String get create => 'Tạo';
+
+  @override
+  String get chooseFriend => 'Chọn bạn bè';
+
+  @override
+  String get search => 'Tìm kiếm';
+
+  @override
+  String get groupName => 'Tên nhóm';
+
+  @override
+  String get createGroupSuccess => 'Tạo nhóm thành công';
 }

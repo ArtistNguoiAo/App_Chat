@@ -17,6 +17,8 @@ final class ListMessageLoaded extends ListMessageState {
   });
 }
 
+final class ListMessageCreateGroupSuccess extends ListMessageState {}
+
 final class ListMessageError extends ListMessageState {
   final String message;
 

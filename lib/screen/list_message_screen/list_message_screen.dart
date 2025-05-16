@@ -1,6 +1,8 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/router/app_router.gr.dart';
+import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_loading.dart';
 import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/list_message_screen/cubit/list_message_cubit.dart';
@@ -22,19 +24,67 @@ class ListMessageScreen extends StatelessWidget {
       create: (context) => ListMessageCubit()..getListUser(),
       child: BlocConsumer<ListMessageCubit, ListMessageState>(
         listener: (context, state) {
-          // TODO: implement listener
+          if(state is ListMessageCreateGroupSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(context.language.createGroupSuccess),
+              ),
+            );
+          }
         },
         builder: (context, state) {
-          print('state: $state');
           if (state is ListMessageLoading) {
             return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
+              body: BaseLoading()
             );
           }
           if (state is ListMessageLoaded) {
             return Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  context.language.message,
+                  style: TextStyleUtils.bold(
+                    fontSize: 20,
+                    color: context.theme.backgroundColor,
+                    context: context,
+                  ),
+                ),
+                leading: InkWell(
+                  onTap: () {
+                    AutoRouter.of(context).maybePop();
+                  },
+                  child: Icon(
+                    FontAwesomeIcons.chevronLeft,
+                    color: context.theme.backgroundColor,
+                    size: 18,
+                  ),
+                ),
+                actions: [
+                  InkWell(
+                    onTap: () {
+                      DialogUtils.showListFriendDialog(
+                        context: context,
+                        listFriend: state.listUser,
+                        onSelected: (listFriend, groupName) {
+                          context.read<ListMessageCubit>().createGroup(
+                            groupName: groupName,
+                            listUser: listFriend,
+                          );
+                        },
+                      );
+                    },
+                    child: Icon(
+                      FontAwesomeIcons.usersLine,
+                      color: context.theme.backgroundColor,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                ],
+                centerTitle: true,
+                backgroundColor: context.theme.primaryColor,
+                elevation: 0,
+              ),
               body: Padding(
                 padding: EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top + 16,
@@ -66,7 +116,7 @@ class ListMessageScreen extends StatelessWidget {
           child: BaseTextField(
             controller: searchController,
             prefixIcon: const Icon(Icons.search),
-            hintText: 'Search',
+            hintText: context.language.search,
           ),
         ),
         const SizedBox(width: 8),

@@ -48,83 +48,97 @@ class NotifyScreen extends StatelessWidget {
               return const BaseLoading();
             }
             if (state is NotifyLoaded) {
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: ListView.separated(
-                  itemBuilder: (context, index) {
-                    return Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: context.theme.backgroundColor,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: context.theme.borderColor),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.language.notifyAcceptFriend + state.listUser[index].fullName,
-                            style: TextStyleUtils.normal(
-                              context: context,
-                              fontSize: 16,
-                              color: context.theme.textColor,
+              if(state.listUser.isNotEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ListView.separated(
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: context.theme.backgroundColor,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: context.theme.borderColor),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context.language.notifyAcceptFriend + state.listUser[index].fullName,
+                              style: TextStyleUtils.normal(
+                                context: context,
+                                fontSize: 16,
+                                color: context.theme.textColor,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(child: Container()),
-                              InkWell(
-                                onTap: () {
-                                  context.read<NotifyCubit>().acceptRequest(state.listUser[index], true);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: context.theme.primaryColor,
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Text(
-                                    context.language.accept,
-                                    style: TextStyleUtils.normal(
-                                      context: context,
-                                      fontSize: 16,
-                                      color: context.theme.backgroundColor,
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(child: Container()),
+                                InkWell(
+                                  onTap: () {
+                                    context.read<NotifyCubit>().acceptRequest(state.listUser[index], true);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: context.theme.primaryColor,
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Text(
+                                      context.language.accept,
+                                      style: TextStyleUtils.normal(
+                                        context: context,
+                                        fontSize: 16,
+                                        color: context.theme.backgroundColor,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 10),
-                              InkWell(
-                                onTap: () {
-                                  context.read<NotifyCubit>().acceptRequest(state.listUser[index], false);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: context.theme.redColor,
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Text(
-                                    context.language.cancel,
-                                    style: TextStyleUtils.normal(
-                                      context: context,
-                                      fontSize: 16,
-                                      color: context.theme.backgroundColor,
+                                const SizedBox(width: 10),
+                                InkWell(
+                                  onTap: () {
+                                    context.read<NotifyCubit>().acceptRequest(state.listUser[index], false);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: context.theme.redColor,
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Text(
+                                      context.language.cancel,
+                                      style: TextStyleUtils.normal(
+                                        context: context,
+                                        fontSize: 16,
+                                        color: context.theme.backgroundColor,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemCount: state.listUser.length,
-                ),
-              );
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) => const Divider(),
+                    itemCount: state.listUser.length,
+                  ),
+                );
+              }
+              else {
+                return Center(
+                  child: Text(
+                    '${context.language.notRequestFriend}!',
+                    style: TextStyleUtils.normal(
+                      context: context,
+                      fontSize: 20,
+                      color: context.theme.textColor,
+                    ),
+                  ),
+                );
+              }
             }
             return Container();
           },
