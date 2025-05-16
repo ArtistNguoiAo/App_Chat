@@ -1,3 +1,4 @@
+import 'package:app_chat/data/repository/chat_repository.dart';
 import 'package:app_chat/data/repository/message_repository.dart';
 import 'package:app_chat/data/repository/user_repository.dart';
 import 'package:get_it/get_it.dart';
@@ -16,6 +17,7 @@ class ConfigDI {
     injector.registerLazySingleton<AuthRepository>(() => AuthRepository());
     injector.registerLazySingleton<MessageRepository>(() => MessageRepository());
     injector.registerLazySingleton<UserRepository>(() => UserRepository());
+    injector.registerLazySingleton<ChatRepository>(() => ChatRepository());
   }
 
   GetIt injector = GetIt.instance;
