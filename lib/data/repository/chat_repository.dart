@@ -8,7 +8,7 @@ class ChatRepository {
   final CloudinaryUtils _cloudinary = CloudinaryUtils();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> addNewCha({
+  Future<void> addNewChat({
     required List<String> members,
     required String groupName,
     required String groupAvatar,

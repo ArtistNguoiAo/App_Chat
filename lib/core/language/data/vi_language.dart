@@ -44,7 +44,7 @@ class ViLanguage extends BaseLanguage {
   String get haveAGoodDay => 'Chúc bạn một ngày tốt lành';
 
   @override
-  String get welcomeApp => 'Chào mừng bạn đến với thế giới ChitChat!';
+  String get welcomeApp => 'Welcome to ChitChat!';
 
   @override
   String get introduceBot => "Tôi là trợ lý ảo CC_Bot. Tôi có thể giúp gì cho bạn?";
@@ -171,4 +171,16 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get typeMessage => 'Nhập tin nhắn...';
+
+  @override
+  String get notify => 'Thông báo';
+
+  @override
+  String get notifyAcceptFriend => 'Bạn có lời mời kết bạn từ ';
+
+  @override
+  String get accept => 'Chấp nhận';
+
+  @override
+  String get cancel => 'Hủy bỏ';
 }

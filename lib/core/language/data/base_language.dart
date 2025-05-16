@@ -108,4 +108,12 @@ abstract class BaseLanguage {
   String get favoriteChat;
 
   String get typeMessage;
+
+  String get notify;
+
+  String get notifyAcceptFriend;
+
+  String get accept;
+
+  String get cancel;
 }
