@@ -183,4 +183,28 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get notRequestFriend => 'No friend requests yet';
+
+  @override
+  String get message => 'Message';
+
+  @override
+  String get pleaseChooseMin2Friends => 'Please choose at least 2 friends';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get chooseFriend => 'Choose friends';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get groupName => 'Group Name';
+
+  @override
+  String get createGroupSuccess => 'Group created successfully';
 }

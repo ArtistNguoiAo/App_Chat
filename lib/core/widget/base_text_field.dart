@@ -22,6 +22,7 @@ class BaseTextField extends StatefulWidget {
     this.obscureText,
     this.validator,
     this.fillColor,
+    this.onChanged,
   });
 
   final TextEditingController controller;
@@ -40,6 +41,7 @@ class BaseTextField extends StatefulWidget {
   final bool? obscureText;
   final String? Function(String?)? validator;
   final Color? fillColor;
+  final Function(String)? onChanged;
 
   @override
   State<BaseTextField> createState() => _BaseTextFieldState();
@@ -80,6 +82,7 @@ class _BaseTextFieldState extends State<BaseTextField> {
       ),
       style: widget.style ?? TextStyleUtils.normal(context: context),
       obscureText: widget.obscureText ?? false,
+      onChanged: widget.onChanged,
     );
   }
 }

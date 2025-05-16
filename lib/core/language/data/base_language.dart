@@ -116,4 +116,20 @@ abstract class BaseLanguage {
   String get accept;
 
   String get cancel;
+
+  String get notRequestFriend;
+
+  String get message;
+
+  String get pleaseChooseMin2Friends;
+
+  String get create;
+
+  String get chooseFriend;
+
+  String get search;
+
+  String get groupName;
+
+  String get createGroupSuccess;
 }
