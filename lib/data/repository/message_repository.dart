@@ -30,4 +30,21 @@ class MessageRepository {
     final bSorted = [...b]..sort();
     return aSorted.join(',') == bSorted.join(',');
   }
+
+  Future<int> getMessagesCountInChat(String chatId) async {
+    try {
+      final AggregateQuerySnapshot snapshot = await _fireStore
+          .collection('messages')
+          .doc(chatId)
+          .collection('messages')
+          .count()
+          .get();
+      return snapshot.count ?? 0;
+    } catch (e) {
+      print('Error getting messages count for chat $chatId: $e');
+      // Consider how you want to handle errors, e.g., rethrow or return a default.
+      // For now, rethrowing to be consistent with other repository methods.
+      throw Exception('Failed to get messages count for chat $chatId: $e');
+    }
+  }
 }
