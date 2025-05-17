@@ -1,7 +1,9 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/auth/cubit/auth_cubit.dart';
+import 'package:app_chat/screen/home_screen/cubit/home_cubit.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,11 +17,10 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Kiểm tra trạng thái xác thực khi màn hình được tạo
     context.read<AuthCubit>().checkAuthState();
     return BlocBuilder<AuthCubit, AuthState>(
-      builder: (context, state) {
-        if (state is AuthLoading || state is AuthInitial) {
+      builder: (context, authState) {
+        if (authState is AuthLoading || authState is AuthInitial) {
           return const Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
@@ -27,7 +28,7 @@ class HomeScreen extends StatelessWidget {
           );
         }
 
-        if (state is AuthUnauthenticated) {
+        if (authState is AuthUnauthenticated) {
           context.router.replace(const LoginRoute());
           return const Scaffold(
             body: Center(
@@ -36,28 +37,73 @@ class HomeScreen extends StatelessWidget {
           );
         }
 
-        if (state is AuthAuthenticated) {
-          final user = state.user;
-          return Scaffold(
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _header(user),
-                  const SizedBox(height: 16),
-                  _recentChat(context),
-                  const SizedBox(height: 16),
-                  _favoriteChat(context),
-                ],
-              ),
+        if (authState is AuthAuthenticated) {
+          return BlocProvider(
+            create: (homeContext) => HomeCubit()..loadHomeData(),
+            child: BlocBuilder<HomeCubit, HomeState>(
+              builder: (homeContext, homeState) {
+                if (homeState is HomeLoading || homeState is HomeInitial) {
+                  return Scaffold(
+                    body: Column(
+                      children: [
+                        _header(authState.user, isLoading: true),
+                        const Expanded(
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (homeState is HomeError) {
+                  return Scaffold(
+                    body: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Error: ${homeState.message}'),
+                          ElevatedButton(
+                            onPressed: () => homeContext.read<HomeCubit>().loadHomeData(),
+                            child: const Text('Retry'),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                if (homeState is HomeLoaded) {
+                  return Scaffold(
+                    body: RefreshIndicator(
+                      onRefresh: () async {
+                        homeContext.read<HomeCubit>().loadHomeData();
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(
+                          children: [
+                            _header(homeState.currentUser),
+                            const SizedBox(height: 16),
+                            _recentChat(homeContext, homeState.recentChats, homeState.allUsersMap, homeState.currentUser),
+                            const SizedBox(height: 16),
+                            _favoriteChat(homeContext, homeState.favoriteChats, homeState.allUsersMap, homeState.currentUser),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
           );
         }
-        return const SizedBox();
+        return const Scaffold(body: Center(child: Text("Unexpected Auth State")));
       },
     );
   }
 
-  Widget _header(UserModel user) {
+  Widget _header(UserModel user, {bool isLoading = false}) {
     return Builder(builder: (context) {
       return SizedBox(
         height: 200,
@@ -134,17 +180,20 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        width: 100,
-                        height: 100,
+                        width: 80,
+                        height: 80,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: context.theme.borderColor,
-                          image: DecorationImage(
-                            image: NetworkImage(user.avatar ?? ''),
-                            fit: BoxFit.cover,
-                            onError: (error, stackTrace) => const Icon(Icons.person),
-                          ),
+                          color: isLoading ? context.theme.borderColor.withOpacity(0.5) : context.theme.borderColor,
+                          image: isLoading || user.avatar.isEmpty
+                              ? null
+                              : DecorationImage(
+                                  image: NetworkImage(user.avatar),
+                                  fit: BoxFit.cover,
+                                  onError: (error, stackTrace) => const Icon(Icons.person_outline, size: 40),
+                                ),
                         ),
+                        child: isLoading && user.avatar.isEmpty ? const Center(child: Icon(Icons.person_outline, size: 40)) : null,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -164,7 +213,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                             Flexible(
                               child: Text(
-                                user.fullName,
+                                isLoading ? "Loading..." : user.fullName,
                                 style: TextStyleUtils.bold(
                                   fontSize: 20,
                                   color: context.theme.textColor,
@@ -201,7 +250,26 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
-  Widget _recentChat(BuildContext context) {
+  Widget _recentChat(BuildContext context, List<ChatModel> recentChats, Map<String, UserModel> allUsersMap, UserModel currentUser) {
+    if (recentChats.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.language.recentChat,
+              style: TextStyleUtils.bold(fontSize: 20, color: context.theme.textColor, context: context),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "No recent chats.",
+              style: TextStyleUtils.normal(fontSize: 16, color: context.theme.textColor.withOpacity(0.7), context: context),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -217,31 +285,56 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _itemRecentChat(context),
-              _itemRecentChat(context),
-              _itemRecentChat(context),
-            ],
+          SizedBox(
+            height: 130,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: recentChats.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final chat = recentChats[index];
+                UserModel? otherUser;
+                String otherUserId = '';
+                if (chat.type == 'private' && chat.members.length >= 2) {
+                  otherUserId = chat.members.firstWhere((id) => id != currentUser.uid, orElse: () => '');
+                  if (otherUserId.isNotEmpty) {
+                    otherUser = allUsersMap[otherUserId];
+                  }
+                }
+                final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.username ?? 'Unknown User');
+                final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
+
+                return _itemRecentChat(context, displayName, displayAvatar, chat);
+              },
+            ),
           )
         ],
       ),
     );
   }
 
-  Widget _itemRecentChat(BuildContext context) {
+  Widget _itemRecentChat(BuildContext context, String name, String avatarUrl, ChatModel chat) {
     return InkWell(
       onTap: () {
-
+        AutoRouter.of(context).push(MessageRoute(chatModel: chat));
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        width: 100,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: context.theme.backgroundColor,
           borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: context.theme.borderColor.withAlpha(100),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               width: 50,
@@ -249,13 +342,24 @@ class HomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: context.theme.borderColor,
+                image: avatarUrl.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(avatarUrl),
+                        fit: BoxFit.cover,
+                        onError: (e, s) => const Icon(Icons.group_outlined),
+                      )
+                    : null,
               ),
+              child: avatarUrl.isEmpty ? Icon(chat.type == 'group' ? Icons.group_outlined : Icons.person_outline, size: 30) : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
-              'User Name',
-              style: TextStyleUtils.bold(
-                fontSize: 16,
+              name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyleUtils.normal(
+                fontSize: 14,
                 color: context.theme.textColor,
                 context: context,
               ),
@@ -266,7 +370,26 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _favoriteChat(BuildContext context) {
+  Widget _favoriteChat(BuildContext context, List<ChatModel> favoriteChats, Map<String, UserModel> allUsersMap, UserModel currentUser) {
+    if (favoriteChats.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.language.favoriteChat,
+              style: TextStyleUtils.bold(fontSize: 20, color: context.theme.textColor, context: context),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "No favorite chats yet.",
+              style: TextStyleUtils.normal(fontSize: 16, color: context.theme.textColor.withOpacity(0.7), context: context),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -282,32 +405,50 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _itemFavoriteChat(context),
-              const SizedBox(height: 8),
-              _itemFavoriteChat(context),
-              const SizedBox(height: 8),
-              _itemFavoriteChat(context),
-            ],
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: favoriteChats.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final chat = favoriteChats[index];
+              UserModel? otherUser;
+              String otherUserId = '';
+              if (chat.type == 'private' && chat.members.length >= 2) {
+                otherUserId = chat.members.firstWhere((id) => id != currentUser.uid, orElse: () => '');
+                if (otherUserId.isNotEmpty) {
+                  otherUser = allUsersMap[otherUserId];
+                }
+              }
+              final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.username ?? 'Unknown User');
+              final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
+              return _itemFavoriteChat(context, displayName, displayAvatar, chat);
+            },
           )
         ],
       ),
     );
   }
 
-  Widget _itemFavoriteChat(BuildContext context) {
+  Widget _itemFavoriteChat(BuildContext context, String name, String avatarUrl, ChatModel chat) {
     return InkWell(
       onTap: () {
-
+        AutoRouter.of(context).push(MessageRoute(chatModel: chat));
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         width: double.infinity,
         decoration: BoxDecoration(
           color: context.theme.backgroundColor,
           borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: context.theme.borderColor.withAlpha(100),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -317,15 +458,27 @@ class HomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: context.theme.borderColor,
+                image: avatarUrl.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(avatarUrl),
+                        fit: BoxFit.cover,
+                        onError: (e, s) => const Icon(Icons.group_outlined),
+                      )
+                    : null,
               ),
+              child: avatarUrl.isEmpty ? Icon(chat.type == 'group' ? Icons.group_outlined : Icons.person_outline, size: 30) : null,
             ),
             const SizedBox(width: 16),
-            Text(
-              'User Name',
-              style: TextStyleUtils.bold(
-                fontSize: 16,
-                color: context.theme.textColor,
-                context: context,
+            Expanded(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyleUtils.bold(
+                  fontSize: 16,
+                  color: context.theme.textColor,
+                  context: context,
+                ),
               ),
             ),
           ],
