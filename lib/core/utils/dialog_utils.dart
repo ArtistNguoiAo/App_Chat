@@ -50,7 +50,7 @@ class DialogUtils {
                       hintText: context.language.search,
                       onChanged: (value) {
                         setState(() {
-                          if(searchController.text.isEmpty) {
+                          if (searchController.text.isEmpty) {
                             filteredList = listFriend;
                           } else {
                             filteredList = listFriend.where((user) {
@@ -116,21 +116,19 @@ class DialogUtils {
                 ),
                 InkWell(
                   onTap: () {
-                    if (selectedUserIds.length < 2) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(context.language.pleaseChooseMin2Friends),
-                        ),
-                      );
-                    }
-                    else if(groupNameController.text.isEmpty) {
+                    if (groupNameController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(context.language.pleaseEnterGroupName),
                         ),
                       );
-                    }
-                    else {
+                    } else if (selectedUserIds.length < 2) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(context.language.pleaseChooseMin2Friends),
+                        ),
+                      );
+                    } else {
                       final selectedFriends = listFriend.where((user) => selectedUserIds.contains(user.uid)).toList();
                       Navigator.of(context).pop(selectedFriends);
                     }

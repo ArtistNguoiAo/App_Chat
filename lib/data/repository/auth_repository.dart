@@ -151,15 +151,13 @@ class AuthRepository {
     }
   }
 
-  Future<List<UserModel>> getListFriend(UserModel user) async {
-    try {
-      final querySnapshot = await _fireStore.collection('users').get();
+  Stream<List<UserModel>> getListFriendStream(UserModel user) {
+    return _fireStore.collection('users').snapshots().map((querySnapshot) {
       final users = querySnapshot.docs.map((doc) {
         return UserModel.fromMap(doc.data());
       }).toList();
+
       return users.where((friend) => user.friends.contains(friend.uid)).toList();
-    } catch (e) {
-      throw Exception('Lấy thông tin người dùng thất bại: $e');
-    }
+    });
   }
 }

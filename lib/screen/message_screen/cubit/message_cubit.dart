@@ -13,12 +13,11 @@ import 'package:meta/meta.dart';
 part 'message_state.dart';
 
 class MessageCubit extends Cubit<MessageState> {
+  MessageCubit() : super(MessageInitial());
+
   StreamSubscription<List<MessageModel>>? _messageSubscription;
   final AuthRepository _authRepository = GetIt.instance<AuthRepository>();
   final CloudinaryUtils _cloudinary = CloudinaryUtils();
-
-  MessageCubit() : super(MessageInitial());
-
   final MessageRepository _repository = GetIt.instance<MessageRepository>();
 
   Future<void> loadMessage({

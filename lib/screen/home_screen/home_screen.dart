@@ -81,6 +81,7 @@ class HomeScreen extends StatelessWidget {
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _header(homeState.currentUser),
                             const SizedBox(height: 16),

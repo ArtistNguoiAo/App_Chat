@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/data/repository/auth_repository.dart';
@@ -10,25 +12,34 @@ import 'package:meta/meta.dart';
 part 'list_message_state.dart';
 
 class ListMessageCubit extends Cubit<ListMessageState> {
+  ListMessageCubit() : super(ListMessageInitial());
+
+  StreamSubscription? _listFriendSubscription;
   final AuthRepository _authRepository = GetIt.instance<AuthRepository>();
   final ChatRepository _chatRepository = GetIt.instance<ChatRepository>();
 
-  ListMessageCubit() : super(ListMessageInitial());
-
   Future<void> getListUser() async {
     emit(ListMessageLoading());
+
     try {
       final listChat = await _chatRepository.getAllChats();
       final currentUser = await _authRepository.getCurrentUser();
-      final listUser = await _authRepository.getListFriend(currentUser);
+
+      // Lọc danh sách chat riêng tư và nhóm
       final listChatFriend = listChat.where((chat) => chat.type == 'private').toList();
       final listChatGroup = listChat.where((chat) => chat.type == 'group').toList();
 
-      emit(ListMessageLoaded(
-        listChatFriend: listChatFriend,
-        listChatGroup: listChatGroup,
-        listUser: listUser,
-      ));
+      // Hủy lắng nghe cũ nếu tồn tại
+      _listFriendSubscription?.cancel();
+
+      // Lắng nghe thay đổi bạn bè qua Stream
+      _listFriendSubscription = _authRepository.getListFriendStream(currentUser).listen((listFriend) {
+        emit(ListMessageLoaded(
+          listChatFriend: listChatFriend,
+          listChatGroup: listChatGroup,
+          listFriend: listFriend,
+        ));
+      });
     } catch (e) {
       emit(ListMessageError(message: e.toString()));
     }
@@ -57,5 +68,9 @@ class ListMessageCubit extends Cubit<ListMessageState> {
     } catch (e) {
       emit(ListMessageError(message: e.toString()));
     }
+  }
+
+  void dispose() {
+    _listFriendSubscription?.cancel();
   }
 }
