@@ -13,6 +13,9 @@ import 'core/router/app_router.dart';
 import 'core/router/app_router.gr.dart';
 import 'data/local_cache.dart';
 import 'firebase_options.dart';
+import 'data/services/user_service.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +24,8 @@ void main() async {
   );
   await LocalCache.init();
   ConfigDI();
+  final userService = UserService();
+  await userService.initializeStatusMonitoring();
   runApp(MyApp());
 }
 
