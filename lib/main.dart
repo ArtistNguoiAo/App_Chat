@@ -43,36 +43,27 @@ class MyApp extends StatelessWidget {
           create: (context) => AuthCubit()..checkAuthState(),
         ),
       ],
-      child: BlocListener<AuthCubit, AuthState>(
-        listener: (context, state) {
-          if (state is AuthAuthenticated) {
-            appRouter.replace(const OverViewRoute());
-          } else if (state is AuthUnauthenticated) {
-            appRouter.replace(const LoginRoute());
-          }
-        },
-        child: BlocBuilder<LanguageCubit, LanguageState>(
-          builder: (context, languageState) {
-            return InheritedLanguageWidget(
-              languageModeEnum: languageState.languageModeEnum,
-              child: BlocBuilder<ThemeCubit, ThemeState>(
-                builder: (context, themeState) {
-                  return InheritedThemeWidget(
-                    themeModeEnum: themeState.themeModeEnum,
-                    child: MaterialApp.router(
-                      theme: ThemeData(
-                        colorScheme: ColorScheme.fromSeed(seedColor: context.theme.borderColor),
-                        useMaterial3: true,
-                      ),
-                      routerConfig: appRouter.config(),
-                      debugShowCheckedModeBanner: false,
+      child: BlocBuilder<LanguageCubit, LanguageState>(
+        builder: (context, languageState) {
+          return InheritedLanguageWidget(
+            languageModeEnum: languageState.languageModeEnum,
+            child: BlocBuilder<ThemeCubit, ThemeState>(
+              builder: (context, themeState) {
+                return InheritedThemeWidget(
+                  themeModeEnum: themeState.themeModeEnum,
+                  child: MaterialApp.router(
+                    theme: ThemeData(
+                      colorScheme: ColorScheme.fromSeed(seedColor: context.theme.borderColor),
+                      useMaterial3: true,
                     ),
-                  );
-                },
-              ),
-            );
-          },
-        ),
+                    routerConfig: appRouter.config(),
+                    debugShowCheckedModeBanner: false,
+                  ),
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }
