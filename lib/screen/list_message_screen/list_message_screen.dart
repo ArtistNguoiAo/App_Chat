@@ -83,12 +83,12 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                       } else if (value == 2) {
                         DialogUtils.showListFriendDialog(
                           context: context,
-                          listFriend: state.listUser,
+                          listFriend: state.listFriend,
                           onSelected: (listFriend, groupName) {
                             context.read<ListMessageCubit>().createGroup(
-                              groupName: groupName,
-                              listUser: listFriend,
-                            );
+                                  groupName: groupName,
+                                  listUser: listFriend,
+                                );
                           },
                         );
                       }
@@ -116,7 +116,14 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
               body: Column(
                 children: [
                   _tabBar(context),
-                  Expanded(child: _tabBarView(context, state.listChatFriend, state.listChatGroup)),
+                  Expanded(
+                    child: _tabBarView(
+                      context: context,
+                      listChatFriend: state.listChatFriend,
+                      listChatGroup: state.listChatGroup,
+                      listFriend: state.listFriend,
+                    ),
+                  ),
                 ],
               ),
             );
@@ -156,12 +163,17 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _tabBarView(BuildContext context, List<ChatModel> listChatFriend, List<ChatModel> listChatGroup) {
+  Widget _tabBarView({
+    required BuildContext context,
+    required List<ChatModel> listChatFriend,
+    required List<ChatModel> listChatGroup,
+    required List<UserModel> listFriend,
+  }) {
     return SizedBox(
       child: TabBarView(
         controller: tabController,
         children: [
-          _listMessage(context, listChatFriend),
+          _listFriend(context, listFriend),
           _listMessage(context, listChatGroup),
         ],
       ),
@@ -180,13 +192,13 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
           );
         },
         child: Container(
-          padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               color: context.theme.backgroundColor,
               boxShadow: [
                 BoxShadow(
-                  color: context.theme.borderColor.withOpacity(0.1),
+                  color: context.theme.borderColor.withAlpha((0.5 * 255).round()),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -194,48 +206,15 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
             ),
             child: Row(
               children: [
-                listChat[index].groupAvatar.isNotEmpty
-                    ? Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: context.theme.borderColor,
-                        ),
-                        child: ClipOval(
-                          child: Image.network(
-                            listChat[index].groupAvatar,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      )
-                    : AvatarPlus(
-                        listChat[index].groupName,
-                        height: 40,
-                        width: 40,
-                      ),
+                _avatarItem(url: listChat[index].groupAvatar, randomText: listChat[index].id),
                 const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      listChat[index].groupName,
-                      style: TextStyleUtils.bold(
-                        fontSize: 16,
-                        color: context.theme.textColor,
-                        context: context,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      listChat[index].lastMessageId,
-                      style: TextStyleUtils.normal(
-                        fontSize: 14,
-                        color: context.theme.textColor,
-                        context: context,
-                      ),
-                    ),
-                  ],
+                Text(
+                  listChat[index].groupName,
+                  style: TextStyleUtils.normal(
+                    fontSize: 16,
+                    color: context.theme.textColor,
+                    context: context,
+                  ),
                 ),
               ],
             )),
@@ -243,5 +222,93 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
       separatorBuilder: (context, index) => Container(height: 4),
       itemCount: listChat.length,
     );
+  }
+
+  Widget _listFriend(BuildContext context, List<UserModel> listFriend) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(8),
+      itemBuilder: (context, index) => InkWell(
+        onTap: () {},
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: context.theme.backgroundColor,
+            boxShadow: [
+              BoxShadow(
+                color: context.theme.borderColor.withAlpha((0.5 * 255).round()),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Stack(
+                children: [
+                  _avatarItem(url: listFriend[index].avatar, randomText: listFriend[index].uid),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: listFriend[index].status == 'online' ? context.theme.greenColor : context.theme.redColor,
+                        border: Border.all(
+                          color: context.theme.backgroundColor,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              Text(
+                listFriend[index].fullName,
+                style: TextStyleUtils.normal(
+                  fontSize: 16,
+                  color: context.theme.textColor,
+                  context: context,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      separatorBuilder: (context, index) => Container(height: 4),
+      itemCount: listFriend.length,
+    );
+  }
+
+  Widget _avatarItem({
+    required String url,
+    required String randomText,
+  }) {
+    if(url.isNotEmpty) {
+      return Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: context.theme.borderColor,
+        ),
+        child: ClipOval(
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
+    else {
+      return AvatarPlus(
+        randomText,
+        height: 40,
+        width: 40,
+      );
+    }
   }
 }

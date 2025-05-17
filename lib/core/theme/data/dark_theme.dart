@@ -26,6 +26,9 @@ class DarkTheme extends BaseTheme {
   Color get redColor => Colors.red;
 
   @override
+  Color get greenColor => Colors.green;
+
+  @override
   Color get yellowColor => Colors.yellow;
 
   @override

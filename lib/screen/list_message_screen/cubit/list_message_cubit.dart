@@ -20,14 +20,14 @@ class ListMessageCubit extends Cubit<ListMessageState> {
     try {
       final listChat = await _chatRepository.getAllChats();
       final currentUser = await _authRepository.getCurrentUser();
-      final listUser = await _authRepository.getListFriend(currentUser);
+      final listFriend = await _authRepository.getListFriend(currentUser);
       final listChatFriend = listChat.where((chat) => chat.type == 'private').toList();
       final listChatGroup = listChat.where((chat) => chat.type == 'group').toList();
 
       emit(ListMessageLoaded(
         listChatFriend: listChatFriend,
         listChatGroup: listChatGroup,
-        listUser: listUser,
+        listFriend: listFriend,
       ));
     } catch (e) {
       emit(ListMessageError(message: e.toString()));

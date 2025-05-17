@@ -6,6 +6,7 @@ abstract class BaseTheme {
   Color get backgroundColor;
   Color get borderColor;
   Color get redColor;
+  Color get greenColor;
   Color get yellowColor;
   Color get yellowGold;
   Color get grey300Color;
