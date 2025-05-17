@@ -8,6 +8,13 @@ class ChatRepository {
   final CloudinaryUtils _cloudinary = CloudinaryUtils();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  Future<List<ChatModel>> getAllChats() async {
+
+    final snapshot = await _fireStore.collection('chats').get();
+
+    return snapshot.docs.map((doc) => ChatModel.fromMap(doc.data())).toList();
+  }
+
   Future<void> addNewChat({
     required List<String> members,
     required String groupName,
@@ -15,7 +22,10 @@ class ChatRepository {
     required String createdAt,
     required String lastMessageId,
   }) async {
+    final documentRef = _fireStore.collection('chats').doc();
+
     final chatModel = ChatModel(
+      id: documentRef.id,
       type: members.length > 2 ? 'group' : 'private',
       members: members,
       groupName: groupName,
@@ -23,6 +33,7 @@ class ChatRepository {
       createdAt: createdAt,
       lastMessageId: lastMessageId,
     );
-    await _fireStore.collection('chats').add(chatModel.toMap());
+
+    await documentRef.set(chatModel.toMap());
   }
 }

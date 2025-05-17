@@ -1,6 +1,7 @@
 import 'package:app_chat/data/model/message_model.dart';
 
 class ChatModel {
+  final String id;
   final String type;
   final List<String> members;
   final String groupName;
@@ -9,6 +10,7 @@ class ChatModel {
   final String lastMessageId;
 
   ChatModel({
+    required this.id,
     required this.type,
     required this.members,
     required this.groupName,
@@ -19,6 +21,7 @@ class ChatModel {
 
   factory ChatModel.fromMap(Map<String, dynamic> map) {
     return ChatModel(
+      id: map['id'] as String,
       type: map['type'] as String,
       members: List<String>.from(map['members'] as List),
       groupName: map['groupName'] as String,
@@ -30,6 +33,7 @@ class ChatModel {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'type': type,
       'members': members,
       'groupName': groupName,

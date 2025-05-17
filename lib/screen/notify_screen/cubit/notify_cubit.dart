@@ -37,8 +37,8 @@ class NotifyCubit extends Cubit<NotifyState> {
       await _userRepository.acceptFriend(user, check);
       await _chatRepository.addNewChat(
         members: [currentState.currentUser.uid, user.uid],
-        groupName: user.username,
-        groupAvatar: user.avatar,
+        groupName: '',
+        groupAvatar: '',
         createdAt: DateFormat('yyyy-MM-dd – hh:mm').format(DateTime.now()),
         lastMessageId: '',
       );

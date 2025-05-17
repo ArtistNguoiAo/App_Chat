@@ -8,7 +8,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:app_chat/data/model/user_model.dart' as _i17;
+import 'package:app_chat/data/model/chat_model.dart' as _i17;
 import 'package:app_chat/screen/add_friend_screen/add_friend_screen.dart'
     as _i1;
 import 'package:app_chat/screen/home_screen/home_screen.dart' as _i4;
@@ -90,8 +90,7 @@ abstract class $AppRouter extends _i15.RootStackRouter {
         routeData: routeData,
         child: _i8.MessageScreen(
           key: args.key,
-          listOtherUser: args.listOtherUser,
-          currentUser: args.currentUser,
+          chatModel: args.chatModel,
         ),
       );
     },
@@ -267,15 +266,13 @@ class LoginRoute extends _i15.PageRouteInfo<void> {
 class MessageRoute extends _i15.PageRouteInfo<MessageRouteArgs> {
   MessageRoute({
     _i16.Key? key,
-    required List<_i17.UserModel> listOtherUser,
-    required _i17.UserModel currentUser,
+    required _i17.ChatModel chatModel,
     List<_i15.PageRouteInfo>? children,
   }) : super(
           MessageRoute.name,
           args: MessageRouteArgs(
             key: key,
-            listOtherUser: listOtherUser,
-            currentUser: currentUser,
+            chatModel: chatModel,
           ),
           initialChildren: children,
         );
@@ -289,19 +286,16 @@ class MessageRoute extends _i15.PageRouteInfo<MessageRouteArgs> {
 class MessageRouteArgs {
   const MessageRouteArgs({
     this.key,
-    required this.listOtherUser,
-    required this.currentUser,
+    required this.chatModel,
   });
 
   final _i16.Key? key;
 
-  final List<_i17.UserModel> listOtherUser;
-
-  final _i17.UserModel currentUser;
+  final _i17.ChatModel chatModel;
 
   @override
   String toString() {
-    return 'MessageRouteArgs{key: $key, listOtherUser: $listOtherUser, currentUser: $currentUser}';
+    return 'MessageRouteArgs{key: $key, chatModel: $chatModel}';
   }
 }
 

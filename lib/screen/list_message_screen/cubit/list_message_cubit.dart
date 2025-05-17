@@ -1,3 +1,4 @@
+import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/data/repository/auth_repository.dart';
 import 'package:app_chat/data/repository/chat_repository.dart';
@@ -17,10 +18,17 @@ class ListMessageCubit extends Cubit<ListMessageState> {
   Future<void> getListUser() async {
     emit(ListMessageLoading());
     try {
-      final listUser = await _authRepository.getAllUsers();
+      final listChat = await _chatRepository.getAllChats();
       final currentUser = await _authRepository.getCurrentUser();
-      final listFriend = await _authRepository.getListFriend(currentUser);
-      emit(ListMessageLoaded(listUser: listFriend, currentUser: currentUser));
+      final listUser = await _authRepository.getListFriend(currentUser);
+      final listChatFriend = listChat.where((chat) => chat.type == 'private').toList();
+      final listChatGroup = listChat.where((chat) => chat.type == 'group').toList();
+
+      emit(ListMessageLoaded(
+        listChatFriend: listChatFriend,
+        listChatGroup: listChatGroup,
+        listUser: listUser,
+      ));
     } catch (e) {
       emit(ListMessageError(message: e.toString()));
     }

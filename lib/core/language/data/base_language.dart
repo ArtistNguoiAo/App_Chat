@@ -123,6 +123,8 @@ abstract class BaseLanguage {
 
   String get pleaseChooseMin2Friends;
 
+  String get pleaseEnterGroupName;
+
   String get create;
 
   String get chooseFriend;
@@ -132,4 +134,12 @@ abstract class BaseLanguage {
   String get groupName;
 
   String get createGroupSuccess;
+
+  String get friend;
+
+  String get group;
+
+  String get addFriend;
+
+  String get addGroup;
 }

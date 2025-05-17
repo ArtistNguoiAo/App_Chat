@@ -194,6 +194,9 @@ class EnLanguage extends BaseLanguage {
   String get pleaseChooseMin2Friends => 'Please choose at least 2 friends';
 
   @override
+  String get pleaseEnterGroupName => 'Please enter group name';
+
+  @override
   String get create => 'Create';
 
   @override
@@ -207,4 +210,16 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get createGroupSuccess => 'Group created successfully';
+
+  @override
+  String get friend => 'Friend';
+
+  @override
+  String get group => 'Group';
+
+  @override
+  String get addFriend => 'Add Friend';
+
+  @override
+  String get addGroup => 'Add Group';
 }

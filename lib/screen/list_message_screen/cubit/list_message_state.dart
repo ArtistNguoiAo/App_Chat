@@ -8,12 +8,14 @@ final class ListMessageInitial extends ListMessageState {}
 final class ListMessageLoading extends ListMessageState {}
 
 final class ListMessageLoaded extends ListMessageState {
+  final List<ChatModel> listChatFriend;
+  final List<ChatModel> listChatGroup;
   final List<UserModel> listUser;
-  final UserModel currentUser;
 
   ListMessageLoaded({
+    required this.listChatFriend,
+    required this.listChatGroup,
     required this.listUser,
-    required this.currentUser,
   });
 }
 

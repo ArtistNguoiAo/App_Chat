@@ -6,18 +6,21 @@ class MessageRepository {
 
   Future<void> sendMessage({
     required MessageModel messageModel,
+    required String chatId,
   }) async {
-    await _fireStore.collection('messages').add(messageModel.toMap());
+    final documentRef = _fireStore.collection('messages').doc(chatId).collection('messages').doc();
+
+    final updatedMessageModel = messageModel.copyWith(id: documentRef.id);
+
+    await documentRef.set(updatedMessageModel.toMap());
   }
 
-  Stream<List<MessageModel>> getMessage(List<String> targetSeenBy) {
-    return _fireStore.collection('messages').snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => MessageModel.fromMap(doc.data()))
-          .where((msg) =>
-          _listEqualsIgnoreOrder(msg.seenBy, targetSeenBy))
-          .toList()
-          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  Stream<List<MessageModel>> getMessage({
+    required String chatId,
+    required List<String> targetSeenBy,
+  }) {
+    return _fireStore.collection('messages').doc(chatId).collection('messages').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) => MessageModel.fromMap(doc.data())).where((msg) => _listEqualsIgnoreOrder(msg.seenBy, targetSeenBy)).toList()..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     });
   }
 
