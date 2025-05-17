@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:app_chat/core/utils/cloudinary_utils.dart';
 import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/message_model.dart';
+import 'package:app_chat/data/model/user_model.dart';
+import 'package:app_chat/data/repository/auth_repository.dart';
 import 'package:app_chat/data/repository/message_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -10,18 +14,26 @@ part 'message_state.dart';
 
 class MessageCubit extends Cubit<MessageState> {
   StreamSubscription<List<MessageModel>>? _messageSubscription;
+  final AuthRepository _authRepository = GetIt.instance<AuthRepository>();
+  final CloudinaryUtils _cloudinary = CloudinaryUtils();
 
   MessageCubit() : super(MessageInitial());
 
   final MessageRepository _repository = GetIt.instance<MessageRepository>();
 
-  void loadMessage({
+  Future<void> loadMessage({
     required List<String> seenBy,
-  }) {
+    required String chatId,
+  }) async {
     _messageSubscription?.cancel();
 
-    _messageSubscription = _repository.getMessage(seenBy).listen((listMessage) {
-      emit(MessageLoaded(listMessage: listMessage));
+    final currentUser = await _authRepository.getCurrentUser();
+
+    _messageSubscription = _repository.getMessage(
+      chatId: chatId,
+      targetSeenBy: seenBy,
+    ).listen((listMessage) {
+      emit(MessageLoaded(listMessage: listMessage, currentUser: currentUser));
     });
   }
 
@@ -30,16 +42,29 @@ class MessageCubit extends Cubit<MessageState> {
     required String text,
     required String createdAt,
     required List<String> seenBy,
+    required String chatId,
+    required String type,
+    File? imageFile,
   }) async {
+    if(imageFile != null) {
+      final uploadedUrl = await _cloudinary.uploadFile(imageFile, 'messages');
+      if (uploadedUrl != null) {
+        text = uploadedUrl;
+        type = 'image';
+      }
+    }
     final messageModel = MessageModel(
+      id: '',
       userIdSend: userIdSend,
       text: text,
       createdAt: createdAt,
       seenBy: seenBy,
+      type: type,
     );
 
     await _repository.sendMessage(
       messageModel: messageModel,
+      chatId: chatId,
     );
   }
 

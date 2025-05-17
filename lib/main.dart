@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
                     themeModeEnum: themeState.themeModeEnum,
                     child: MaterialApp.router(
                       theme: ThemeData(
-                        colorScheme: ColorScheme.fromSeed(seedColor: context.theme.yellowGold),
+                        colorScheme: ColorScheme.fromSeed(seedColor: context.theme.borderColor),
                         useMaterial3: true,
                       ),
                       routerConfig: appRouter.config(),

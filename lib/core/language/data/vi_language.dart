@@ -194,6 +194,9 @@ class ViLanguage extends BaseLanguage {
   String get pleaseChooseMin2Friends => 'Vui lòng chọn ít nhất 2 bạn bè';
 
   @override
+  String get pleaseEnterGroupName => 'Vui lòng nhập tên nhóm';
+
+  @override
   String get create => 'Tạo';
 
   @override
@@ -207,4 +210,16 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get createGroupSuccess => 'Tạo nhóm thành công';
+
+  @override
+  String get friend => 'Bạn bè';
+
+  @override
+  String get group => 'Nhóm';
+
+  @override
+  String get addFriend => 'Thêm bạn bè';
+
+  @override
+  String get addGroup => 'Thêm nhóm';
 }

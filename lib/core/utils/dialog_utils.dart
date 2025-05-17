@@ -122,7 +122,15 @@ class DialogUtils {
                           content: Text(context.language.pleaseChooseMin2Friends),
                         ),
                       );
-                    } else {
+                    }
+                    else if(groupNameController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(context.language.pleaseEnterGroupName),
+                        ),
+                      );
+                    }
+                    else {
                       final selectedFriends = listFriend.where((user) => selectedUserIds.contains(user.uid)).toList();
                       Navigator.of(context).pop(selectedFriends);
                     }
