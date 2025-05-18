@@ -173,7 +173,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
       child: TabBarView(
         controller: tabController,
         children: [
-          _listFriend(context, listFriend),
+          _listFriend(context, listFriend, listChatFriend),
           _listMessage(context, listChatGroup),
         ],
       ),
@@ -224,11 +224,22 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _listFriend(BuildContext context, List<UserModel> listFriend) {
+  Widget _listFriend(BuildContext context, List<UserModel> listFriend, List<ChatModel> listChat) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) => InkWell(
-        onTap: () {},
+        onTap: () {
+          for(var element in listChat) {
+            if (element.members.contains(listFriend[index].uid)) {
+              AutoRouter.of(context).push(
+                MessageRoute(
+                  chatModel: element,
+                ),
+              );
+              return;
+            }
+          }
+        },
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
