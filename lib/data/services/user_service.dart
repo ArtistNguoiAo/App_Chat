@@ -24,7 +24,9 @@ class UserService {
   Future<void> initializeStatusMonitoring() {
     _connectivity.onConnectivityChanged.listen((ConnectivityResult result) async {
       if (result == ConnectivityResult.none) {
-        await updateUserStatus('offline');
+        if (_auth.currentUser != null) { // Kiểm tra trước khi gọi
+          await updateUserStatus('offline');
+        }
       } else {
         if (_auth.currentUser != null) {
           await updateUserStatus('online');
@@ -35,14 +37,14 @@ class UserService {
     // Update status when app goes to background/foreground
     WidgetsBinding.instance.addPostFrameCallback((_) {
       SystemChannels.lifecycle.setMessageHandler((msg) async {
-        if (msg == AppLifecycleState.resumed.toString()) {
-          if (_auth.currentUser != null) {
+        if (_auth.currentUser != null) {
+          if (msg == AppLifecycleState.resumed.toString()) {
             await updateUserStatus('online');
+          } else if (msg == AppLifecycleState.paused.toString() ||
+              msg == AppLifecycleState.inactive.toString() ||
+              msg == AppLifecycleState.detached.toString()) {
+            await updateUserStatus('offline');
           }
-        } else if (msg == AppLifecycleState.paused.toString() ||
-            msg == AppLifecycleState.inactive.toString() ||
-            msg == AppLifecycleState.detached.toString()) {
-          await updateUserStatus('offline');
         }
         return null;
       });

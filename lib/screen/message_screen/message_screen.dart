@@ -114,21 +114,15 @@ class _MessageScreenState extends State<MessageScreen> {
                   ),
                   onSelected: (value) {
                     if (value == 1) {
-
-                    }
-                    else if (value == 2) {
-
+                      context.read<MessageCubit>().deleteFriend(
+                            userModel: widget.friend!,
+                            chatId: widget.chatModel.id,
+                          );
                     }
                   },
                   itemBuilder: (context) => [
                     PopupMenuItem(
                       value: 1,
-                      child: Text(
-                        context.language.deleteChat,
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 2,
                       child: Text(
                         context.language.deleteFriend,
                       ),
@@ -141,12 +135,7 @@ class _MessageScreenState extends State<MessageScreen> {
           backgroundColor: context.theme.primaryColor,
         ),
         body: Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-            left: 16,
-            right: 16,
-            bottom: 16,
-          ),
+          padding: const EdgeInsets.all(16),
           child: BlocConsumer<MessageCubit, MessageState>(
             listener: (context, state) {
               if (state is MessageDeleteSuccess) {

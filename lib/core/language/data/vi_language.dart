@@ -225,7 +225,4 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get deleteFriend => 'Xóa bạn bè';
-
-  @override
-  String get deleteChat => 'Xóa trò chuyện';
 }

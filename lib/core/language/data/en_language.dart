@@ -225,7 +225,4 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get deleteFriend => 'Delete Friend';
-
-  @override
-  String get deleteChat => 'Delete Chat';
 }

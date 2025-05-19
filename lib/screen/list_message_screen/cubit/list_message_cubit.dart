@@ -34,16 +34,27 @@ class ListMessageCubit extends Cubit<ListMessageState> {
 
       // Lắng nghe thay đổi bạn bè qua Stream
       _listFriendSubscription = _authRepository.getListFriendStream(currentUser).listen((listFriend) {
-        emit(ListMessageLoaded(
-          listChatFriend: listChatFriend,
-          listChatGroup: listChatGroup,
-          listFriend: listFriend,
-        ));
+        if (!isClosed) {
+          emit(ListMessageLoaded(
+            listChatFriend: listChatFriend,
+            listChatGroup: listChatGroup,
+            listFriend: listFriend,
+          ));
+        }
       });
     } catch (e) {
-      emit(ListMessageError(message: e.toString()));
+      if (!isClosed) {
+        emit(ListMessageError(message: e.toString()));
+      }
     }
   }
+
+  @override
+  Future<void> close() {
+    _listFriendSubscription?.cancel();
+    return super.close();
+  }
+
 
   Future<void> createGroup({
     required String groupName,
