@@ -96,14 +96,36 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                     itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 1,
-                        child: Text(
-                          context.language.addFriend,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              context.language.addFriend,
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              FontAwesomeIcons.userPlus,
+                              color: context.theme.textColor,
+                              size: 14,
+                            ),
+                          ],
                         ),
                       ),
                       PopupMenuItem(
                         value: 2,
-                        child: Text(
-                          context.language.addGroup,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              context.language.addGroup,
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              FontAwesomeIcons.usersLine,
+                              color: context.theme.textColor,
+                              size: 14,
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -234,6 +256,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
               AutoRouter.of(context).push(
                 MessageRoute(
                   chatModel: element,
+                  friend: listFriend[index],
                 ),
               );
               return;

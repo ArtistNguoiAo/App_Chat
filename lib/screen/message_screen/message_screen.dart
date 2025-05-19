@@ -8,6 +8,7 @@ import 'package:app_chat/data/model/message_model.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/message_screen/cubit/message_cubit.dart';
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,12 +18,14 @@ import 'package:intl/intl.dart';
 
 @RoutePage()
 class MessageScreen extends StatefulWidget {
-  const MessageScreen({
+  MessageScreen({
     super.key,
     required this.chatModel,
+    this.friend,
   });
 
   final ChatModel chatModel;
+  UserModel? friend;
 
   @override
   State<MessageScreen> createState() => _MessageScreenState();
@@ -51,6 +54,92 @@ class _MessageScreenState extends State<MessageScreen> {
           chatId: widget.chatModel.id,
         ),
       child: Scaffold(
+        appBar: AppBar(
+          title: Row(
+            children: [
+              widget.friend != null
+                  ? _avatarItem(
+                      url: widget.friend!.avatar,
+                      randomText: widget.friend!.uid,
+                    )
+                  : _avatarItem(
+                      url: widget.chatModel.groupAvatar,
+                      randomText: widget.chatModel.id,
+                    ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.friend != null ? widget.friend!.fullName : widget.chatModel.groupName,
+                    style: TextStyleUtils.bold(
+                      fontSize: 20,
+                      color: context.theme.backgroundColor,
+                      context: context,
+                    ),
+                  ),
+                  widget.friend == null
+                      ? const SizedBox()
+                      : Text(
+                          widget.friend!.status,
+                          style: TextStyleUtils.normal(
+                            fontSize: 14,
+                            color: widget.friend!.status == 'online' ? context.theme.backgroundColor : context.theme.textColor,
+                            context: context,
+                          ),
+                        ),
+                ],
+              ),
+            ],
+          ),
+          leading: InkWell(
+            onTap: () {
+              AutoRouter.of(context).maybePop();
+            },
+            child: Icon(
+              FontAwesomeIcons.chevronLeft,
+              color: context.theme.backgroundColor,
+              size: 18,
+            ),
+          ),
+          actions: [
+            Builder(
+              builder: (context) {
+                return PopupMenuButton(
+                  icon: Icon(
+                    FontAwesomeIcons.ellipsisVertical,
+                    color: context.theme.backgroundColor,
+                    size: 18,
+                  ),
+                  onSelected: (value) {
+                    if (value == 1) {
+
+                    }
+                    else if (value == 2) {
+
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 1,
+                      child: Text(
+                        context.language.deleteChat,
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 2,
+                      child: Text(
+                        context.language.deleteFriend,
+                      ),
+                    ),
+                  ],
+                );
+              }
+            ),
+          ],
+          backgroundColor: context.theme.primaryColor,
+        ),
         body: Padding(
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top,
@@ -60,37 +149,20 @@ class _MessageScreenState extends State<MessageScreen> {
           ),
           child: BlocConsumer<MessageCubit, MessageState>(
             listener: (context, state) {
-              // TODO: implement listener
+              if (state is MessageDeleteSuccess) {
+                AutoRouter.of(context).maybePop();
+              }
             },
             builder: (context, state) {
               if (state is MessageLoaded) {
                 final currentUser = state.currentUser;
                 return Column(
                   children: [
-                    currentUser.avatar.isNotEmpty
-                        ? Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: context.theme.borderColor,
-                            ),
-                            child: ClipOval(
-                              child: Image.network(
-                                currentUser.avatar,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          )
-                        : AvatarPlus(
-                            currentUser.uid,
-                            height: 60,
-                            width: 60,
-                          ),
                     Expanded(
                       child: _listMessage(
                         state.listMessage,
                         currentUser,
+                        widget.friend,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -109,6 +181,7 @@ class _MessageScreenState extends State<MessageScreen> {
   Widget _listMessage(
     List<MessageModel> listMessage,
     UserModel currentUser,
+    UserModel? friend,
   ) {
     return ListView.separated(
       reverse: true,
@@ -185,13 +258,13 @@ class _MessageScreenState extends State<MessageScreen> {
                       ),
                       child: ClipOval(
                         child: Image.network(
-                          '',
+                          friend?.avatar ?? '',
                           fit: BoxFit.cover,
                         ),
                       ),
                     )
                   : AvatarPlus(
-                      '1',
+                      friend?.uid ?? '',
                       height: 30,
                       width: 30,
                     ),
@@ -273,5 +346,33 @@ class _MessageScreenState extends State<MessageScreen> {
         ),
       );
     });
+  }
+
+  Widget _avatarItem({
+    required String url,
+    required String randomText,
+  }) {
+    if (url.isNotEmpty) {
+      return Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: context.theme.borderColor,
+        ),
+        child: ClipOval(
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    } else {
+      return AvatarPlus(
+        randomText,
+        height: 40,
+        width: 40,
+      );
+    }
   }
 }
