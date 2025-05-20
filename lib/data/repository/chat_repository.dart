@@ -36,4 +36,14 @@ class ChatRepository {
 
     await documentRef.set(chatModel.toMap());
   }
+
+  Future<void> deleteChat({
+    required String chatId,
+  }) async {
+    try {
+      await _fireStore.collection('chats').doc(chatId).delete();
+    } catch (e) {
+      throw Exception('Failed to delete chat: $e');
+    }
+  }
 }

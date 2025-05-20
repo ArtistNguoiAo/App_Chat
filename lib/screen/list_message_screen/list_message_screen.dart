@@ -96,14 +96,36 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                     itemBuilder: (context) => [
                       PopupMenuItem(
                         value: 1,
-                        child: Text(
-                          context.language.addFriend,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              context.language.addFriend,
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              FontAwesomeIcons.userPlus,
+                              color: context.theme.textColor,
+                              size: 14,
+                            ),
+                          ],
                         ),
                       ),
                       PopupMenuItem(
                         value: 2,
-                        child: Text(
-                          context.language.addGroup,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              context.language.addGroup,
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              FontAwesomeIcons.usersLine,
+                              color: context.theme.textColor,
+                              size: 14,
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -173,7 +195,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
       child: TabBarView(
         controller: tabController,
         children: [
-          _listFriend(context, listFriend),
+          _listFriend(context, listFriend, listChatFriend),
           _listMessage(context, listChatGroup),
         ],
       ),
@@ -224,11 +246,23 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _listFriend(BuildContext context, List<UserModel> listFriend) {
+  Widget _listFriend(BuildContext context, List<UserModel> listFriend, List<ChatModel> listChat) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) => InkWell(
-        onTap: () {},
+        onTap: () {
+          for(var element in listChat) {
+            if (element.members.contains(listFriend[index].uid)) {
+              AutoRouter.of(context).push(
+                MessageRoute(
+                  chatModel: element,
+                  friend: listFriend[index],
+                ),
+              );
+              return;
+            }
+          }
+        },
         child: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(

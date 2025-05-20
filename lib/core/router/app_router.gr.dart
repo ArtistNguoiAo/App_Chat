@@ -9,6 +9,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:app_chat/data/model/chat_model.dart' as _i18;
+import 'package:app_chat/data/model/user_model.dart' as _i19;
 import 'package:app_chat/screen/add_friend_screen/add_friend_screen.dart'
     as _i1;
 import 'package:app_chat/screen/home_screen/home_screen.dart' as _i4;
@@ -90,6 +91,7 @@ abstract class $AppRouter extends _i16.RootStackRouter {
         child: _i8.MessageScreen(
           key: args.key,
           chatModel: args.chatModel,
+          friend: args.friend,
         ),
       );
     },
@@ -257,12 +259,14 @@ class MessageRoute extends _i16.PageRouteInfo<MessageRouteArgs> {
   MessageRoute({
     _i17.Key? key,
     required _i18.ChatModel chatModel,
+    _i19.UserModel? friend,
     List<_i16.PageRouteInfo>? children,
   }) : super(
           MessageRoute.name,
           args: MessageRouteArgs(
             key: key,
             chatModel: chatModel,
+            friend: friend,
           ),
           initialChildren: children,
         );
@@ -277,15 +281,18 @@ class MessageRouteArgs {
   const MessageRouteArgs({
     this.key,
     required this.chatModel,
+    this.friend,
   });
 
   final _i17.Key? key;
 
   final _i18.ChatModel chatModel;
 
+  final _i19.UserModel? friend;
+
   @override
   String toString() {
-    return 'MessageRouteArgs{key: $key, chatModel: $chatModel}';
+    return 'MessageRouteArgs{key: $key, chatModel: $chatModel, friend: $friend}';
   }
 }
 

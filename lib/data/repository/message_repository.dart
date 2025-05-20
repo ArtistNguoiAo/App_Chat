@@ -41,10 +41,31 @@ class MessageRepository {
           .get();
       return snapshot.count ?? 0;
     } catch (e) {
-      print('Error getting messages count for chat $chatId: $e');
-      // Consider how you want to handle errors, e.g., rethrow or return a default.
-      // For now, rethrowing to be consistent with other repository methods.
       throw Exception('Failed to get messages count for chat $chatId: $e');
     }
   }
+
+  Future<void> deleteMessage({
+    required String chatId,
+  }) async {
+    try {
+      // Lấy tất cả các message trong collection 'messages'
+      final querySnapshot = await _fireStore
+          .collection('messages')
+          .doc(chatId)
+          .collection('messages')
+          .get();
+
+      // Xóa từng message
+      for (var doc in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Sau khi xóa hết message, xóa luôn document của chatId
+      await _fireStore.collection('messages').doc(chatId).delete();
+    } catch (e) {
+      throw Exception('Failed to delete all messages for chat $chatId: $e');
+    }
+  }
+
 }

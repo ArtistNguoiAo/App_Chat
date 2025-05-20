@@ -142,4 +142,6 @@ abstract class BaseLanguage {
   String get addFriend;
 
   String get addGroup;
+
+  String get deleteFriend;
 }

@@ -15,3 +15,5 @@ class MessageLoaded extends MessageState {
     required this.currentUser,
   });
 }
+
+class MessageDeleteSuccess extends MessageState {}

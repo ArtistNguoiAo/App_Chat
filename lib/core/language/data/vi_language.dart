@@ -222,4 +222,7 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get addGroup => 'Thêm nhóm';
+
+  @override
+  String get deleteFriend => 'Xóa bạn bè';
 }

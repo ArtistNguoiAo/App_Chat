@@ -149,4 +149,46 @@ class UserRepository {
       throw Exception('Lấy thông tin người dùng thất bại: $e');
     }
   }
+
+  Future<void> deleteFriend({required UserModel userModel}) async {
+    try {
+      final querySnapshot = await _fireStore.collection('users').get();
+      final users = querySnapshot.docs.map((doc) {
+        return UserModel.fromMap(doc.data());
+      }).toList();
+      final currentUser = users.firstWhere((user) => user.uid == _auth.currentUser!.uid);
+
+      final listFriend = currentUser.friends;
+      listFriend.remove(userModel.uid);
+      final listFriendUser = userModel.friends;
+      listFriendUser.remove(currentUser.uid);
+
+      final updatedUser = UserModel(
+        uid: userModel.uid,
+        username: userModel.username,
+        firstName: userModel.firstName,
+        lastName: userModel.lastName,
+        email: userModel.email,
+        avatar: userModel.avatar,
+        friends: listFriendUser,
+        friendRequests: userModel.friendRequests,
+      );
+      await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
+
+      final updatedCurrentUser = UserModel(
+        uid: currentUser.uid,
+        username: currentUser.username,
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        email: currentUser.email,
+        avatar: currentUser.avatar,
+        friends: listFriend,
+        friendRequests: currentUser.friendRequests,
+      );
+      await _fireStore.collection('users').doc(currentUser.uid).update(updatedCurrentUser.toMap());
+
+    } catch (e) {
+      throw Exception('Lấy thông tin người dùng thất bại: $e');
+    }
+  }
 }
