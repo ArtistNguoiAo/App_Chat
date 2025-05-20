@@ -1,9 +1,11 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/add_friend_screen/cubit/add_friend_cubit.dart';
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -83,7 +85,16 @@ class AddFriendScreen extends StatelessWidget {
         return InkWell(
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
-          onTap: () {},
+          onTap: () {
+            DialogUtils.showUserInfoDialog(
+              context: context,
+              user: listUser[index],
+              isFriend: isFriend,
+              onDeleteFriend: () {
+                context.read<AddFriendCubit>().deleteFriend(listUser[index]);
+              },
+            );
+          },
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
@@ -116,7 +127,7 @@ class AddFriendScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${listUser[index].firstName} ${listUser[index].lastName}',
+                        listUser[index].fullName,
                         style: TextStyleUtils.bold(
                           fontSize: 16,
                           color: context.theme.textColor,
@@ -125,7 +136,7 @@ class AddFriendScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '@${listUser[index].username}',
+                        listUser[index].username,
                         style: TextStyleUtils.normal(
                           fontSize: 14,
                           color: context.theme.textColor,
@@ -163,9 +174,9 @@ class AddFriendScreen extends StatelessWidget {
                               ? FontAwesomeIcons.userCheck
                               : FontAwesomeIcons.userPlus,
                       color: isFriend
-                          ? context.theme.primaryColor
+                          ? context.theme.blueColor
                           : isFriendRequest
-                              ? context.theme.primaryColor
+                              ? context.theme.blueColor
                               : context.theme.borderColor,
                       size: 16,
                     ),
