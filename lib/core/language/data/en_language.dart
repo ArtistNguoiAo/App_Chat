@@ -225,4 +225,10 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get deleteFriend => 'Delete Friend';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get requested => 'Requested';
 }

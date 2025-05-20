@@ -3,8 +3,11 @@ import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:avatar_plus/avatar_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DialogUtils {
   static Future<void> showListFriendDialog({
@@ -158,6 +161,165 @@ class DialogUtils {
     ).then((value) {
       if (value != null && value is List<UserModel>) {
         onSelected(value, groupNameController.text);
+      }
+    });
+  }
+
+  static Future<void> showUserInfoDialog({
+    required BuildContext context,
+    required UserModel user,
+    required bool isFriend,
+    required Function onDeleteFriend,
+  }) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Container()),
+                  InkWell(
+                    onTap: () {
+                      AutoRouter.of(context).maybePop();
+                    },
+                    child: Icon(
+                      FontAwesomeIcons.circleXmark,
+                      size: 22,
+                      color: context.theme.redColor,
+                    ),
+                  ),
+                ],
+              ),
+              if (user.avatar.isNotEmpty) ...[
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: context.theme.borderColor,
+                  ),
+                  child: ClipOval(
+                    child: Image.network(
+                      user.avatar,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              ] else ...[
+                AvatarPlus(
+                  user.uid,
+                  height: 60,
+                  width: 60,
+                )
+              ],
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: context.theme.textColor,
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 4,
+                  horizontal: 8,
+                ),
+                child: Text(
+                  '@${user.username}',
+                  style: TextStyleUtils.normal(
+                    fontSize: 14,
+                    color: context.theme.backgroundColor,
+                    context: context,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                user.fullName,
+                style: TextStyleUtils.bold(
+                  fontSize: 18,
+                  color: context.theme.textColor,
+                  context: context,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                user.email,
+                style: TextStyleUtils.normalItalic(
+                  fontSize: 16,
+                  color: context.theme.borderColor,
+                  context: context,
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (isFriend) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: double.maxFinite,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: context.theme.blueColor,
+                          border: Border.all(
+                            color: context.theme.blueColor,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          context.language.friend,
+                          style: TextStyleUtils.bold(
+                            fontSize: 16,
+                            color: context.theme.backgroundColor,
+                            context: context,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    PopupMenuButton(
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: context.theme.backgroundColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          FontAwesomeIcons.ellipsisVertical,
+                          size: 20,
+                          color: context.theme.textColor,
+                        ),
+                      ),
+                      onSelected: (value) {
+                        if (value == 1) {
+                          AutoRouter.of(context).maybePop(true);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 1,
+                          child: Text(
+                            context.language.deleteFriend,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              ]
+            ],
+          ),
+        );
+      },
+    ).then((value) {
+      if (value != null && value is bool && value) {
+        onDeleteFriend();
       }
     });
   }
