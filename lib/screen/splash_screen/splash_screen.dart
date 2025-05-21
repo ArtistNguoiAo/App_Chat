@@ -37,12 +37,10 @@ class _SplashScreenState extends State<SplashScreen> {
     if (authState is AuthAuthenticated) {
       _navigationAttempted = true;
       AutoRouter.of(context).replace(const OverViewRoute());
-    } else if (authState is AuthUnauthenticated) {
+    } else {
       _navigationAttempted = true;
       AutoRouter.of(context).replace(const LoginRoute());
     }
-    // If authState is AuthInitial or AuthLoading, we wait.
-    // The AuthCubit listener will call _navigate again when the state changes.
   }
 
   @override

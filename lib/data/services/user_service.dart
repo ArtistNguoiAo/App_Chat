@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../core/services/notification_service.dart';
 import '../model/user_model.dart';
 
 class UserService {
@@ -21,7 +22,7 @@ class UserService {
   }
 
   // Initialize status monitoring
-  Future<void> initializeStatusMonitoring() {
+  Future<void> initializeStatusMonitoring() async {
     _connectivity.onConnectivityChanged.listen((ConnectivityResult result) async {
       if (result == ConnectivityResult.none) {
         if (_auth.currentUser != null) { // Kiểm tra trước khi gọi
@@ -49,6 +50,14 @@ class UserService {
         return null;
       });
     });
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final token = await NotificationService.getToken();
+      if (token != null) {
+        await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({'fcmToken': token});
+      }
+    }
 
     return Future.value();
   }

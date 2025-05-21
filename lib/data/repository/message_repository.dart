@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:app_chat/data/model/message_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class MessageRepository {
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
 
   Future<void> sendMessage({
     required MessageModel messageModel,
@@ -13,6 +17,63 @@ class MessageRepository {
     final updatedMessageModel = messageModel.copyWith(id: documentRef.id);
 
     await documentRef.set(updatedMessageModel.toMap());
+  }
+
+  Future<void> sendMessageWithNotification({
+    required String chatId,
+    required String message,
+    required String senderId,
+    required List<String> memberIds,
+  }) async {
+    try {
+      // Save message to Firestore
+      final messageRef = await _fireStore.collection('chats').doc(chatId).collection('messages').add({
+        'message': message,
+        'senderId': senderId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Update last message
+      await _fireStore.collection('chats').doc(chatId).update({
+        'lastMessageId': messageRef.id,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+      });
+
+      // Get sender info
+      final senderDoc = await _fireStore.collection('users').doc(senderId).get();
+      final senderName = senderDoc.data()?['fullName'] ?? '';
+
+      // Send notification to other members
+      for (String memberId in memberIds) {
+        if (memberId != senderId) {
+          final memberDoc = await _fireStore.collection('users').doc(memberId).get();
+          final fcmToken = memberDoc.data()?['fcmToken'];
+
+          if (fcmToken != null) {
+            await _sendPushNotification(
+              token: fcmToken,
+              title: senderName,
+              body: message,
+              data: {
+                'chatId': chatId,
+                'type': 'message',
+              },
+            );
+          }
+        }
+      }
+    } catch (e) {
+      throw Exception('Failed to send message: $e');
+    }
+  }
+
+  Future<void> _sendPushNotification({
+    required String token,
+    required String title,
+    required String body,
+    required Map<String, dynamic> data,
+  }) async {
+
   }
 
   Stream<List<MessageModel>> getMessage({

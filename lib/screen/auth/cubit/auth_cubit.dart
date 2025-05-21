@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 
@@ -58,6 +59,14 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> signOut() async {
     try {
+      final currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        await _firestore.collection('users').doc(currentUser.uid).update({
+          'fcmToken': null,
+          'status': 'offline'
+        });
+        await FirebaseMessaging.instance.deleteToken();
+      }
       await _auth.signOut();
       await LocalCache.setString(StringCache.accessToken, '');
       await LocalCache.setString(StringCache.refreshToken, '');
