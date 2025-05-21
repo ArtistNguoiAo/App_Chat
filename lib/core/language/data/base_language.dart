@@ -15,6 +15,8 @@ abstract class BaseLanguage {
 
   String get notHaveAnAccount;
 
+  String get alreadyHaveAnAccount;
+
   String get home;
 
   String get profile;
@@ -152,4 +154,20 @@ abstract class BaseLanguage {
   String get loading;
 
   String get errorLoginAuth;
+
+  String get logoutContent;
+
+  String get noRecentChat;
+
+  String get noFavoriteChat;
+
+  String get updateProfileContent;
+
+  String get updatePasswordContent;
+
+  String get change;
+
+  String get updateProfileSuccessContent;
+
+  String get updatePasswordSuccessContent;
 }

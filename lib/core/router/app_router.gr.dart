@@ -132,9 +132,13 @@ abstract class $AppRouter extends _i16.RootStackRouter {
       );
     },
     UpdateProfileRoute.name: (routeData) {
+      final args = routeData.argsAs<UpdateProfileRouteArgs>();
       return _i16.AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const _i15.UpdateProfileScreen(),
+        child: _i15.UpdateProfileScreen(
+          key: args.key,
+          user: args.user,
+        ),
       );
     },
   };
@@ -382,14 +386,38 @@ class ThemeSettingRoute extends _i16.PageRouteInfo<void> {
 
 /// generated route for
 /// [_i15.UpdateProfileScreen]
-class UpdateProfileRoute extends _i16.PageRouteInfo<void> {
-  const UpdateProfileRoute({List<_i16.PageRouteInfo>? children})
-      : super(
+class UpdateProfileRoute extends _i16.PageRouteInfo<UpdateProfileRouteArgs> {
+  UpdateProfileRoute({
+    _i17.Key? key,
+    required _i19.UserModel user,
+    List<_i16.PageRouteInfo>? children,
+  }) : super(
           UpdateProfileRoute.name,
+          args: UpdateProfileRouteArgs(
+            key: key,
+            user: user,
+          ),
           initialChildren: children,
         );
 
   static const String name = 'UpdateProfileRoute';
 
-  static const _i16.PageInfo<void> page = _i16.PageInfo<void>(name);
+  static const _i16.PageInfo<UpdateProfileRouteArgs> page =
+      _i16.PageInfo<UpdateProfileRouteArgs>(name);
+}
+
+class UpdateProfileRouteArgs {
+  const UpdateProfileRouteArgs({
+    this.key,
+    required this.user,
+  });
+
+  final _i17.Key? key;
+
+  final _i19.UserModel user;
+
+  @override
+  String toString() {
+    return 'UpdateProfileRouteArgs{key: $key, user: $user}';
+  }
 }

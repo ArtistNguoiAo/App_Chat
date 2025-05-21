@@ -1,6 +1,9 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_avatar.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -63,7 +66,7 @@ class ProfileScreen extends StatelessWidget {
                         context: context,
                       ),
                       const SizedBox(height: 16),
-                      _accountManagement(context),
+                      _accountManagement(context, user),
                     ],
                   ),
                 ),
@@ -86,18 +89,10 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: context.theme.borderColor,
-              image: DecorationImage(
-                image: NetworkImage(user.avatar ?? ''),
-                fit: BoxFit.cover,
-                onError: (error, stackTrace) => const Icon(Icons.person),
-              ),
-            ),
+          BaseAvatar(
+            url: user.avatar,
+            randomText: user.uid,
+            size: 100,
           ),
           const SizedBox(height: 16),
           Container(
@@ -127,26 +122,6 @@ class ProfileScreen extends StatelessWidget {
               context: context,
             ),
           ),
-          // const SizedBox(height: 8),
-          // Row(
-          //   mainAxisSize: MainAxisSize.min,
-          //   children: [
-          //     Icon(
-          //       FontAwesomeIcons.calendarDay,
-          //       color: context.theme.borderColor,
-          //       size: 16,
-          //     ),
-          //     const SizedBox(width: 8),
-          //     Text(
-          //       'Joined on ${user.createdAt}',
-          //       style: TextStyleUtils.normal(
-          //         color: context.theme.borderColor,
-          //         fontSize: 16,
-          //         context: context,
-          //       ),
-          //     )
-          //   ],
-          // ),
           const SizedBox(height: 16),
           Container(
             height: 1,
@@ -220,7 +195,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _accountManagement(BuildContext context) {
+  Widget _accountManagement(BuildContext context, UserModel user) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -238,26 +213,11 @@ class ProfileScreen extends StatelessWidget {
               context: context,
             ),
           ),
-          // const SizedBox(height: 16),
-          // _accountItem(
-          //   icon: FontAwesomeIcons.crown,
-          //   title: context.language.premiumAccount,
-          //   color: context.theme.yellowColor,
-          //   onTap: () {},
-          //   context: context,
-          // ),
-          // const SizedBox(height: 16),
-          // _accountItem(
-          //   icon: FontAwesomeIcons.lock,
-          //   title: context.language.changeLanguage,
-          //   onTap: () {},
-          //   context: context,
-          // ),
           const SizedBox(height: 16),
           _accountItem(
             icon: FontAwesomeIcons.userPen,
             title: context.language.updateProfile,
-            onTap: () => context.router.push(const UpdateProfileRoute()),
+            onTap: () => context.router.push(UpdateProfileRoute(user: user)),
             context: context,
           ),
           const SizedBox(height: 16),
@@ -271,17 +231,18 @@ class ProfileScreen extends StatelessWidget {
           _accountItem(
             icon: FontAwesomeIcons.arrowRightFromBracket,
             title: context.language.logout,
-            onTap: () => context.read<AuthCubit>().signOut(),
+            onTap: () {
+              DialogUtils.showConfirmDialog(
+                context: context,
+                content: context.language.logoutContent,
+                confirmButton: context.language.logout,
+                onConfirm: () {
+                  context.read<AuthCubit>().signOut();
+                },
+              );
+            },
             context: context,
           ),
-          // const SizedBox(height: 16),
-          // _accountItem(
-          //   icon: FontAwesomeIcons.trashCan,
-          //   title: context.language.deleteAccount,
-          //   color: context.theme.redColor,
-          //   onTap: () {},
-          //   context: context,
-          // ),
         ],
       ),
     );

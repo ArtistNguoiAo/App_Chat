@@ -6,10 +6,13 @@ class UpdateProfileInitial extends UpdateProfileState {}
 
 class UpdateProfileLoading extends UpdateProfileState {}
 
-class UpdateProfileSuccess extends UpdateProfileState {
+final class UpdateProfileSuccess extends UpdateProfileState {
   final UserModel user;
 
-  UpdateProfileSuccess(this.user);
+  UpdateProfileSuccess({
+    required this.user,
+  });
+
 }
 
 class UpdateProfileError extends UpdateProfileState {

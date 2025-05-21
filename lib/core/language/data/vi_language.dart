@@ -32,6 +32,9 @@ class ViLanguage extends BaseLanguage {
   String get notHaveAnAccount => 'Chưa có tài khoản?';
 
   @override
+  String get alreadyHaveAnAccount => 'Đã có tài khoản?';
+
+  @override
   String get home => 'Trang chủ';
 
   @override
@@ -237,4 +240,28 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get errorLoginAuth => 'Đăng nhập không thành công, vui lòng kiểm tra lại thông tin tài khoản của bạn!';
+
+  @override
+  String get logoutContent => 'Bạn có chắc chắn muốn đăng xuất không?';
+
+  @override
+  String get noRecentChat => 'Không có cuộc trò chuyện gần đây nào';
+
+  @override
+  String get noFavoriteChat => 'Không có cuộc trò chuyện yêu thích nào';
+
+  @override
+  String get updateProfileContent => 'Bạn có chắc chắn muốn cập nhật hồ sơ không?';
+
+  @override
+  String get updatePasswordContent => 'Bạn có chắc chắn muốn cập nhật mật khẩu không?';
+
+  @override
+  String get change => 'Thay đổi';
+
+  @override
+  String get updateProfileSuccessContent => 'Cập nhật hồ sơ thành công';
+
+  @override
+  String get updatePasswordSuccessContent => 'Cập nhật mật khẩu thành công';
 }

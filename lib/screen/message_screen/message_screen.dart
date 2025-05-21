@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_avatar.dart';
 import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/message_model.dart';
@@ -46,6 +47,12 @@ class _MessageScreenState extends State<MessageScreen> {
     return pickedFile != null ? File(pickedFile.path) : null;
   }
 
+  Future<File?> _takeImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    return pickedFile != null ? File(pickedFile.path) : null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -59,13 +66,15 @@ class _MessageScreenState extends State<MessageScreen> {
           title: Row(
             children: [
               widget.friend != null
-                  ? _avatarItem(
+                  ? BaseAvatar(
                       url: widget.friend!.avatar,
                       randomText: widget.friend!.uid,
+                      size: 40,
                     )
-                  : _avatarItem(
+                  : BaseAvatar(
                       url: widget.chatModel.groupAvatar,
                       randomText: widget.chatModel.id,
+                      size: 40,
                     ),
               const SizedBox(width: 8),
               Column(
@@ -293,74 +302,74 @@ class _MessageScreenState extends State<MessageScreen> {
 
   Widget _sendMessage(UserModel currentUser) {
     return Builder(builder: (context) {
-      return BaseTextField(
-        controller: _messageController,
-        hintText: context.language.typeMessage,
-        suffixIcon: InkWell(
-          onTap: () {
-            if (_messageController.text.trim().isEmpty) return;
-            context.read<MessageCubit>().sendMessage(
-                  userIdSend: currentUser.uid,
-                  text: _messageController.text,
-                  createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
-                  seenBy: widget.chatModel.members,
-                  chatId: widget.chatModel.id,
-                  type: 'text',
-                );
-            _messageController.clear();
-          },
-          child: Icon(
-            FontAwesomeIcons.paperPlane,
-            color: context.theme.textColor,
+      return Row(
+        children: [
+          InkWell(
+            onTap: () async {
+              final imageFile = await _takeImage();
+              if (imageFile == null) return;
+              context.read<MessageCubit>().sendMessage(
+                userIdSend: currentUser.uid,
+                text: '',
+                createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
+                seenBy: widget.chatModel.members,
+                chatId: widget.chatModel.id,
+                type: 'image',
+                imageFile: imageFile,
+              );
+            },
+            child: Icon(
+              FontAwesomeIcons.camera,
+              color: context.theme.textColor,
+            ),
           ),
-        ),
-        prefixIcon: InkWell(
-          onTap: () async {
-            final imageFile = await _pickImage();
-            context.read<MessageCubit>().sendMessage(
-                  userIdSend: currentUser.uid,
-                  text: '',
-                  createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
-                  seenBy: widget.chatModel.members,
-                  chatId: widget.chatModel.id,
-                  type: 'image',
-                  imageFile: imageFile,
-                );
-          },
-          child: Icon(
-            FontAwesomeIcons.image,
-            color: context.theme.textColor,
+          const SizedBox(width: 16),
+          InkWell(
+            onTap: () async {
+              final imageFile = await _pickImage();
+              if (imageFile == null) return;
+              context.read<MessageCubit>().sendMessage(
+                userIdSend: currentUser.uid,
+                text: '',
+                createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
+                seenBy: widget.chatModel.members,
+                chatId: widget.chatModel.id,
+                type: 'image',
+                imageFile: imageFile,
+              );
+            },
+            child: Icon(
+              FontAwesomeIcons.image,
+              color: context.theme.textColor,
+            ),
           ),
-        ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: BaseTextField(
+              controller: _messageController,
+              hintText: context.language.typeMessage,
+              suffixIcon: InkWell(
+                onTap: () {
+                  if (_messageController.text.trim().isEmpty) return;
+                  context.read<MessageCubit>().sendMessage(
+                        userIdSend: currentUser.uid,
+                        text: _messageController.text,
+                        createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
+                        seenBy: widget.chatModel.members,
+                        chatId: widget.chatModel.id,
+                        type: 'text',
+                      );
+                  _messageController.clear();
+                },
+                child: Icon(
+                  FontAwesomeIcons.paperPlane,
+                  color: context.theme.textColor,
+                ),
+              ),
+            ),
+          ),
+        ],
       );
     });
-  }
-
-  Widget _avatarItem({
-    required String url,
-    required String randomText,
-  }) {
-    if (url.isNotEmpty) {
-      return Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: context.theme.borderColor,
-        ),
-        child: ClipOval(
-          child: Image.network(
-            url,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
-    } else {
-      return AvatarPlus(
-        randomText,
-        height: 40,
-        width: 40,
-      );
-    }
   }
 }

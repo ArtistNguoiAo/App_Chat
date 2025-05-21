@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:app_chat/data/repository/auth_repository.dart';
 import 'package:bloc/bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../data/model/user_model.dart';
 import '../../../data/repository/user_repository.dart';
@@ -8,11 +10,9 @@ import '../../../data/repository/user_repository.dart';
 part 'update_profile_state.dart';
 
 class UpdateProfileCubit extends Cubit<UpdateProfileState> {
-  final UserRepository _userRepository;
+  final UserRepository _userRepository  = GetIt.instance<UserRepository>();
 
-  UpdateProfileCubit()
-      : _userRepository = UserRepository(),
-        super(UpdateProfileInitial());
+  UpdateProfileCubit() : super(UpdateProfileInitial());
 
   Future<void> updateProfile({
     required UserModel user,
@@ -32,7 +32,7 @@ class UpdateProfileCubit extends Cubit<UpdateProfileState> {
         imageFile: imageFile,
       );
 
-      emit(UpdateProfileSuccess(updatedUser));
+      emit(UpdateProfileSuccess(user: updatedUser));
     } catch (e) {
       emit(UpdateProfileError(e.toString()));
     }
