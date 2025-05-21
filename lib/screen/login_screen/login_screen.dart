@@ -46,7 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
       create: (context) => LoginCubit()..init(),
       child: BlocConsumer<LoginCubit, LoginState>(
         listener: (context, state) {
-          print("TrungLQ: $state");
           if (state is LoginLoaded) {
             _emailController.text = state.email;
             _passwordController.text = state.password;
@@ -82,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    _loginWidget()
+                    _loginWidget(context),
                   ],
                 ),
               ),
@@ -101,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  _loginWidget()
+                  _loginWidget(context),
                 ],
               ),
             ),
@@ -111,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _loginWidget() {
+  Widget _loginWidget(BuildContext context) {
     return Form(
       key: formKey,
       child: Column(
@@ -216,45 +215,41 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                BlocBuilder<LoginCubit, LoginState>(
-                  builder: (context, state) {
-                    return Row(
-                      children: [
-                        Expanded(child: Container()),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              context.read<LoginCubit>().login(
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                    rememberMe: _rememberMe,
-                                  );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: context.theme.primaryColor,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10),
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  context.language.login,
-                                  style: TextStyleUtils.bold(
-                                    color: context.theme.backgroundColor,
-                                    context: context,
-                                  ),
-                                ),
+                Row(
+                  children: [
+                    Expanded(child: Container()),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          context.read<LoginCubit>().login(
+                            email: _emailController.text,
+                            password: _passwordController.text,
+                            rememberMe: _rememberMe,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: context.theme.primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              context.language.login,
+                              style: TextStyleUtils.bold(
+                                color: context.theme.backgroundColor,
+                                context: context,
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    );
-                  },
-                )
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

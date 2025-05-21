@@ -11,23 +11,18 @@ import '../../../data/repository/auth_repository.dart';
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  final AuthRepository _authRepository;
-  final FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
+  final AuthRepository _authRepository = GetIt.instance<AuthRepository>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  AuthCubit()
-      : _authRepository = GetIt.instance<AuthRepository>(),
-        _auth = FirebaseAuth.instance,
-        _firestore = FirebaseFirestore.instance,
-        super(AuthInitial());
+  AuthCubit() : super(AuthInitial());
 
   Future<void> checkAuthState() async {
     emit(AuthLoading());
     try {
       final accessToken = await LocalCache.getString(StringCache.accessToken);
-      final rememberMe = await LocalCache.getBool(StringCache.rememberMe);
 
-      if (!rememberMe || accessToken.isEmpty) {
+      if (accessToken.isEmpty) {
         emit(AuthUnauthenticated());
         return;
       }

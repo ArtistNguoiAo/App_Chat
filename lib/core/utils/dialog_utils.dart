@@ -50,7 +50,7 @@ class DialogUtils {
 
   static void hideLoadingDialog(BuildContext context) {
     if (_isShowing) {
-      AutoRouter.of(context).maybePop();
+      Navigator.of(context).pop();
       _isShowing = false;
     }
   }

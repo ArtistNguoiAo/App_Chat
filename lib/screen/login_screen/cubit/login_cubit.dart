@@ -50,6 +50,11 @@ class LoginCubit extends Cubit<LoginState> {
         await LocalCache.setBool(StringCache.rememberMe, false);
       }
 
+      await _authRepository.loginUser(
+        email: email,
+        password: password,
+      );
+
       final (user, tokens) = await _authRepository.loginUser(
         email: email,
         password: password,
