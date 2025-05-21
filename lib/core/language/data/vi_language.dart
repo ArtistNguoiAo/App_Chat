@@ -231,4 +231,10 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get requested => 'Đã yêu cầu';
+
+  @override
+  String get loading => 'Đang tải';
+
+  @override
+  String get errorLoginAuth => 'Đăng nhập không thành công, vui lòng kiểm tra lại thông tin tài khoản của bạn!';
 }

@@ -7,6 +7,18 @@ final class LoginInitial extends LoginState {}
 
 final class LoginLoading extends LoginState {}
 
+final class LoginLoaded extends LoginState {
+  final String email;
+  final String password;
+  final bool rememberMe;
+
+  LoginLoaded({
+    required this.email,
+    required this.password,
+    required this.rememberMe,
+  });
+}
+
 final class LoginSuccess extends LoginState {
   final UserModel user;
   final TokenModel tokens;
@@ -14,8 +26,10 @@ final class LoginSuccess extends LoginState {
   LoginSuccess({required this.user, required this.tokens});
 }
 
-final class LoginFailure extends LoginState {
+final class LoginError extends LoginState {
   final String error;
 
-  LoginFailure(this.error);
+  LoginError({
+    required this.error,
+  });
 }

@@ -231,4 +231,10 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get requested => 'Requested';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String get errorLoginAuth => 'Login failed, please check your email and password';
 }
