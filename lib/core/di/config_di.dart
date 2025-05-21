@@ -1,6 +1,7 @@
 import 'package:app_chat/data/repository/chat_repository.dart';
 import 'package:app_chat/data/repository/message_repository.dart';
 import 'package:app_chat/data/repository/user_repository.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../data/repository/auth_repository.dart';

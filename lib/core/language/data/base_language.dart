@@ -148,4 +148,8 @@ abstract class BaseLanguage {
   String get close;
 
   String get requested;
+
+  String get loading;
+
+  String get errorLoginAuth;
 }

@@ -1,5 +1,6 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/router/app_router.gr.dart';
+import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/media_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/screen/login_screen/cubit/login_cubit.dart';
@@ -26,17 +27,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
   bool _rememberMe = false;
-  late final LoginCubit _loginCubit;
 
   @override
   void initState() {
     super.initState();
-    _loginCubit = LoginCubit();
   }
 
   @override
   void dispose() {
-    _loginCubit.close();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -44,54 +42,75 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _loginCubit,
-      child: BlocListener<LoginCubit, LoginState>(
+    return BlocProvider(
+      create: (context) => LoginCubit()..init(),
+      child: BlocConsumer<LoginCubit, LoginState>(
         listener: (context, state) {
+          if (state is LoginLoaded) {
+            _emailController.text = state.email;
+            _passwordController.text = state.password;
+            _rememberMe = state.rememberMe;
+          }
           if (state is LoginSuccess) {
+            DialogUtils.hideLoadingDialog(context);
             AutoRouter.of(context).replace(const OverViewRoute());
-          } else if (state is LoginFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error)),
+          }
+          if (state is LoginLoading) {
+            DialogUtils.showLoadingDialog(context);
+          }
+          if (state is LoginError) {
+            DialogUtils.hideLoadingDialog(context);
+            DialogUtils.showErrorDialog(
+              context: context,
+              message: state.error,
             );
           }
         },
-        child: Scaffold(
-          body: Stack(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: SvgPicture.asset(
-                  MediaUtils.imgBackground,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Padding(
-                padding: MediaQuery.of(context).padding,
-                child: Row(
+        builder: (context, state) {
+          if (state is LoginLoaded) {
+            return Scaffold(
+              body: Padding(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                child: Stack(
                   children: [
-                    const SizedBox(width: 16),
-                    Text(
-                      context.language.appName,
-                      style: TextStyleUtils.bold(
-                        fontSize: 48,
-                        color: context.theme.backgroundColor,
-                        context: context,
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      child: SvgPicture.asset(
+                        MediaUtils.imgBackground,
+                        fit: BoxFit.cover,
                       ),
                     ),
+                    _loginWidget(context),
                   ],
                 ),
               ),
-              _loginWidget()
-            ],
-          ),
-        ),
+            );
+          }
+          return Scaffold(
+            body: Padding(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              child: Stack(
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: SvgPicture.asset(
+                      MediaUtils.imgBackground,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  _loginWidget(context),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _loginWidget() {
+  Widget _loginWidget(BuildContext context) {
     return Form(
       key: formKey,
       child: Column(
@@ -196,51 +215,41 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                BlocBuilder<LoginCubit, LoginState>(
-                  builder: (context, state) {
-                    return Row(
-                      children: [
-                        Expanded(child: Container()),
-                        Expanded(
-                          child: InkWell(
-                            onTap: state is LoginLoading
-                                ? null
-                                : () {
-                                    if (formKey.currentState?.validate() ?? false) {
-                                      context.read<LoginCubit>().login(
-                                            email: _emailController.text,
-                                            password: _passwordController.text,
-                                            rememberMe: _rememberMe,
-                                          );
-                                    }
-                                  },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: context.theme.primaryColor,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10),
-                                ),
-                              ),
-                              child: Center(
-                                child: state is LoginLoading
-                                    ? const CircularProgressIndicator(color: Colors.white)
-                                    : Text(
-                                        context.language.login,
-                                        style: TextStyleUtils.bold(
-                                          color: context.theme.backgroundColor,
-                                          context: context,
-                                        ),
-                                      ),
+                Row(
+                  children: [
+                    Expanded(child: Container()),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          context.read<LoginCubit>().login(
+                            email: _emailController.text,
+                            password: _passwordController.text,
+                            rememberMe: _rememberMe,
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: context.theme.primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              context.language.login,
+                              style: TextStyleUtils.bold(
+                                color: context.theme.backgroundColor,
+                                context: context,
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    );
-                  },
-                )
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
