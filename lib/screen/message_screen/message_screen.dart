@@ -179,7 +179,7 @@ class _MessageScreenState extends State<MessageScreen> {
                           onConfirm: () {
                             context.read<MessageCubit>().deleteFriend(
                               userModel: widget.friend!,
-                              chatId: widget.chatModel.id,
+                              chatId: chatModel.id,
                             );
                           },
                         );
@@ -199,7 +199,7 @@ class _MessageScreenState extends State<MessageScreen> {
                           onConfirm: () {
                             context.read<MessageCubit>().deleteFriend(
                               userModel: widget.friend!,
-                              chatId: widget.chatModel.id,
+                              chatId: chatModel.id,
                             );
                           },
                         );

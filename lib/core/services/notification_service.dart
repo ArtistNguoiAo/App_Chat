@@ -32,8 +32,11 @@ class NotificationService {
         print("Notification clicked from foreground");
         final payload = response.payload;
         if (payload != null) {
-          print("Notification payload: $payload");
           final appRouter = GetIt.instance<AppRouter>();
+          if(payload == 'friend_request') {
+            appRouter.push(const NotifyRoute());
+            return;
+          }
           appRouter.push(MessageRoute(chatId: payload));
         }
       },
@@ -150,6 +153,7 @@ class NotificationService {
     String? chatId,
     String type = 'message',
   }) async {
+    print("Notification request xxx");
     try {
       final dio = Dio();
 
@@ -160,7 +164,7 @@ class NotificationService {
           'title': title,
           'message': body,
           'data': {
-            'chatId': chatId,
+            'chatId': chatId ?? '',
             'type': type,
           },
         },

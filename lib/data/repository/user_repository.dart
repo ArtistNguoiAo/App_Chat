@@ -76,18 +76,13 @@ class UserRepository {
         fcmToken: userModel.fcmToken,
       );
       await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
-
       if (userModel.fcmToken.isNotEmpty) {
-        try {
-          await NotificationService.pushNotification(
-            token: userModel.fcmToken,
-            title: 'New Friend Request',
-            body: '${currentUser.fullName} sent you a friend request.',
-            type: 'friend_request',
-          );
-        } catch (e) {
-          print('Failed to send friend request notification: $e');
-        }
+        await NotificationService.pushNotification(
+          token: userModel.fcmToken,
+          title: 'New Friend Request',
+          body: '${currentUser.fullName} sent you a friend request.',
+          type: 'friend_request',
+        );
       }
 
     } catch (e) {
