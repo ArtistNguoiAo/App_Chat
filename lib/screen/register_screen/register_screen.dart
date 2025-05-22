@@ -1,4 +1,5 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -40,34 +41,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return BlocProvider(
         create: (context) => RegisterCubit(),
         child: Scaffold(
-          body: Stack(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: SvgPicture.asset(
-                  MediaUtils.imgBackground,
-                  fit: BoxFit.cover,
+          body: Padding(
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+            child: Stack(
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: SvgPicture.asset(
+                    MediaUtils.imgBackground,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: MediaQuery.of(context).padding,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 16),
-                    Text(
-                      context.language.appName,
-                      style: TextStyleUtils.bold(
-                        fontSize: 48,
-                        color: context.theme.backgroundColor,
-                        context: context,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              _registerWidget()
-            ],
+                _registerWidget()
+              ],
+            ),
           ),
         ));
   }
@@ -250,19 +238,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return BlocConsumer<RegisterCubit, RegisterState>(
       listener: (context, state) {
         if (state is RegisterSuccess) {
+          DialogUtils.hideLoadingDialog(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(context.language.registrationSuccessful),
-              backgroundColor: Colors.green,
+              backgroundColor: context.theme.greenColor,
             ),
           );
-          context.router.pop();
-        } else if (state is RegisterFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.error),
-              backgroundColor: Colors.red,
-            ),
+          context.router.maybePop();
+        }
+        if(state is RegisterLoading) {
+          DialogUtils.showLoadingDialog(context);
+        }
+        if (state is RegisterError) {
+          DialogUtils.hideLoadingDialog(context);
+          DialogUtils.showErrorDialog(
+            context: context,
+            message: state.error,
           );
         }
       },
@@ -270,19 +262,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: ElevatedButton(
-            onPressed: state is RegisterLoading
-                ? null
-                : () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      context.read<RegisterCubit>().register(
-                            email: _emailController.text,
-                            password: _passwordController.text,
-                            username: _usernameController.text,
-                            firstName: _firstNameController.text,
-                            lastName: _lastNameController.text,
-                          );
-                    }
-                  },
+            onPressed: () {
+              context.read<RegisterCubit>().register(
+                email: _emailController.text,
+                password: _passwordController.text,
+                confirmPassword: _confirmPasswordController.text,
+                username: _usernameController.text,
+                firstName: _firstNameController.text,
+                lastName: _lastNameController.text,
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: context.theme.primaryColor,
               minimumSize: const Size(double.infinity, 48),
@@ -290,22 +279,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: state is RegisterLoading
-                ? SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      color: context.theme.backgroundColor,
-                      strokeWidth: 2,
-                    ),
-                  )
-                : Text(
-                    context.language.register,
-                    style: TextStyleUtils.bold(
-                      color: context.theme.backgroundColor,
-                      context: context,
-                    ),
-                  ),
+            child: Text(
+              context.language.register,
+              style: TextStyleUtils.bold(
+                color: context.theme.backgroundColor,
+                context: context,
+              ),
+            ),
           ),
         );
       },
@@ -315,19 +295,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _buildLoginLink() {
     return RichText(
       text: TextSpan(
-        text: 'Already have an account? ',
+        text: context.language.alreadyHaveAnAccount,
         style: TextStyleUtils.normal(
+          fontSize: 14,
           color: context.theme.textColor,
           context: context,
         ),
         children: [
           TextSpan(
-            text: context.language.login,
-            style: TextStyleUtils.bold(
+            text: ' ${context.language.login}',
+            style: TextStyleUtils.normal(
+              fontSize: 14,
               color: context.theme.primaryColor,
               context: context,
             ),
-            recognizer: TapGestureRecognizer()..onTap = () => context.router.pop(),
+            recognizer: TapGestureRecognizer()..onTap = () => context.router.maybePop(),
           ),
         ],
       ),

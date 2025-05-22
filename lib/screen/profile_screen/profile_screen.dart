@@ -1,6 +1,9 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_avatar.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -30,43 +33,54 @@ class ProfileScreen extends StatelessWidget {
           final user = state.user;
           return Scaffold(
             body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: Column(
-                    children: [
-                      _basicInfo(context, user),
-                      const SizedBox(height: 16),
-                      _changeSetting(
-                        icon: FontAwesomeIcons.globe,
-                        title: context.language.language,
-                        content: InheritedLanguageWidget.of(context)?.languageModeEnum?.displayName ?? "English",
-                        onTap: () async {
-                          final selectedLanguage = await context.router.push(const LanguageSettingRoute());
-                          if (selectedLanguage != null && selectedLanguage is LanguageModeEnum) {
-                            context.read<LanguageCubit>().changeLanguage(selectedLanguage);
-                          }
-                        },
-                        context: context,
-                      ),
-                      const SizedBox(height: 16),
-                      _changeSetting(
-                        icon: FontAwesomeIcons.sun,
-                        title: context.language.theme,
-                        content: InheritedThemeWidget.of(context)?.themeModeEnum == ThemeModeEnum.light ? context.language.lightTheme : context.language.darkTheme,
-                        onTap: () async {
-                          final selectedTheme = await context.router.push(const ThemeSettingRoute());
-                          if (selectedTheme != null && selectedTheme is ThemeModeEnum) {
-                            context.read<ThemeCubit>().changeTheme(selectedTheme);
-                          }
-                        },
-                        context: context,
-                      ),
-                      const SizedBox(height: 16),
-                      _accountManagement(context),
-                    ],
+              child: Column(
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).padding.top,
+                    width: double.infinity,
+                    color: context.theme.primaryColor,
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          _basicInfo(context, user),
+                          const SizedBox(height: 16),
+                          _changeSetting(
+                            icon: FontAwesomeIcons.globe,
+                            title: context.language.language,
+                            content: InheritedLanguageWidget.of(context)?.languageModeEnum?.displayName ?? "English",
+                            onTap: () async {
+                              final selectedLanguage = await context.router.push(const LanguageSettingRoute());
+                              if (selectedLanguage != null && selectedLanguage is LanguageModeEnum) {
+                                context.read<LanguageCubit>().changeLanguage(selectedLanguage);
+                              }
+                            },
+                            context: context,
+                          ),
+                          const SizedBox(height: 16),
+                          _changeSetting(
+                            icon: FontAwesomeIcons.sun,
+                            title: context.language.theme,
+                            content: InheritedThemeWidget.of(context)?.themeModeEnum == ThemeModeEnum.light
+                                ? context.language.lightTheme
+                                : context.language.darkTheme,
+                            onTap: () async {
+                              final selectedTheme = await context.router.push(const ThemeSettingRoute());
+                              if (selectedTheme != null && selectedTheme is ThemeModeEnum) {
+                                context.read<ThemeCubit>().changeTheme(selectedTheme);
+                              }
+                            },
+                            context: context,
+                          ),
+                          const SizedBox(height: 16),
+                          _accountManagement(context, user),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -86,18 +100,10 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: context.theme.borderColor,
-              image: DecorationImage(
-                image: NetworkImage(user.avatar ?? ''),
-                fit: BoxFit.cover,
-                onError: (error, stackTrace) => const Icon(Icons.person),
-              ),
-            ),
+          BaseAvatar(
+            url: user.avatar,
+            randomText: user.uid,
+            size: 100,
           ),
           const SizedBox(height: 16),
           Container(
@@ -127,26 +133,6 @@ class ProfileScreen extends StatelessWidget {
               context: context,
             ),
           ),
-          // const SizedBox(height: 8),
-          // Row(
-          //   mainAxisSize: MainAxisSize.min,
-          //   children: [
-          //     Icon(
-          //       FontAwesomeIcons.calendarDay,
-          //       color: context.theme.borderColor,
-          //       size: 16,
-          //     ),
-          //     const SizedBox(width: 8),
-          //     Text(
-          //       'Joined on ${user.createdAt}',
-          //       style: TextStyleUtils.normal(
-          //         color: context.theme.borderColor,
-          //         fontSize: 16,
-          //         context: context,
-          //       ),
-          //     )
-          //   ],
-          // ),
           const SizedBox(height: 16),
           Container(
             height: 1,
@@ -220,7 +206,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _accountManagement(BuildContext context) {
+  Widget _accountManagement(BuildContext context, UserModel user) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -238,26 +224,11 @@ class ProfileScreen extends StatelessWidget {
               context: context,
             ),
           ),
-          // const SizedBox(height: 16),
-          // _accountItem(
-          //   icon: FontAwesomeIcons.crown,
-          //   title: context.language.premiumAccount,
-          //   color: context.theme.yellowColor,
-          //   onTap: () {},
-          //   context: context,
-          // ),
-          // const SizedBox(height: 16),
-          // _accountItem(
-          //   icon: FontAwesomeIcons.lock,
-          //   title: context.language.changeLanguage,
-          //   onTap: () {},
-          //   context: context,
-          // ),
           const SizedBox(height: 16),
           _accountItem(
             icon: FontAwesomeIcons.userPen,
             title: context.language.updateProfile,
-            onTap: () => context.router.push(const UpdateProfileRoute()),
+            onTap: () => context.router.push(UpdateProfileRoute(user: user)),
             context: context,
           ),
           const SizedBox(height: 16),
@@ -271,17 +242,18 @@ class ProfileScreen extends StatelessWidget {
           _accountItem(
             icon: FontAwesomeIcons.arrowRightFromBracket,
             title: context.language.logout,
-            onTap: () => context.read<AuthCubit>().signOut(),
+            onTap: () {
+              DialogUtils.showConfirmDialog(
+                context: context,
+                content: context.language.logoutContent,
+                confirmButton: context.language.logout,
+                onConfirm: () {
+                  context.read<AuthCubit>().signOut();
+                },
+              );
+            },
             context: context,
           ),
-          // const SizedBox(height: 16),
-          // _accountItem(
-          //   icon: FontAwesomeIcons.trashCan,
-          //   title: context.language.deleteAccount,
-          //   color: context.theme.redColor,
-          //   onTap: () {},
-          //   context: context,
-          // ),
         ],
       ),
     );

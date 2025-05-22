@@ -1,7 +1,7 @@
-// lib/screen/profile_screen/update_profile_screen.dart
 import 'dart:io';
 
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/screen/profile_screen/cubit/update_profile_cubit.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
@@ -10,13 +10,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/utils/text_style_utils.dart';
 import '../../core/widget/base_text_field.dart';
 import '../../data/model/user_model.dart';
 import '../auth/cubit/auth_cubit.dart';
 
 @RoutePage()
 class UpdateProfileScreen extends StatefulWidget {
-  const UpdateProfileScreen({super.key});
+  const UpdateProfileScreen({super.key, required this.user});
+
+  final UserModel user;
 
   @override
   State<UpdateProfileScreen> createState() => _UpdateProfileScreenState();
@@ -28,15 +31,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final _lastNameController = TextEditingController();
   final _usernameController = TextEditingController();
   File? _imageFile;
-  late final UserModel _user;
 
   @override
   void initState() {
+    _firstNameController.text = widget.user.firstName;
+    _lastNameController.text = widget.user.lastName;
+    _usernameController.text = widget.user.username;
     super.initState();
-    _user = context.read<AuthCubit>().getCurrentUser()!;
-    _firstNameController.text = _user.firstName;
-    _lastNameController.text = _user.lastName;
-    _usernameController.text = _user.username;
   }
 
   @override
@@ -55,45 +56,91 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     }
   }
 
+  Future<void> _takePhoto() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() => _imageFile = File(pickedFile.path));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => UpdateProfileCubit(),
       child: BlocConsumer<UpdateProfileCubit, UpdateProfileState>(
         listener: (context, state) {
-          if (state is UpdateProfileSuccess) {
-            context.read<AuthCubit>().updateCurrentUser(state.user);
-
+          if(state is UpdateProfileLoading) {
+            DialogUtils.showLoadingDialog(context);
+          }
+          if(state is UpdateProfileSuccess) {
+            DialogUtils.hideLoadingDialog(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.language.profileUpdateSuccess)),
+              SnackBar(
+                content: Text(context.language.updateProfileSuccessContent),
+                backgroundColor: context.theme.greenColor,
+              ),
             );
-            Navigator.pop(context);
-          } else if (state is UpdateProfileError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${state.message}')),
+            context.read<AuthCubit>().updateCurrentUser(state.user);
+          }
+          if (state is UpdateProfileError) {
+            DialogUtils.hideLoadingDialog(context);
+            DialogUtils.showErrorDialog(
+              context: context,
+              message: state.message,
             );
           }
         },
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
-              title: Text(context.language.updateProfile),
+              title: Text(
+                context.language.updateProfile,
+                style: TextStyleUtils.bold(
+                  fontSize: 20,
+                  color: context.theme.backgroundColor,
+                  context: context,
+                ),
+              ),
+              leading: InkWell(
+                onTap: () {
+                  AutoRouter.of(context).maybePop();
+                },
+                child: Icon(
+                  FontAwesomeIcons.chevronLeft,
+                  color: context.theme.backgroundColor,
+                  size: 18,
+                ),
+              ),
+              centerTitle: true,
+              backgroundColor: context.theme.primaryColor,
+              elevation: 0,
               actions: [
-                if (state is! UpdateProfileLoading)
-                  IconButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        context.read<UpdateProfileCubit>().updateProfile(
-                              user: _user,
-                              username: _usernameController.text,
-                              firstName: _firstNameController.text,
-                              lastName: _lastNameController.text,
-                              imageFile: _imageFile,
-                            );
-                      }
-                    },
-                    icon: const Icon(Icons.save),
+                IconButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      DialogUtils.showConfirmDialog(
+                        context: context,
+                        content: context.language.updateProfileContent,
+                        confirmButton: context.language.change,
+                        onConfirm: () {
+                          context.read<UpdateProfileCubit>().updateProfile(
+                            user: widget.user,
+                            username: _usernameController.text,
+                            firstName: _firstNameController.text,
+                            lastName: _lastNameController.text,
+                            imageFile: _imageFile,
+                          );
+                        },
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    FontAwesomeIcons.floppyDisk,
+                    size: 18,
+                    color: context.theme.backgroundColor,
                   ),
+                ),
               ],
             ),
             body: Container(
@@ -119,13 +166,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                             color: context.theme.borderColor,
                             image: _imageFile != null
                                 ? DecorationImage(
-                                    image: FileImage(_imageFile!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : DecorationImage(
-                                    image: NetworkImage(_user.avatar),
-                                    fit: BoxFit.cover,
-                                  ),
+                              image: FileImage(_imageFile!),
+                              fit: BoxFit.cover,
+                            )
+                                : widget.user.avatar.isNotEmpty
+                                ? DecorationImage(
+                              image: NetworkImage(widget.user.avatar),
+                              fit: BoxFit.cover,
+                            )
+                                : null,
                           ),
                           child: Center(
                             child: Icon(
@@ -184,11 +233,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                           return null;
                         },
                       ),
-                      if (state is UpdateProfileLoading)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 16),
-                          child: CircularProgressIndicator(),
-                        ),
                     ],
                   ),
                 ),

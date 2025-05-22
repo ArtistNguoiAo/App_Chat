@@ -107,6 +107,82 @@ class DialogUtils {
     );
   }
 
+  static void showConfirmDialog({
+    required BuildContext context,
+    required String content,
+    required String confirmButton,
+    required Function onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                content,
+                style: TextStyleUtils.normal(
+                  fontSize: 18,
+                  color: context.theme.textColor,
+                  context: context,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            InkWell(
+              onTap: () {
+                AutoRouter.of(context).maybePop();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: context.theme.primaryColor),
+                  color: context.theme.backgroundColor,
+                ),
+                child: Text(
+                  context.language.cancel,
+                  style: TextStyleUtils.normal(
+                    context: context,
+                    fontSize: 16,
+                    color: context.theme.primaryColor,
+                  ),
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                AutoRouter.of(context).maybePop(true);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: context.theme.primaryColor),
+                  color: context.theme.primaryColor,
+                ),
+                child: Text(
+                  confirmButton,
+                  style: TextStyleUtils.normal(
+                    context: context,
+                    fontSize: 16,
+                    color: context.theme.backgroundColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    ).then((value) {
+      if (value != null && value is bool && value) {
+        onConfirm();
+      }
+    });
+  }
+
   static Future<void> showListFriendDialog({
     required BuildContext context,
     required List<UserModel> listFriend,
@@ -202,14 +278,15 @@ class DialogUtils {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      border: Border.all(color: context.theme.borderColor),
+                      border: Border.all(color: context.theme.primaryColor),
+                      color: context.theme.backgroundColor,
                     ),
                     child: Text(
                       context.language.cancel,
                       style: TextStyleUtils.normal(
                         context: context,
                         fontSize: 16,
-                        color: context.theme.borderColor,
+                        color: context.theme.primaryColor,
                       ),
                     ),
                   ),

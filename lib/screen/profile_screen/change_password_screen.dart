@@ -1,9 +1,12 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../core/utils/dialog_utils.dart';
+import '../../core/utils/text_style_utils.dart';
 import '../../core/widget/base_text_field.dart';
 import 'cubit/change_password_cubit.dart';
 
@@ -38,35 +41,75 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       create: (context) => ChangePasswordCubit(context),
       child: BlocConsumer<ChangePasswordCubit, ChangePasswordState>(
         listener: (context, state) {
+          if (state is ChangePasswordLoading) {
+            DialogUtils.showLoadingDialog(context);
+          }
           if (state is ChangePasswordSuccess) {
+            DialogUtils.hideLoadingDialog(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.language.passwordChangeSuccess)),
+              SnackBar(
+                content: Text(context.language.updatePasswordSuccessContent),
+                backgroundColor: context.theme.greenColor,
+              ),
             );
             Navigator.pop(context);
-          } else if (state is ChangePasswordError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error: ${state.message}')),
+          }
+          if (state is ChangePasswordError) {
+            DialogUtils.hideLoadingDialog(context);
+            DialogUtils.showErrorDialog(
+              context: context,
+              message: state.message,
             );
           }
         },
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
-              title: Text(context.language.changePassword),
+              title: Text(
+                context.language.changePassword,
+                style: TextStyleUtils.bold(
+                  fontSize: 20,
+                  color: context.theme.backgroundColor,
+                  context: context,
+                ),
+              ),
+              leading: InkWell(
+                onTap: () {
+                  AutoRouter.of(context).maybePop();
+                },
+                child: Icon(
+                  FontAwesomeIcons.chevronLeft,
+                  color: context.theme.backgroundColor,
+                  size: 18,
+                ),
+              ),
+              centerTitle: true,
+              backgroundColor: context.theme.primaryColor,
+              elevation: 0,
               actions: [
-                if (state is! ChangePasswordLoading)
-                  IconButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        context.read<ChangePasswordCubit>().changePassword(
-                              currentPassword: _currentPasswordController.text,
-                              newPassword: _newPasswordController.text,
-                              confirmPassword: _confirmPasswordController.text,
-                            );
-                      }
-                    },
-                    icon: const Icon(Icons.save),
+                IconButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      DialogUtils.showConfirmDialog(
+                        context: context,
+                        content: context.language.updatePasswordContent,
+                        confirmButton: context.language.change,
+                        onConfirm: () {
+                          context.read<ChangePasswordCubit>().changePassword(
+                                currentPassword: _currentPasswordController.text,
+                                newPassword: _newPasswordController.text,
+                                confirmPassword: _confirmPasswordController.text,
+                              );
+                        },
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    FontAwesomeIcons.floppyDisk,
+                    size: 18,
+                    color: context.theme.backgroundColor,
                   ),
+                ),
               ],
             ),
             body: Container(
@@ -162,11 +205,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           return null;
                         },
                       ),
-                      if (state is ChangePasswordLoading)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 16),
-                          child: CircularProgressIndicator(),
-                        ),
                     ],
                   ),
                 ),

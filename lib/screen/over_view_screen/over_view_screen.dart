@@ -31,31 +31,27 @@ class _OverViewScreenState extends State<OverViewScreen> {
       builder: (context, child, animation) {
         final tabsRouter = AutoTabsRouter.of(context);
         return Scaffold(
-          body: Padding(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top,
-            ),
-            child: child,
-          ),
+          body: child,
           floatingActionButton: FloatingActionButton(
             onPressed: () {
               AutoRouter.of(context).push(
                 ListMessageRoute(),
               );
             },
-            backgroundColor: Colors.white,
+            backgroundColor: context.theme.primaryColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(100),
             ),
             child: Icon(
               FontAwesomeIcons.facebookMessenger,
-              color: context.theme.textColor,
+              color: context.theme.backgroundColor,
             ),
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: AnimatedBottomNavigationBar.builder(
             itemCount: 2,
             notchMargin: 8,
+            backgroundColor: context.theme.backgroundColor,
             tabBuilder: (index, isSelected) {
               return Container(
                 margin: const EdgeInsets.all(8.0),

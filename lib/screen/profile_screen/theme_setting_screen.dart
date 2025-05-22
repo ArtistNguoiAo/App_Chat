@@ -1,3 +1,4 @@
+import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,7 +14,27 @@ class ThemeSettingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.language.theme),
+        title: Text(
+          context.language.theme,
+          style: TextStyleUtils.bold(
+            fontSize: 20,
+            color: context.theme.backgroundColor,
+            context: context,
+          ),
+        ),
+        leading: InkWell(
+          onTap: () {
+            AutoRouter.of(context).maybePop();
+          },
+          child: Icon(
+            FontAwesomeIcons.chevronLeft,
+            color: context.theme.backgroundColor,
+            size: 18,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: context.theme.primaryColor,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Container(

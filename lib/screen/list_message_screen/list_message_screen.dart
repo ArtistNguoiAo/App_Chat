@@ -2,6 +2,7 @@ import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/router/app_router.gr.dart';
 import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_avatar.dart';
 import 'package:app_chat/core/widget/base_loading.dart';
 import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/chat_model.dart';
@@ -202,57 +203,13 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _listMessage(BuildContext context, List<ChatModel> listChat) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(8),
-      itemBuilder: (context, index) => InkWell(
-        onTap: () {
-          AutoRouter.of(context).push(
-            MessageRoute(
-              chatModel: listChat[index],
-            ),
-          );
-        },
-        child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: context.theme.backgroundColor,
-              boxShadow: [
-                BoxShadow(
-                  color: context.theme.borderColor.withAlpha((0.5 * 255).round()),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                _avatarItem(url: listChat[index].groupAvatar, randomText: listChat[index].id),
-                const SizedBox(width: 16),
-                Text(
-                  listChat[index].groupName,
-                  style: TextStyleUtils.normal(
-                    fontSize: 16,
-                    color: context.theme.textColor,
-                    context: context,
-                  ),
-                ),
-              ],
-            )),
-      ),
-      separatorBuilder: (context, index) => Container(height: 4),
-      itemCount: listChat.length,
-    );
-  }
-
   Widget _listFriend(BuildContext context, List<UserModel> listFriend, List<ChatModel> listChat) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) => InkWell(
         onTap: () {
-          for(var element in listChat) {
-            if (element.members.contains(listFriend[index].uid)) {
+          for (var element in listChat) {
+            if (element.members.contains(listFriend[index].uid) && element.members.length == 2) {
               AutoRouter.of(context).push(
                 MessageRoute(
                   chatModel: element,
@@ -280,7 +237,11 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
             children: [
               Stack(
                 children: [
-                  _avatarItem(url: listFriend[index].avatar, randomText: listFriend[index].uid),
+                  BaseAvatar(
+                    url: listFriend[index].avatar,
+                    randomText: listFriend[index].uid,
+                    size: 40,
+                  ),
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -317,32 +278,51 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _avatarItem({
-    required String url,
-    required String randomText,
-  }) {
-    if(url.isNotEmpty) {
-      return Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: context.theme.borderColor,
-        ),
-        child: ClipOval(
-          child: Image.network(
-            url,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
-    }
-    else {
-      return AvatarPlus(
-        randomText,
-        height: 40,
-        width: 40,
-      );
-    }
+  Widget _listMessage(BuildContext context, List<ChatModel> listChat) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(8),
+      itemBuilder: (context, index) => InkWell(
+        onTap: () {
+          AutoRouter.of(context).push(
+            MessageRoute(
+              chatModel: listChat[index],
+            ),
+          );
+        },
+        child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: context.theme.backgroundColor,
+              boxShadow: [
+                BoxShadow(
+                  color: context.theme.borderColor.withAlpha((0.5 * 255).round()),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                BaseAvatar(
+                  url: listChat[index].groupAvatar,
+                  randomText: listChat[index].id,
+                  size: 40,
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  listChat[index].groupName,
+                  style: TextStyleUtils.normal(
+                    fontSize: 16,
+                    color: context.theme.textColor,
+                    context: context,
+                  ),
+                ),
+              ],
+            )),
+      ),
+      separatorBuilder: (context, index) => Container(height: 4),
+      itemCount: listChat.length,
+    );
   }
 }

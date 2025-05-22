@@ -1,5 +1,7 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_avatar.dart';
+import 'package:app_chat/core/widget/base_loading.dart';
 import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/auth/cubit/auth_cubit.dart';
@@ -47,9 +49,7 @@ class HomeScreen extends StatelessWidget {
                     body: Column(
                       children: [
                         _header(authState.user, isLoading: true),
-                        const Expanded(
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
+                        const Expanded(child: BaseLoading()),
                       ],
                     ),
                   );
@@ -85,9 +85,19 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             _header(homeState.currentUser),
                             const SizedBox(height: 16),
-                            _recentChat(homeContext, homeState.recentChats, homeState.allUsersMap, homeState.currentUser),
+                            _recentChat(
+                              context: homeContext,
+                              recentChats: homeState.recentChats,
+                              allUsersMap: homeState.allUsersMap,
+                              currentUser: homeState.currentUser,
+                            ),
                             const SizedBox(height: 16),
-                            _favoriteChat(homeContext, homeState.favoriteChats, homeState.allUsersMap, homeState.currentUser),
+                            _favoriteChat(
+                              context: homeContext,
+                              favoriteChats: homeState.favoriteChats,
+                              allUsersMap: homeState.allUsersMap,
+                              currentUser: homeState.currentUser,
+                            ),
                           ],
                         ),
                       ),
@@ -107,11 +117,11 @@ class HomeScreen extends StatelessWidget {
   Widget _header(UserModel user, {bool isLoading = false}) {
     return Builder(builder: (context) {
       return SizedBox(
-        height: 200,
+        height: 200 + MediaQuery.of(context).padding.top,
         child: Stack(
           children: [
             Container(
-                height: 150,
+                height: 150 + MediaQuery.of(context).padding.top,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 width: double.infinity,
                 color: context.theme.primaryColor,
@@ -119,6 +129,7 @@ class HomeScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: MediaQuery.of(context).padding.top),
                     Row(
                       children: [
                         Expanded(
@@ -155,7 +166,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 )),
             Positioned(
-              top: 100,
+              top: 100 + MediaQuery.of(context).padding.top,
               left: 16,
               child: InkWell(
                 splashColor: Colors.transparent,
@@ -180,21 +191,10 @@ class HomeScreen extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isLoading ? context.theme.borderColor.withOpacity(0.5) : context.theme.borderColor,
-                          image: isLoading || user.avatar.isEmpty
-                              ? null
-                              : DecorationImage(
-                                  image: NetworkImage(user.avatar),
-                                  fit: BoxFit.cover,
-                                  onError: (error, stackTrace) => const Icon(Icons.person_outline, size: 40),
-                                ),
-                        ),
-                        child: isLoading && user.avatar.isEmpty ? const Center(child: Icon(Icons.person_outline, size: 40)) : null,
+                      BaseAvatar(
+                        url: user.avatar,
+                        randomText: user.uid,
+                        size: 80,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -251,70 +251,97 @@ class HomeScreen extends StatelessWidget {
     });
   }
 
-  Widget _recentChat(BuildContext context, List<ChatModel> recentChats, Map<String, UserModel> allUsersMap, UserModel currentUser) {
+  Widget _recentChat({
+    required BuildContext context,
+    required List<ChatModel> recentChats,
+    required Map<String, UserModel> allUsersMap,
+    required UserModel currentUser,
+  }) {
     if (recentChats.isEmpty) {
-      return Padding(
+      return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               context.language.recentChat,
-              style: TextStyleUtils.bold(fontSize: 20, color: context.theme.textColor, context: context),
+              style: TextStyleUtils.bold(
+                fontSize: 20,
+                color: context.theme.textColor,
+                context: context,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
-              "No recent chats.",
-              style: TextStyleUtils.normal(fontSize: 16, color: context.theme.textColor.withOpacity(0.7), context: context),
+              context.language.noRecentChat,
+              style: TextStyleUtils.normal(
+                fontSize: 16,
+                color: context.theme.textColor,
+                context: context,
+              ),
             ),
           ],
         ),
       );
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            context.language.recentChat,
-            style: TextStyleUtils.bold(
-              fontSize: 20,
-              color: context.theme.textColor,
-              context: context,
+    } else {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              context.language.recentChat,
+              style: TextStyleUtils.bold(
+                fontSize: 20,
+                color: context.theme.textColor,
+                context: context,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 130,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: recentChats.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final chat = recentChats[index];
-                UserModel? otherUser;
-                String otherUserId = '';
-                if (chat.type == 'private' && chat.members.length >= 2) {
-                  otherUserId = chat.members.firstWhere((id) => id != currentUser.uid, orElse: () => '');
-                  if (otherUserId.isNotEmpty) {
-                    otherUser = allUsersMap[otherUserId];
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 130,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: recentChats.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final chat = recentChats[index];
+                  UserModel? otherUser;
+                  String otherUserId = '';
+                  if (chat.type == 'private' && chat.members.length >= 2) {
+                    otherUserId = chat.members.firstWhere((id) => id != currentUser.uid, orElse: () => '');
+                    if (otherUserId.isNotEmpty) {
+                      otherUser = allUsersMap[otherUserId];
+                    }
                   }
-                }
-                final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.username ?? 'Unknown User');
-                final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
+                  final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.username ?? 'Unknown User');
+                  final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
+                  final displayId = chat.type == 'group' ? chat.id : (otherUser?.uid ?? '');
 
-                return _itemRecentChat(context, displayName, displayAvatar, chat);
-              },
-            ),
-          )
-        ],
-      ),
-    );
+                  return _itemRecentChat(
+                    context: context,
+                    name: displayName,
+                    avatarUrl: displayAvatar,
+                    id: displayId,
+                    chat: chat,
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+      );
+    }
   }
 
-  Widget _itemRecentChat(BuildContext context, String name, String avatarUrl, ChatModel chat) {
+  Widget _itemRecentChat({
+    required BuildContext context,
+    required String name,
+    required String avatarUrl,
+    required String id,
+    required ChatModel chat,
+  }) {
     return InkWell(
       onTap: () {
         AutoRouter.of(context).push(MessageRoute(chatModel: chat));
@@ -337,21 +364,10 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: context.theme.borderColor,
-                image: avatarUrl.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(avatarUrl),
-                        fit: BoxFit.cover,
-                        onError: (e, s) => const Icon(Icons.group_outlined),
-                      )
-                    : null,
-              ),
-              child: avatarUrl.isEmpty ? Icon(chat.type == 'group' ? Icons.group_outlined : Icons.person_outline, size: 30) : null,
+            BaseAvatar(
+              url: avatarUrl,
+              randomText: id,
+              size: 50,
             ),
             const SizedBox(height: 8),
             Text(
@@ -371,67 +387,95 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _favoriteChat(BuildContext context, List<ChatModel> favoriteChats, Map<String, UserModel> allUsersMap, UserModel currentUser) {
+  Widget _favoriteChat({
+    required BuildContext context,
+    required List<ChatModel> favoriteChats,
+    required Map<String, UserModel> allUsersMap,
+    required UserModel currentUser,
+  }) {
     if (favoriteChats.isEmpty) {
-      return Padding(
+      return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               context.language.favoriteChat,
-              style: TextStyleUtils.bold(fontSize: 20, color: context.theme.textColor, context: context),
+              style: TextStyleUtils.bold(
+                fontSize: 20,
+                color: context.theme.textColor,
+                context: context,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
-              "No favorite chats yet.",
-              style: TextStyleUtils.normal(fontSize: 16, color: context.theme.textColor.withOpacity(0.7), context: context),
+              context.language.noFavoriteChat,
+              style: TextStyleUtils.normal(
+                fontSize: 16,
+                color: context.theme.textColor,
+                context: context,
+              ),
             ),
           ],
         ),
       );
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            context.language.favoriteChat,
-            style: TextStyleUtils.bold(
-              fontSize: 20,
-              color: context.theme.textColor,
-              context: context,
+    } else {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              context.language.favoriteChat,
+              style: TextStyleUtils.bold(
+                fontSize: 20,
+                color: context.theme.textColor,
+                context: context,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: favoriteChats.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final chat = favoriteChats[index];
-              UserModel? otherUser;
-              String otherUserId = '';
-              if (chat.type == 'private' && chat.members.length >= 2) {
-                otherUserId = chat.members.firstWhere((id) => id != currentUser.uid, orElse: () => '');
-                if (otherUserId.isNotEmpty) {
-                  otherUser = allUsersMap[otherUserId];
+            const SizedBox(height: 16),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 16),
+              itemCount: favoriteChats.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final chat = favoriteChats[index];
+                UserModel? otherUser;
+                String otherUserId = '';
+                if (chat.type == 'private' && chat.members.length >= 2) {
+                  otherUserId = chat.members.firstWhere((id) => id != currentUser.uid, orElse: () => '');
+                  if (otherUserId.isNotEmpty) {
+                    otherUser = allUsersMap[otherUserId];
+                  }
                 }
-              }
-              final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.username ?? 'Unknown User');
-              final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
-              return _itemFavoriteChat(context, displayName, displayAvatar, chat);
-            },
-          )
-        ],
-      ),
-    );
+                final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.username ?? 'Unknown User');
+                final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
+                final displayId = chat.type == 'group' ? chat.id : (otherUser?.uid ?? '');
+                return _itemFavoriteChat(
+                  context: context,
+                  name: displayName,
+                  avatarUrl: displayAvatar,
+                  id: displayId,
+                  chat: chat,
+                );
+              },
+            )
+          ],
+        ),
+      );
+    }
   }
 
-  Widget _itemFavoriteChat(BuildContext context, String name, String avatarUrl, ChatModel chat) {
+  Widget _itemFavoriteChat({
+    required BuildContext context,
+    required String name,
+    required String avatarUrl,
+    required String id,
+    required ChatModel chat,
+  }) {
     return InkWell(
       onTap: () {
         AutoRouter.of(context).push(MessageRoute(chatModel: chat));
@@ -453,21 +497,10 @@ class HomeScreen extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: context.theme.borderColor,
-                image: avatarUrl.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(avatarUrl),
-                        fit: BoxFit.cover,
-                        onError: (e, s) => const Icon(Icons.group_outlined),
-                      )
-                    : null,
-              ),
-              child: avatarUrl.isEmpty ? Icon(chat.type == 'group' ? Icons.group_outlined : Icons.person_outline, size: 30) : null,
+            BaseAvatar(
+              url: avatarUrl,
+              randomText: id,
+              size: 50,
             ),
             const SizedBox(width: 16),
             Expanded(

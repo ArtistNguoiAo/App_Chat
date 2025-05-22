@@ -37,15 +37,25 @@ class AddFriendScreen extends StatelessWidget {
             return Scaffold(
               appBar: AppBar(
                 title: Text(
-                  'Add Friend',
+                  context.language.addFriend,
                   style: TextStyleUtils.bold(
                     fontSize: 20,
-                    color: context.theme.textColor,
+                    color: context.theme.backgroundColor,
                     context: context,
                   ),
                 ),
+                leading: InkWell(
+                  onTap: () {
+                    AutoRouter.of(context).maybePop();
+                  },
+                  child: Icon(
+                    FontAwesomeIcons.chevronLeft,
+                    color: context.theme.backgroundColor,
+                    size: 18,
+                  ),
+                ),
                 centerTitle: true,
-                backgroundColor: context.theme.backgroundColor,
+                backgroundColor: context.theme.primaryColor,
                 elevation: 0,
               ),
               body: Padding(

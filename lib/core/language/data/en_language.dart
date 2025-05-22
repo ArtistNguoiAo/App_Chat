@@ -32,6 +32,9 @@ class EnLanguage extends BaseLanguage {
   String get notHaveAnAccount => 'Don\'t have an account?';
 
   @override
+  String get alreadyHaveAnAccount => 'Already have an account?';
+
+  @override
   String get home => 'Home';
 
   @override
@@ -237,4 +240,28 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get errorLoginAuth => 'Login failed, please check your email and password';
+
+  @override
+  String get logoutContent => 'Are you sure you want to log out?';
+
+  @override
+  String get noRecentChat => 'No recent chats yet';
+
+  @override
+  String get noFavoriteChat => 'No favorite chats yet';
+
+  @override
+  String get updateProfileContent => 'Are you sure you want to update your profile?';
+
+  @override
+  String get updatePasswordContent => 'Are you sure you want to update your password?';
+
+  @override
+  String get change => 'Change';
+
+  @override
+  String get updateProfileSuccessContent => 'Profile updated successfully';
+
+  @override
+  String get updatePasswordSuccessContent => 'Password updated successfully';
 }
