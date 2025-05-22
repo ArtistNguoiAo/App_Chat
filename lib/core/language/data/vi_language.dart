@@ -270,4 +270,13 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get deleteFriendContent => 'Bạn có chắc chắn muốn xóa bạn bè này không? Điều này sẽ bao gồm xóa cuộc trò chuyện của bạn với họ?';
+
+  @override
+  String get selectImageSource => 'Chọn nguồn hình ảnh';
+
+  @override
+  String get pickFromGallery => 'Chọn từ thư viện';
+
+  @override
+  String get takePhoto => 'Chụp ảnh';
 }

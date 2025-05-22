@@ -117,25 +117,46 @@ class _MessageScreenState extends State<MessageScreen> {
             Builder(builder: (context) {
               return InkWell(
                 onTap: () {
-                  if (widget.friend == null) return;
-                  DialogUtils.showUserInfoDialog(
-                    context: context,
-                    user: widget.friend!,
-                    isFriend: true,
-                    onDeleteFriend: () {
-                      DialogUtils.showConfirmDialog(
-                        context: context,
-                        content: context.language.deleteFriendContent,
-                        confirmButton: context.language.delete,
-                        onConfirm: () {
-                          context.read<MessageCubit>().deleteFriend(
-                                userModel: widget.friend!,
-                                chatId: widget.chatModel.id,
-                              );
-                        },
-                      );
-                    },
-                  );
+                  if (widget.friend != null) {
+                    DialogUtils.showUserInfoDialog(
+                      context: context,
+                      user: widget.friend!,
+                      isFriend: true,
+                      onDeleteFriend: () {
+                        DialogUtils.showConfirmDialog(
+                          context: context,
+                          content: context.language.deleteFriendContent,
+                          confirmButton: context.language.delete,
+                          onConfirm: () {
+                            context.read<MessageCubit>().deleteFriend(
+                              userModel: widget.friend!,
+                              chatId: widget.chatModel.id,
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
+                  else {
+                    DialogUtils.showUserInfoDialog(
+                      context: context,
+                      user: widget.friend!,
+                      isFriend: true,
+                      onDeleteFriend: () {
+                        DialogUtils.showConfirmDialog(
+                          context: context,
+                          content: context.language.deleteFriendContent,
+                          confirmButton: context.language.delete,
+                          onConfirm: () {
+                            context.read<MessageCubit>().deleteFriend(
+                              userModel: widget.friend!,
+                              chatId: widget.chatModel.id,
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }
                 },
                 child: Icon(
                   FontAwesomeIcons.circleInfo,

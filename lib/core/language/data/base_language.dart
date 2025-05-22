@@ -174,4 +174,10 @@ abstract class BaseLanguage {
   String get delete;
 
   String get deleteFriendContent;
+
+  String get selectImageSource;
+
+  String get pickFromGallery;
+
+  String get takePhoto;
 }

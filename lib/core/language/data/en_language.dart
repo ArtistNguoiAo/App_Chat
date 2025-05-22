@@ -270,4 +270,13 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get deleteFriendContent => 'Are you sure you want to delete this friend? This will also delete your chat with them?';
+
+  @override
+  String get selectImageSource => 'Select image source';
+
+  @override
+  String get pickFromGallery => 'Pick from gallery';
+
+  @override
+  String get takePhoto => 'Take photo';
 }
