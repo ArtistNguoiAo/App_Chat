@@ -1,4 +1,5 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/router/app_router.gr.dart';
 import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/gestures.dart';

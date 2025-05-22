@@ -23,7 +23,10 @@ class AppRouter extends $AppRouter {
         AutoRoute(page: UpdateProfileRoute.page, path: '/update-profile'),
         AutoRoute(page: ChangePasswordRoute.page, path: '/change-password'),
         AutoRoute(page: ForgotPasswordRoute.page, path: '/forgot-password'),
-        AutoRoute(page: MessageRoute.page, path: '/message'),
+        AutoRoute(
+          page: MessageRoute.page,
+          path: '/message/:chatId',
+        ),
         AutoRoute(page: AddFriendRoute.page, path: '/add-friend'),
         AutoRoute(page: NotifyRoute.page, path: '/notify'),
       ];

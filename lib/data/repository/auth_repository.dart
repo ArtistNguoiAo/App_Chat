@@ -28,6 +28,7 @@ class AuthRepository {
         firstName: firstName,
         lastName: lastName,
         email: email,
+        fcmToken: '',
       );
 
       await _fireStore.collection('users').doc(user.uid).set(user.toMap());
@@ -159,5 +160,16 @@ class AuthRepository {
 
       return users.where((friend) => user.friends.contains(friend.uid)).toList();
     });
+  }
+
+  Future<void> updateFcmToken(String uid, String fcmToken) async {
+    try {
+      await _fireStore.collection('users').doc(uid).update({
+        'fcmToken': fcmToken,
+        'status': 'online'
+      });
+    } catch (e) {
+      throw Exception('Failed to update FCM token: $e');
+    }
   }
 }

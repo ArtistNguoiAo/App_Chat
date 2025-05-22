@@ -12,6 +12,8 @@ import 'package:app_chat/screen/message_screen/cubit/message_cubit.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:avatar_plus/avatar_plus.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,14 +22,16 @@ import 'package:intl/intl.dart';
 
 @RoutePage()
 class MessageScreen extends StatefulWidget {
-  MessageScreen({
+  const MessageScreen({
     super.key,
-    required this.chatModel,
+    @PathParam('chatId') this.chatId,
+    this.chatModel,
     this.friend,
   });
 
-  final ChatModel chatModel;
-  UserModel? friend;
+  final String? chatId;
+  final ChatModel? chatModel;
+  final UserModel? friend;
 
   @override
   State<MessageScreen> createState() => _MessageScreenState();
@@ -35,10 +39,13 @@ class MessageScreen extends StatefulWidget {
 
 class _MessageScreenState extends State<MessageScreen> {
   final _messageController = TextEditingController();
+  ChatModel? _chatModel;
+  UserModel? _friend;
 
   @override
   void initState() {
     super.initState();
+    _loadChatData();
   }
 
   Future<File?> _pickImage() async {
@@ -53,13 +60,55 @@ class _MessageScreenState extends State<MessageScreen> {
     return pickedFile != null ? File(pickedFile.path) : null;
   }
 
+  Future<void> _loadChatData() async {
+    if (widget.chatId != null && widget.chatModel == null) {
+      final chatDoc = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(widget.chatId)
+          .get();
+
+      if (chatDoc.exists) {
+        setState(() {
+          _chatModel = ChatModel.fromMap(chatDoc.data()!);
+        });
+
+        if (_chatModel!.type == 'private') {
+          final otherUserId = _chatModel!.members
+              .firstWhere((id) => id != FirebaseAuth.instance.currentUser?.uid);
+
+          final userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(otherUserId)
+              .get();
+
+          if (userDoc.exists) {
+            setState(() {
+              _friend = UserModel.fromMap(userDoc.data()!);
+            });
+          }
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final chatModel = widget.chatModel ?? _chatModel;
+    final friend = widget.friend ?? _friend;
+
+    if (chatModel == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return BlocProvider(
       create: (context) => MessageCubit()
         ..loadMessage(
-          seenBy: widget.chatModel.members,
-          chatId: widget.chatModel.id,
+          chatId: chatModel!.id,
+          seenBy: chatModel.members,
         ),
       child: Scaffold(
         appBar: AppBar(
@@ -72,8 +121,8 @@ class _MessageScreenState extends State<MessageScreen> {
                       size: 40,
                     )
                   : BaseAvatar(
-                      url: widget.chatModel.groupAvatar,
-                      randomText: widget.chatModel.id,
+                      url: chatModel.groupAvatar,
+                      randomText: chatModel.id,
                       size: 40,
                     ),
               const SizedBox(width: 8),
@@ -82,7 +131,7 @@ class _MessageScreenState extends State<MessageScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    widget.friend != null ? widget.friend!.fullName : widget.chatModel.groupName,
+                    widget.friend != null ? widget.friend!.fullName : chatModel!.groupName,
                     style: TextStyleUtils.bold(
                       fontSize: 20,
                       color: context.theme.backgroundColor,
@@ -130,7 +179,7 @@ class _MessageScreenState extends State<MessageScreen> {
                           onConfirm: () {
                             context.read<MessageCubit>().deleteFriend(
                               userModel: widget.friend!,
-                              chatId: widget.chatModel.id,
+                              chatId: chatModel.id,
                             );
                           },
                         );
@@ -150,7 +199,7 @@ class _MessageScreenState extends State<MessageScreen> {
                           onConfirm: () {
                             context.read<MessageCubit>().deleteFriend(
                               userModel: widget.friend!,
-                              chatId: widget.chatModel.id,
+                              chatId: chatModel.id,
                             );
                           },
                         );
@@ -190,7 +239,7 @@ class _MessageScreenState extends State<MessageScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _sendMessage(currentUser),
+                    _sendMessage(currentUser, chatModel!),
                   ],
                 );
               }
@@ -303,7 +352,7 @@ class _MessageScreenState extends State<MessageScreen> {
     );
   }
 
-  Widget _sendMessage(UserModel currentUser) {
+  Widget _sendMessage(UserModel currentUser, ChatModel chatModel) {
     return Builder(builder: (context) {
       return Row(
         children: [
@@ -316,8 +365,8 @@ class _MessageScreenState extends State<MessageScreen> {
                     userAvatarSend: currentUser.avatar,
                     text: '',
                     createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
-                    seenBy: widget.chatModel.members,
-                    chatId: widget.chatModel.id,
+                    seenBy: chatModel.members,
+                    chatId: chatModel.id,
                     type: 'image',
                     imageFile: imageFile,
                   );
@@ -337,8 +386,8 @@ class _MessageScreenState extends State<MessageScreen> {
                     userAvatarSend: currentUser.avatar,
                     text: '',
                     createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
-                    seenBy: widget.chatModel.members,
-                    chatId: widget.chatModel.id,
+                    seenBy: chatModel.members,
+                    chatId: chatModel.id,
                     type: 'image',
                     imageFile: imageFile,
                   );
@@ -361,8 +410,8 @@ class _MessageScreenState extends State<MessageScreen> {
                         userAvatarSend: currentUser.avatar,
                         text: _messageController.text,
                         createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
-                        seenBy: widget.chatModel.members,
-                        chatId: widget.chatModel.id,
+                        seenBy: chatModel.members,
+                        chatId: chatModel.id,
                         type: 'text',
                       );
                   _messageController.clear();

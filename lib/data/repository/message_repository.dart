@@ -1,8 +1,13 @@
+import 'dart:convert';
+
+import 'package:app_chat/core/services/notification_service.dart';
 import 'package:app_chat/data/model/message_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class MessageRepository {
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
 
   Future<void> sendMessage({
     required MessageModel messageModel,
@@ -13,6 +18,51 @@ class MessageRepository {
     final updatedMessageModel = messageModel.copyWith(id: documentRef.id);
 
     await documentRef.set(updatedMessageModel.toMap());
+  }
+
+  Future<void> sendMessageWithNotification({
+    required MessageModel messageModel,
+    required String chatId,
+  }) async {
+    try {
+      final documentRef = _fireStore.collection('messages').doc(chatId).collection('messages').doc();
+      final updatedMessageModel = messageModel.copyWith(id: documentRef.id);
+      await documentRef.set(updatedMessageModel.toMap());
+
+      // Update last message in chat
+      await _fireStore.collection('chats').doc(chatId).update({
+        'lastMessageId': documentRef.id,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+      });
+
+      // Get chat members
+      final chatDoc = await _fireStore.collection('chats').doc(chatId).get();
+      final members = List<String>.from(chatDoc.data()?['members'] ?? []);
+
+      // Get sender info
+      final senderDoc = await _fireStore.collection('users').doc(messageModel.userIdSend).get();
+      final senderName = '${senderDoc.data()?['firstName']} ${senderDoc.data()?['lastName']}';
+
+      // Send notification to other members
+      for (String memberId in members) {
+        if (memberId != messageModel.userIdSend) {
+          final memberDoc = await _fireStore.collection('users').doc(memberId).get();
+          final fcmToken = memberDoc.data()?['fcmToken'];
+
+          if (fcmToken != null && fcmToken.isNotEmpty) {
+            await NotificationService.pushNotification(
+              token: fcmToken,
+              title: senderName,
+              body: messageModel.type == 'text' ? messageModel.text : '',
+              chatId: chatId,
+              type: messageModel.type,
+            );
+          }
+        }
+      }
+    } catch (e) {
+      throw Exception('Failed to send message: $e');
+    }
   }
 
   Stream<List<MessageModel>> getMessage({

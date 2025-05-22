@@ -1,5 +1,6 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:bloc/bloc.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
@@ -14,6 +15,8 @@ part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   final AuthRepository _authRepository = GetIt.instance<AuthRepository>();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
 
   LoginCubit() : super(LoginInitial());
 
@@ -39,6 +42,7 @@ class LoginCubit extends Cubit<LoginState> {
   }) async {
     emit(LoginLoading());
     try {
+
       if (rememberMe) {
         await LocalCache.setString(StringCache.email, email);
         await LocalCache.setString(StringCache.password, password);
@@ -59,6 +63,11 @@ class LoginCubit extends Cubit<LoginState> {
         email: email,
         password: password,
       );
+
+      final fcmToken = await _firebaseMessaging.getToken();
+      if (fcmToken != null) {
+        await _authRepository.updateFcmToken(user.uid, fcmToken);
+      }
 
       emit(LoginSuccess(user: user, tokens: tokens));
     } catch (e) {

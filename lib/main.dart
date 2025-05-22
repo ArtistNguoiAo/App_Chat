@@ -7,15 +7,14 @@ import 'package:app_chat/screen/auth/cubit/auth_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 import 'core/di/config_di.dart';
 import 'core/router/app_router.dart';
-import 'core/router/app_router.gr.dart';
+import 'core/services/notification_service.dart';
 import 'data/local_cache.dart';
-import 'firebase_options.dart';
 import 'data/services/user_service.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,13 +25,16 @@ void main() async {
   ConfigDI();
   final userService = UserService();
   await userService.initializeStatusMonitoring();
+  await NotificationService.initialize();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  MyApp({super.key}) {
+    GetIt.instance.registerSingleton<AppRouter>(_appRouter);
+  }
 
-  final AppRouter appRouter = AppRouter();
+  final AppRouter _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +66,7 @@ class MyApp extends StatelessWidget {
                           : context.theme.textColor,
                       useMaterial3: true,
                     ),
-                    routerConfig: appRouter.config(),
+                    routerConfig: _appRouter.config(),
                     debugShowCheckedModeBanner: false,
                   ),
                 );

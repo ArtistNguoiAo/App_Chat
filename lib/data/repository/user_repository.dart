@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../core/services/notification_service.dart';
 import '../../core/utils/cloudinary_utils.dart';
 import '../model/user_model.dart';
 
@@ -38,6 +39,8 @@ class UserRepository {
         avatar: avatarUrl,
         friends: user.friends,
         friendRequests: user.friendRequests,
+        status: user.status,
+        fcmToken: user.fcmToken,
       );
 
       await _fireStore.collection('users').doc(user.uid).update(updatedUser.toMap());
@@ -57,7 +60,9 @@ class UserRepository {
       final currentUser = users.firstWhere((user) => user.uid == _auth.currentUser!.uid);
 
       final listRequest = userModel.friendRequests;
-      listRequest.add(currentUser.uid);
+      if (!listRequest.contains(currentUser.uid)) {
+        listRequest.add(currentUser.uid);
+      }
       final updatedUser = UserModel(
         uid: userModel.uid,
         username: userModel.username,
@@ -67,8 +72,18 @@ class UserRepository {
         avatar: userModel.avatar,
         friends: userModel.friends,
         friendRequests: listRequest,
+        status: userModel.status,
+        fcmToken: userModel.fcmToken,
       );
       await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
+      if (userModel.fcmToken.isNotEmpty) {
+        await NotificationService.pushNotification(
+          token: userModel.fcmToken,
+          title: 'New Friend Request',
+          body: '${currentUser.fullName} sent you a friend request.',
+          type: 'friend_request',
+        );
+      }
 
     } catch (e) {
       throw Exception('Lấy thông tin người dùng thất bại: $e');
@@ -94,6 +109,8 @@ class UserRepository {
         avatar: userModel.avatar,
         friends: userModel.friends,
         friendRequests: listRequest,
+        status: userModel.status,
+        fcmToken: userModel.fcmToken,
       );
       await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
 
@@ -130,6 +147,8 @@ class UserRepository {
         avatar: userModel.avatar,
         friends: listFriendUser,
         friendRequests: userModel.friendRequests,
+        status: userModel.status,
+        fcmToken: userModel.fcmToken,
       );
       await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
 
@@ -142,6 +161,8 @@ class UserRepository {
         avatar: currentUser.avatar,
         friends: listFriend,
         friendRequests: listRequest,
+        status: currentUser.status,
+        fcmToken: currentUser.fcmToken,
       );
       await _fireStore.collection('users').doc(currentUser.uid).update(updatedCurrentUser.toMap());
 
@@ -172,6 +193,8 @@ class UserRepository {
         avatar: userModel.avatar,
         friends: listFriendUser,
         friendRequests: userModel.friendRequests,
+        status: userModel.status,
+        fcmToken: userModel.fcmToken,
       );
       await _fireStore.collection('users').doc(userModel.uid).update(updatedUser.toMap());
 
@@ -184,6 +207,8 @@ class UserRepository {
         avatar: currentUser.avatar,
         friends: listFriend,
         friendRequests: currentUser.friendRequests,
+        status: currentUser.status,
+        fcmToken: currentUser.fcmToken,
       );
       await _fireStore.collection('users').doc(currentUser.uid).update(updatedCurrentUser.toMap());
 

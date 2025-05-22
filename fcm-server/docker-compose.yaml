@@ -1,0 +1,13 @@
+services:
+  fcm-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - fcm-network
+networks:
+  fcm-network:
+    driver: bridge

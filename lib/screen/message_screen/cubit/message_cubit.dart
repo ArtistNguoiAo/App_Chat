@@ -9,6 +9,7 @@ import 'package:app_chat/data/repository/chat_repository.dart';
 import 'package:app_chat/data/repository/message_repository.dart';
 import 'package:app_chat/data/repository/user_repository.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:meta/meta.dart';
 
@@ -50,6 +51,14 @@ class MessageCubit extends Cubit<MessageState> {
     required String type,
     File? imageFile,
   }) async {
+    print("Sending message...");
+    print(userIdSend);
+    print(text);
+    print(createdAt);
+    print(seenBy);
+    print(chatId);
+    print(type);
+
     if(imageFile != null) {
       final uploadedUrl = await _cloudinary.uploadFile(imageFile, 'messages');
       if (uploadedUrl != null) {
@@ -67,7 +76,7 @@ class MessageCubit extends Cubit<MessageState> {
       type: type,
     );
 
-    await _messageRepository.sendMessage(
+    await _messageRepository.sendMessageWithNotification(
       messageModel: messageModel,
       chatId: chatId,
     );
