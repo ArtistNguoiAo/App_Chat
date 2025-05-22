@@ -119,9 +119,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
       await _chatRepository.addNewChat(
         members: members,
         groupName: groupName,
-        groupAvatar: '',
-        createdAt: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
-        lastMessageId: '',
+        createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
       );
       emit(ListMessageCreateGroupSuccess());
       emit(currentState);

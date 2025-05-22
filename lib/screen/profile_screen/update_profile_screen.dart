@@ -70,10 +70,10 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       create: (context) => UpdateProfileCubit(),
       child: BlocConsumer<UpdateProfileCubit, UpdateProfileState>(
         listener: (context, state) {
-          if(state is UpdateProfileLoading) {
+          if (state is UpdateProfileLoading) {
             DialogUtils.showLoadingDialog(context);
           }
-          if(state is UpdateProfileSuccess) {
+          if (state is UpdateProfileSuccess) {
             DialogUtils.hideLoadingDialog(context);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -125,12 +125,12 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         confirmButton: context.language.change,
                         onConfirm: () {
                           context.read<UpdateProfileCubit>().updateProfile(
-                            user: widget.user,
-                            username: _usernameController.text,
-                            firstName: _firstNameController.text,
-                            lastName: _lastNameController.text,
-                            imageFile: _imageFile,
-                          );
+                                user: widget.user,
+                                username: _usernameController.text,
+                                firstName: _firstNameController.text,
+                                lastName: _lastNameController.text,
+                                imageFile: _imageFile,
+                              );
                         },
                       );
                     }
@@ -182,7 +182,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               ),
                             ),
                           );
-                          
+
                           if (result == 'gallery') {
                             await _pickImage();
                           } else if (result == 'camera') {
@@ -197,15 +197,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                             color: context.theme.borderColor,
                             image: _imageFile != null
                                 ? DecorationImage(
-                              image: FileImage(_imageFile!),
-                              fit: BoxFit.cover,
-                            )
+                                    image: FileImage(_imageFile!),
+                                    fit: BoxFit.cover,
+                                  )
                                 : widget.user.avatar.isNotEmpty
-                                ? DecorationImage(
-                              image: NetworkImage(widget.user.avatar),
-                              fit: BoxFit.cover,
-                            )
-                                : null,
+                                    ? DecorationImage(
+                                        image: NetworkImage(widget.user.avatar),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
                           ),
                           child: Center(
                             child: Icon(

@@ -38,9 +38,7 @@ class NotifyCubit extends Cubit<NotifyState> {
       await _chatRepository.addNewChat(
         members: [currentState.currentUser.uid, user.uid],
         groupName: '',
-        groupAvatar: '',
-        createdAt: DateFormat('yyyy-MM-dd – hh:mm').format(DateTime.now()),
-        lastMessageId: '',
+        createdAt: DateFormat('yyyy-MM-dd hh:mm:ss').format(DateTime.now()),
       );
     } catch (e) {
       emit(NotifyError(message: e.toString()));
