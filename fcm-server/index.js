@@ -4,11 +4,11 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 
-const serviceAccount = require('./chatapp-50195-firebase-adminsdk-fbsvc-05974dcc3b.json');
+const serviceAccount = require('./chatapp-firebase-adminsdk.json');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://chatapp-50195-default-rtdb.firebaseio.com"
+    databaseURL: "https://chatapp-84d7f-default-rtdb.firebaseio.com"
 });
 
 app.use(cors({
