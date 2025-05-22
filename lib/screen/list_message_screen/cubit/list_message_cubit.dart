@@ -21,13 +21,14 @@ class ListMessageCubit extends Cubit<ListMessageState> {
   var listChatFriend = <ChatModel>[];
   var listChatGroup = <ChatModel>[];
   var listFriend = <UserModel>[];
+  var currentUser;
 
   Future<void> getListUser() async {
     emit(ListMessageLoading());
 
     try {
       final listChat = await _chatRepository.getAllChats();
-      final currentUser = await _authRepository.getCurrentUser();
+      currentUser = await _authRepository.getCurrentUser();
 
       // Lọc danh sách chat riêng tư và nhóm
       listChatFriend = listChat.where((chat) => chat.type == 'private').toList();
@@ -44,6 +45,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
             listChatFriend: listChatFriend,
             listChatGroup: listChatGroup,
             listFriend: listFriendStream,
+            currentUser: currentUser,
           ));
         }
       });
@@ -59,6 +61,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
           listChatFriend: listChatFriend,
           listChatGroup: listChatGroup,
           listFriend: listFriend,
+          currentUser: currentUser,
         ));
       } else {
         final filteredListFriend = listFriend.where((user) {
@@ -68,6 +71,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
           listChatFriend: listChatFriend,
           listChatGroup: listChatGroup,
           listFriend: filteredListFriend,
+          currentUser: currentUser,
         ));
       }
     } catch (e) {
@@ -82,6 +86,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
           listChatFriend: listChatFriend,
           listChatGroup: listChatGroup,
           listFriend: listFriend,
+          currentUser: currentUser,
         ));
       } else {
         final filteredListGroup = listChatGroup.where((chat) {
@@ -91,6 +96,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
           listChatFriend: listChatFriend,
           listChatGroup: filteredListGroup,
           listFriend: listFriend,
+          currentUser: currentUser,
         ));
       }
     } catch (e) {

@@ -279,4 +279,7 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get takePhoto => 'Chụp ảnh';
+
+  @override
+  String get you => 'Bạn';
 }

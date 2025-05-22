@@ -180,4 +180,6 @@ abstract class BaseLanguage {
   String get pickFromGallery;
 
   String get takePhoto;
+
+  String get you;
 }
