@@ -1,7 +1,5 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11,7 +9,8 @@ import '../router/app_router.gr.dart';
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-
+  static String? initialNotificationPayload;
+  static String? initialNotificationType;
   static Future<void> initialize() async {
     // Request permission
     await _firebaseMessaging.requestPermission(
@@ -29,15 +28,14 @@ class NotificationService {
     await _notificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
-        print("Notification clicked from foreground");
         final payload = response.payload;
         if (payload != null) {
           final appRouter = GetIt.instance<AppRouter>();
-          if(payload == 'friend_request') {
+          if (payload == 'friend_request') {
             appRouter.push(const NotifyRoute());
-            return;
+          } else {
+            appRouter.push(MessageRoute(chatId: payload));
           }
-          appRouter.push(MessageRoute(chatId: payload));
         }
       },
     );
@@ -50,7 +48,7 @@ class NotificationService {
       final appRouter = GetIt.instance<AppRouter>();
       final currentRoute = appRouter.current;
       final type = message.data['type'];
-      if(type == 'text' || type == 'image' || type == 'file') {
+      if (type == 'text' || type == 'image' || type == 'file') {
         final incomingChatId = message.data['chatId'];
         if (currentRoute.name == MessageRoute.name) {
           final currentChatIdOnScreen = currentRoute.pathParams.optString('chatId');
@@ -65,7 +63,16 @@ class NotificationService {
 
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (message != null) {
-        _handleNotificationClick(message);
+        print("App opened from terminated state via notification: ${message.data}");
+        initialNotificationType = message.data['type'];
+        if (initialNotificationType == 'friend_request') {
+          initialNotificationPayload = 'friend_request';
+        } else if (initialNotificationType == 'text' || initialNotificationType == 'image' || initialNotificationType == 'file') {
+          initialNotificationPayload = message.data['chatId'];
+        } else {
+          initialNotificationType = null;
+          initialNotificationPayload = null;
+        }
       }
     });
 
@@ -75,14 +82,13 @@ class NotificationService {
   }
 
   static void _handleNotificationClick(RemoteMessage message) {
-    if(message.data['type'] == 'friend_request') {
-      final appRouter = GetIt.instance<AppRouter>();
+    final appRouter = GetIt.instance<AppRouter>();
+    if (message.data['type'] == 'friend_request') {
       appRouter.push(const NotifyRoute());
       return;
     }
     final chatId = message.data['chatId'];
     if (chatId != null) {
-      final appRouter = GetIt.instance<AppRouter>();
       appRouter.push(MessageRoute(
         chatId: chatId,
       ));
@@ -137,9 +143,7 @@ class NotificationService {
         notificationDetails,
         payload: 'friend_request',
       );
-    } 
-
-
+    }
   }
 
   static Future<String?> getToken() async {
@@ -153,10 +157,8 @@ class NotificationService {
     String? chatId,
     String type = 'message',
   }) async {
-    print("Notification request xxx");
     try {
       final dio = Dio();
-
       final response = await dio.post(
         'http://194.233.76.208:3000/send-notification',
         data: {

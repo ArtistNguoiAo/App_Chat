@@ -20,6 +20,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/router/app_router.gr.dart';
+
 @RoutePage()
 class MessageScreen extends StatefulWidget {
   const MessageScreen({
@@ -107,7 +109,7 @@ class _MessageScreenState extends State<MessageScreen> {
     return BlocProvider(
       create: (context) => MessageCubit()
         ..loadMessage(
-          chatId: chatModel!.id,
+          chatId: chatModel.id,
           seenBy: chatModel.members,
         ),
       child: Scaffold(
@@ -153,8 +155,12 @@ class _MessageScreenState extends State<MessageScreen> {
             ],
           ),
           leading: InkWell(
-            onTap: () {
-              AutoRouter.of(context).maybePop();
+            onTap: () async {
+              final router = AutoRouter.of(context);
+              final didPop = await router.maybePop();
+              if (!didPop && mounted) {
+                router.replace(const OverViewRoute());
+              }
             },
             child: Icon(
               FontAwesomeIcons.chevronLeft,

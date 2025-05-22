@@ -1,4 +1,5 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/services/notification_service.dart'; // Import NotificationService
 import 'package:app_chat/core/utils/media_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/screen/auth/cubit/auth_cubit.dart';
@@ -21,16 +22,15 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   bool _isSplashTimeOver = false;
-  bool _navigationAttempted = false;
+  bool _navigationAttempted = false; // To ensure navigation happens only once
 
   @override
   void initState() {
     super.initState();
-    // AuthCubit is provided by MyApp and its checkAuthState is called there.
-    // We listen to it here to coordinate navigation with the splash duration.
   }
 
-  void _navigate(BuildContext context) {
+  void _navigateBasedOnAuth(BuildContext context) {
+    // Renamed for clarity, this is the default navigation logic
     if (!mounted || _navigationAttempted) return;
 
     final authState = context.read<AuthCubit>().state;
@@ -56,18 +56,43 @@ class _SplashScreenState extends State<SplashScreen> {
                 setState(() {
                   _isSplashTimeOver = true;
                 });
-                // Attempt navigation now that splash time is over
-                _navigate(context);
+
+                if (_navigationAttempted) return; // Already navigated by AuthCubit or previous attempt
+
+                // Check if app was opened from a terminated state notification
+                final initialNotificationType = NotificationService.initialNotificationType;
+                final initialNotificationPayload = NotificationService.initialNotificationPayload;
+
+                if (initialNotificationType != null) {
+                  _navigationAttempted = true;
+                  final appRouter = AutoRouter.of(context);
+
+                  // Clear the static flags after use
+                  NotificationService.initialNotificationType = null;
+                  NotificationService.initialNotificationPayload = null;
+
+                  if (initialNotificationType == 'friend_request') {
+                    appRouter.replace(const NotifyRoute());
+                  } else if ((initialNotificationType == 'text' ||
+                      initialNotificationType == 'image' ||
+                      initialNotificationType == 'file') &&
+                      initialNotificationPayload != null) {
+                    appRouter.replace(MessageRoute(chatId: initialNotificationPayload));
+                  } else {
+                    _navigateBasedOnAuth(context);
+                  }
+                } else {
+                  _navigateBasedOnAuth(context);
+                }
               }
             },
           ),
           BlocListener<AuthCubit, AuthState>(
-            // Listens to the globally provided AuthCubit
             listener: (context, authState) {
               if (!mounted) return;
-              // Attempt navigation if splash time is over and auth state is conclusive
-              if (_isSplashTimeOver && (authState is AuthAuthenticated || authState is AuthUnauthenticated)) {
-                _navigate(context);
+              // Navigate based on auth state only if splash time is over AND no navigation has been attempted yet
+              if (_isSplashTimeOver && !_navigationAttempted && (authState is AuthAuthenticated || authState is AuthUnauthenticated)) {
+                _navigateBasedOnAuth(context);
               }
             },
           ),
@@ -78,37 +103,37 @@ class _SplashScreenState extends State<SplashScreen> {
               Expanded(
                 child: Center(
                     child: SvgPicture.asset(
-                  MediaUtils.imgLogo,
-                  width: 160,
-                  height: 160,
-                )
+                      MediaUtils.imgLogo,
+                      width: 160,
+                      height: 160,
+                    )
                         .animate()
                         .addEffect(
-                          SlideEffect(
-                            begin: const Offset(0, -1),
-                            end: const Offset(0, 0),
-                            duration: 1.seconds,
-                            curve: Curves.easeInOut,
-                          ),
-                        )
+                      SlideEffect(
+                        begin: const Offset(0, -1),
+                        end: const Offset(0, 0),
+                        duration: 1.seconds,
+                        curve: Curves.easeInOut,
+                      ),
+                    )
                         .then()
                         .addEffect(const ShakeEffect(
-                          duration: Duration(seconds: 1),
-                          hz: 4,
-                          curve: Curves.easeInOut,
-                        ))),
+                      duration: Duration(seconds: 1),
+                      hz: 4,
+                      curve: Curves.easeInOut,
+                    ))),
               ),
               Text(
-                'Developed by Le Quoc Trung',
+                'Developed by Nhom 11',
                 style: TextStyleUtils.normal(
                   context: context,
                   color: context.theme.textColor,
                 ),
               ).animate().addEffect(const FadeEffect(
-                    duration: Duration(seconds: 2),
-                    begin: 0.0,
-                    end: 1.0,
-                  )),
+                duration: Duration(seconds: 2), // This is animation duration, not splash delay
+                begin: 0.0,
+                end: 1.0,
+              )),
               const SizedBox(height: 16),
             ],
           ),
