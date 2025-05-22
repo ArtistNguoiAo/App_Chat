@@ -297,13 +297,13 @@ class HomeScreen extends StatelessWidget {
         ),
       );
     } else {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
               context.language.recentChat,
               style: TextStyleUtils.bold(
                 fontSize: 20,
@@ -311,40 +311,40 @@ class HomeScreen extends StatelessWidget {
                 context: context,
               ),
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 130,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: recentChats.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 12),
-                itemBuilder: (context, index) {
-                  final chat = recentChats[index];
-                  UserModel? otherUser;
-                  String otherUserId = '';
-                  if (chat.type == 'private' && chat.members.length >= 2) {
-                    otherUserId = chat.members.firstWhere((id) => id != currentUser.uid, orElse: () => '');
-                    if (otherUserId.isNotEmpty) {
-                      otherUser = allUsersMap[otherUserId];
-                    }
+          ),
+          SizedBox(
+            height: 164,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: recentChats.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 12),
+              padding: const EdgeInsets.all(16),
+              itemBuilder: (context, index) {
+                final chat = recentChats[index];
+                UserModel? otherUser;
+                String otherUserId = '';
+                if (chat.type == 'private' && chat.members.length >= 2) {
+                  otherUserId = chat.members.firstWhere((id) => id != currentUser.uid, orElse: () => '');
+                  if (otherUserId.isNotEmpty) {
+                    otherUser = allUsersMap[otherUserId];
                   }
-                  final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.username ?? 'Unknown User');
-                  final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
-                  final displayId = chat.type == 'group' ? chat.id : (otherUser?.uid ?? '');
+                }
+                final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.fullName ?? 'Unknown User');
+                final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
+                final displayId = chat.type == 'group' ? chat.id : (otherUser?.uid ?? '');
 
-                  return _itemRecentChat(
-                    context: context,
-                    name: displayName,
-                    avatarUrl: displayAvatar,
-                    id: displayId,
-                    chat: chat,
-                    user: otherUser,
-                  );
-                },
-              ),
-            )
-          ],
-        ),
+                return _itemRecentChat(
+                  context: context,
+                  name: displayName,
+                  avatarUrl: displayAvatar,
+                  id: displayId,
+                  chat: chat,
+                  user: otherUser,
+                );
+              },
+            ),
+          )
+        ],
       );
     }
   }
@@ -365,43 +365,56 @@ class HomeScreen extends StatelessWidget {
           AutoRouter.of(context).push(MessageRoute(chatModel: chat));
         }
       },
-      child: Container(
-        width: 100,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: context.theme.backgroundColor,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: context.theme.borderColor.withAlpha(100),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 1),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            child: Icon(
+              Icons.check_circle,
+              color: context.theme.primaryColor,
+              size: 20,
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            BaseAvatar(
-              url: avatarUrl,
-              randomText: id,
-              size: 50,
+          ),
+          Container(
+            width: 100,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: context.theme.backgroundColor,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: context.theme.borderColor.withAlpha(100),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: const Offset(0, 1),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              name,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyleUtils.normal(
-                fontSize: 14,
-                color: context.theme.textColor,
-                context: context,
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                BaseAvatar(
+                  url: avatarUrl,
+                  randomText: id,
+                  size: 50,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  name,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyleUtils.normal(
+                    fontSize: 14,
+                    color: context.theme.textColor,
+                    context: context,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -470,7 +483,7 @@ class HomeScreen extends StatelessWidget {
                     otherUser = allUsersMap[otherUserId];
                   }
                 }
-                final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.username ?? 'Unknown User');
+                final displayName = chat.type == 'group' ? chat.groupName : (otherUser?.fullName ?? 'Unknown User');
                 final displayAvatar = chat.type == 'group' ? chat.groupAvatar : (otherUser?.avatar ?? '');
                 final displayId = chat.type == 'group' ? chat.id : (otherUser?.uid ?? '');
                 return _itemFavoriteChat(

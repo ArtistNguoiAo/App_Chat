@@ -17,12 +17,32 @@ class AddFriendCubit extends Cubit<AddFriendState> {
   final ChatRepository _chatRepository = GetIt.instance<ChatRepository>();
   final MessageRepository _messageRepository = GetIt.instance<MessageRepository>();
 
+  var listUser = <UserModel>[];
+
   Future<void> getListUser() async {
     emit(AddFriendLoading());
     try {
-      final listUser = await _authRepository.getAllUsers();
+      listUser = await _authRepository.getAllUsers();
       final currentUser = await _authRepository.getCurrentUser();
       emit(AddFriendLoaded(listUser: listUser, currentUser: currentUser));
+    } catch (e) {
+      emit(AddFriendError(message: e.toString()));
+    }
+  }
+
+  Future<void> searchUser(String query) async {
+    final currentState = state as AddFriendLoaded;
+    try {
+      if(query.isEmpty) {
+        emit(AddFriendLoaded(listUser: listUser, currentUser: currentState.currentUser));
+      }
+      else {
+        final listUserTmp = listUser.where((user) {
+          return user.fullName.toLowerCase().contains(query.toLowerCase()) ||
+              user.username.toLowerCase().contains(query.toLowerCase());
+        }).toList();
+        emit(AddFriendLoaded(listUser: listUserTmp, currentUser: currentState.currentUser));
+      }
     } catch (e) {
       emit(AddFriendError(message: e.toString()));
     }

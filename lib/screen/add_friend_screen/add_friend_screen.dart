@@ -82,7 +82,10 @@ class AddFriendScreen extends StatelessWidget {
       controller: searchController,
       prefixIcon: const Icon(Icons.search),
       fillColor: context.theme.backgroundColor,
-      hintText: 'Search',
+      hintText: context.language.search,
+      onChanged: (value) {
+        context.read<AddFriendCubit>().searchUser(searchController.text);
+      },
     );
   }
 

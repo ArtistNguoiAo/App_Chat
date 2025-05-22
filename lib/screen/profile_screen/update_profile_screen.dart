@@ -157,7 +157,38 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                   child: Column(
                     children: [
                       GestureDetector(
-                        onTap: _pickImage,
+                        onTap: () async {
+                          final result = await showDialog<String>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    leading: const Icon(FontAwesomeIcons.image),
+                                    title: Text(context.language.pickFromGallery),
+                                    onTap: () {
+                                      Navigator.pop(context, 'gallery');
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(FontAwesomeIcons.camera),
+                                    title: Text(context.language.takePhoto),
+                                    onTap: () {
+                                      Navigator.pop(context, 'camera');
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                          
+                          if (result == 'gallery') {
+                            await _pickImage();
+                          } else if (result == 'camera') {
+                            await _takePhoto();
+                          }
+                        },
                         child: Container(
                           width: 120,
                           height: 120,

@@ -23,7 +23,8 @@ class ListMessageScreen extends StatefulWidget {
 }
 
 class _ListMessageScreenState extends State<ListMessageScreen> with SingleTickerProviderStateMixin {
-  final TextEditingController searchController = TextEditingController();
+  final TextEditingController friendController = TextEditingController();
+  final TextEditingController groupController = TextEditingController();
   late TabController tabController;
 
   @override
@@ -166,6 +167,13 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     return TabBar(
       controller: tabController,
       indicatorColor: context.theme.primaryColor,
+      onTap: (index) {
+        if (index == 0) {
+          context.read<ListMessageCubit>().searchFriend(friendController.text);
+        } else {
+          context.read<ListMessageCubit>().searchGroup(groupController.text);
+        }
+      },
       tabs: [
         Tab(
           child: Text(
@@ -201,8 +209,52 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
       child: TabBarView(
         controller: tabController,
         children: [
-          _listFriend(context, listFriend, listChatFriend),
-          _listMessage(context, listChatGroup),
+          Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: context.theme.grey300Color,
+                  borderRadius: BorderRadius.circular(32), // Độ bo góc
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                margin: const EdgeInsets.all(8),
+                child: TextField(
+                  controller: friendController,
+                  onChanged: (value) {
+                    context.read<ListMessageCubit>().searchFriend(value);
+                  },
+                  decoration: InputDecoration.collapsed(
+                    hintText: context.language.search,
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              Expanded(child: _listFriend(context, listFriend, listChatFriend)),
+            ],
+          ),
+          Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: context.theme.grey300Color,
+                  borderRadius: BorderRadius.circular(32), // Độ bo góc
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                margin: const EdgeInsets.all(8),
+                child: TextField(
+                  controller: groupController,
+                  onChanged: (value) {
+                    context.read<ListMessageCubit>().searchGroup(value);
+                  },
+                  decoration: InputDecoration.collapsed(
+                    hintText: context.language.search,
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              Expanded(child: _listMessage(context, listChatGroup)),
+            ],
+          ),
         ],
       ),
     );
@@ -333,5 +385,12 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
       separatorBuilder: (context, index) => Container(height: 4),
       itemCount: listChat.length,
     );
+  }
+
+  @override
+  void dispose() {
+    friendController.dispose();
+    groupController.dispose();
+    super.dispose();
   }
 }

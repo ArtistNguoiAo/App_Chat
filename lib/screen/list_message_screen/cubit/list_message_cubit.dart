@@ -18,6 +18,10 @@ class ListMessageCubit extends Cubit<ListMessageState> {
   final AuthRepository _authRepository = GetIt.instance<AuthRepository>();
   final ChatRepository _chatRepository = GetIt.instance<ChatRepository>();
 
+  var listChatFriend = <ChatModel>[];
+  var listChatGroup = <ChatModel>[];
+  var listFriend = <UserModel>[];
+
   Future<void> getListUser() async {
     emit(ListMessageLoading());
 
@@ -26,23 +30,69 @@ class ListMessageCubit extends Cubit<ListMessageState> {
       final currentUser = await _authRepository.getCurrentUser();
 
       // Lọc danh sách chat riêng tư và nhóm
-      final listChatFriend = listChat.where((chat) => chat.type == 'private').toList();
-      final listChatGroup = listChat.where((chat) => chat.type == 'group').toList();
-      final listChatGroupFinal = listChatGroup.where((chat) => chat.members.contains(currentUser.uid)).toList();
+      listChatFriend = listChat.where((chat) => chat.type == 'private').toList();
+      listChatGroup = listChat.where((chat) => chat.type == 'group').toList().where((chat) => chat.members.contains(currentUser.uid)).toList();
 
       // Hủy lắng nghe cũ nếu tồn tại
       _listFriendSubscription?.cancel();
 
       // Lắng nghe thay đổi bạn bè qua Stream
-      _listFriendSubscription = _authRepository.getListFriendStream(currentUser).listen((listFriend) {
+      _listFriendSubscription = _authRepository.getListFriendStream(currentUser).listen((listFriendStream) {
+        listFriend = listFriendStream;
         if (!isClosed) {
           emit(ListMessageLoaded(
             listChatFriend: listChatFriend,
-            listChatGroup: listChatGroupFinal,
-            listFriend: listFriend,
+            listChatGroup: listChatGroup,
+            listFriend: listFriendStream,
           ));
         }
       });
+    } catch (e) {
+      emit(ListMessageError(message: e.toString()));
+    }
+  }
+
+  Future<void> searchFriend(String query) async {
+    try {
+      if (query.isEmpty) {
+        emit(ListMessageLoaded(
+          listChatFriend: listChatFriend,
+          listChatGroup: listChatGroup,
+          listFriend: listFriend,
+        ));
+      } else {
+        final filteredListFriend = listFriend.where((user) {
+          return user.fullName.toLowerCase().contains(query.toLowerCase());
+        }).toList();
+        emit(ListMessageLoaded(
+          listChatFriend: listChatFriend,
+          listChatGroup: listChatGroup,
+          listFriend: filteredListFriend,
+        ));
+      }
+    } catch (e) {
+      emit(ListMessageError(message: e.toString()));
+    }
+  }
+
+ Future<void> searchGroup(String query) async {
+    try {
+      if (query.isEmpty) {
+        emit(ListMessageLoaded(
+          listChatFriend: listChatFriend,
+          listChatGroup: listChatGroup,
+          listFriend: listFriend,
+        ));
+      } else {
+        final filteredListGroup = listChatGroup.where((chat) {
+          return chat.groupName.toLowerCase().contains(query.toLowerCase());
+        }).toList();
+        emit(ListMessageLoaded(
+          listChatFriend: listChatFriend,
+          listChatGroup: filteredListGroup,
+          listFriend: listFriend,
+        ));
+      }
     } catch (e) {
       emit(ListMessageError(message: e.toString()));
     }
