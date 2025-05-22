@@ -59,6 +59,9 @@ class MyApp extends StatelessWidget {
                   child: MaterialApp.router(
                     theme: ThemeData(
                       colorScheme: ColorScheme.fromSeed(seedColor: context.theme.borderColor),
+                      scaffoldBackgroundColor: themeState.themeModeEnum == ThemeModeEnum.light
+                          ? context.theme.backgroundColor
+                          : context.theme.textColor.withAlpha((0.1 * 255).round()),
                       useMaterial3: true,
                     ),
                     routerConfig: appRouter.config(),

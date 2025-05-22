@@ -203,61 +203,13 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _listMessage(BuildContext context, List<ChatModel> listChat) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(8),
-      itemBuilder: (context, index) => InkWell(
-        onTap: () {
-          AutoRouter.of(context).push(
-            MessageRoute(
-              chatModel: listChat[index],
-            ),
-          );
-        },
-        child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: context.theme.backgroundColor,
-              boxShadow: [
-                BoxShadow(
-                  color: context.theme.borderColor.withAlpha((0.5 * 255).round()),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                BaseAvatar(
-                  url: listChat[index].groupAvatar,
-                  randomText: listChat[index].id,
-                  size: 40,
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  listChat[index].groupName,
-                  style: TextStyleUtils.normal(
-                    fontSize: 16,
-                    color: context.theme.textColor,
-                    context: context,
-                  ),
-                ),
-              ],
-            )),
-      ),
-      separatorBuilder: (context, index) => Container(height: 4),
-      itemCount: listChat.length,
-    );
-  }
-
   Widget _listFriend(BuildContext context, List<UserModel> listFriend, List<ChatModel> listChat) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) => InkWell(
         onTap: () {
           for (var element in listChat) {
-            if (element.members.contains(listFriend[index].uid)) {
+            if (element.members.contains(listFriend[index].uid) && element.members.length == 2) {
               AutoRouter.of(context).push(
                 MessageRoute(
                   chatModel: element,
@@ -323,6 +275,54 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
       ),
       separatorBuilder: (context, index) => Container(height: 4),
       itemCount: listFriend.length,
+    );
+  }
+
+  Widget _listMessage(BuildContext context, List<ChatModel> listChat) {
+    return ListView.separated(
+      padding: const EdgeInsets.all(8),
+      itemBuilder: (context, index) => InkWell(
+        onTap: () {
+          AutoRouter.of(context).push(
+            MessageRoute(
+              chatModel: listChat[index],
+            ),
+          );
+        },
+        child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: context.theme.backgroundColor,
+              boxShadow: [
+                BoxShadow(
+                  color: context.theme.borderColor.withAlpha((0.5 * 255).round()),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                BaseAvatar(
+                  url: listChat[index].groupAvatar,
+                  randomText: listChat[index].id,
+                  size: 40,
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  listChat[index].groupName,
+                  style: TextStyleUtils.normal(
+                    fontSize: 16,
+                    color: context.theme.textColor,
+                    context: context,
+                  ),
+                ),
+              ],
+            )),
+      ),
+      separatorBuilder: (context, index) => Container(height: 4),
+      itemCount: listChat.length,
     );
   }
 }

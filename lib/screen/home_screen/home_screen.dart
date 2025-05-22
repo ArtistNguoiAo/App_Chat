@@ -117,11 +117,11 @@ class HomeScreen extends StatelessWidget {
   Widget _header(UserModel user, {bool isLoading = false}) {
     return Builder(builder: (context) {
       return SizedBox(
-        height: 200,
+        height: 200 + MediaQuery.of(context).padding.top,
         child: Stack(
           children: [
             Container(
-                height: 150,
+                height: 150 + MediaQuery.of(context).padding.top,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 width: double.infinity,
                 color: context.theme.primaryColor,
@@ -129,6 +129,7 @@ class HomeScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: MediaQuery.of(context).padding.top),
                     Row(
                       children: [
                         Expanded(
@@ -165,7 +166,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 )),
             Positioned(
-              top: 100,
+              top: 100 + MediaQuery.of(context).padding.top,
               left: 16,
               child: InkWell(
                 splashColor: Colors.transparent,

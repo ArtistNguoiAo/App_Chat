@@ -1,6 +1,7 @@
 class MessageModel {
   final String id;
   final String userIdSend;
+  final String userAvatarSend;
   final String text;
   final String createdAt;
   final List<String> seenBy;
@@ -9,6 +10,7 @@ class MessageModel {
   MessageModel({
     required this.id,
     required this.userIdSend,
+    required this.userAvatarSend,
     required this.text,
     required this.createdAt,
     required this.seenBy,
@@ -19,6 +21,7 @@ class MessageModel {
     return MessageModel(
       id: map['id'] as String,
       userIdSend: map['userIdSend'] as String,
+      userAvatarSend: map['userAvatarSend'] as String,
       text: map['text'] as String,
       createdAt: map['createdAt'] as String,
       seenBy: List<String>.from(map['seenBy'] as List),
@@ -30,6 +33,7 @@ class MessageModel {
     return {
       'id': id,
       'userIdSend': userIdSend,
+      'userAvatarSend': userAvatarSend,
       'text': text,
       'createdAt': createdAt,
       'seenBy': seenBy,
@@ -40,6 +44,7 @@ class MessageModel {
   MessageModel copyWith({
     String? id,
     String? userIdSend,
+    String? userAvatarSend,
     String? text,
     String? createdAt,
     List<String>? seenBy,
@@ -48,6 +53,7 @@ class MessageModel {
     return MessageModel(
       id: id ?? this.id,
       userIdSend: userIdSend ?? this.userIdSend,
+      userAvatarSend: userAvatarSend ?? this.userAvatarSend,
       text: text ?? this.text,
       createdAt: createdAt ?? this.createdAt,
       seenBy: seenBy ?? List.from(this.seenBy),

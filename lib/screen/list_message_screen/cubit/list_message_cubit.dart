@@ -28,6 +28,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
       // Lọc danh sách chat riêng tư và nhóm
       final listChatFriend = listChat.where((chat) => chat.type == 'private').toList();
       final listChatGroup = listChat.where((chat) => chat.type == 'group').toList();
+      final listChatGroupFinal = listChatGroup.where((chat) => chat.members.contains(currentUser.uid)).toList();
 
       // Hủy lắng nghe cũ nếu tồn tại
       _listFriendSubscription?.cancel();
@@ -37,7 +38,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
         if (!isClosed) {
           emit(ListMessageLoaded(
             listChatFriend: listChatFriend,
-            listChatGroup: listChatGroup,
+            listChatGroup: listChatGroupFinal,
             listFriend: listFriend,
           ));
         }

@@ -42,6 +42,7 @@ class MessageCubit extends Cubit<MessageState> {
 
   Future<void> sendMessage({
     required String userIdSend,
+    required String userAvatarSend,
     required String text,
     required String createdAt,
     required List<String> seenBy,
@@ -59,6 +60,7 @@ class MessageCubit extends Cubit<MessageState> {
     final messageModel = MessageModel(
       id: '',
       userIdSend: userIdSend,
+      userAvatarSend: userAvatarSend,
       text: text,
       createdAt: createdAt,
       seenBy: seenBy,

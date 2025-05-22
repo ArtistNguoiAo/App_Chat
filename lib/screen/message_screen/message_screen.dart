@@ -114,30 +114,29 @@ class _MessageScreenState extends State<MessageScreen> {
             ),
           ),
           actions: [
-            Builder(
-              builder: (context) {
-                return InkWell(
-                  onTap: () {
-                    DialogUtils.showUserInfoDialog(
-                      context: context,
-                      user: widget.friend!,
-                      isFriend: true,
-                      onDeleteFriend: () {
-                        context.read<MessageCubit>().deleteFriend(
-                          userModel: widget.friend!,
-                          chatId: widget.chatModel.id,
-                        );
-                      },
-                    );
-                  },
-                  child: Icon(
-                    FontAwesomeIcons.circleInfo,
-                    color: context.theme.backgroundColor,
-                    size: 18,
-                  ),
-                );
-              }
-            ),
+            Builder(builder: (context) {
+              return InkWell(
+                onTap: () {
+                  if (widget.friend == null) return;
+                  DialogUtils.showUserInfoDialog(
+                    context: context,
+                    user: widget.friend!,
+                    isFriend: true,
+                    onDeleteFriend: () {
+                      context.read<MessageCubit>().deleteFriend(
+                            userModel: widget.friend!,
+                            chatId: widget.chatModel.id,
+                          );
+                    },
+                  );
+                },
+                child: Icon(
+                  FontAwesomeIcons.circleInfo,
+                  color: context.theme.backgroundColor,
+                  size: 18,
+                ),
+              );
+            }),
             const SizedBox(width: 16),
           ],
           backgroundColor: context.theme.primaryColor,
@@ -219,51 +218,27 @@ class _MessageScreenState extends State<MessageScreen> {
                       ),
               ),
               const SizedBox(width: 8),
-              currentUser.avatar.isNotEmpty
-                  ? Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: context.theme.borderColor,
-                      ),
-                      child: ClipOval(
-                        child: Image.network(
-                          currentUser.avatar,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    )
-                  : AvatarPlus(
-                      currentUser.uid,
-                      height: 30,
-                      width: 30,
-                    ),
+              BaseAvatar(
+                url: currentUser.avatar,
+                randomText: currentUser.uid,
+                size: 30,
+              ),
             ],
           );
         } else {
           return Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              currentUser.avatar.isNotEmpty
-                  ? Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: context.theme.borderColor,
-                      ),
-                      child: ClipOval(
-                        child: Image.network(
-                          friend?.avatar ?? '',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+              friend != null
+                  ? BaseAvatar(
+                      url: friend.avatar,
+                      randomText: friend.uid,
+                      size: 30,
                     )
-                  : AvatarPlus(
-                      friend?.uid ?? '',
-                      height: 30,
-                      width: 30,
+                  : BaseAvatar(
+                      url: listMessage[index].userAvatarSend,
+                      randomText: listMessage[index].userIdSend,
+                      size: 30,
                     ),
               const SizedBox(width: 8),
               Flexible(
@@ -309,14 +284,15 @@ class _MessageScreenState extends State<MessageScreen> {
               final imageFile = await _takeImage();
               if (imageFile == null) return;
               context.read<MessageCubit>().sendMessage(
-                userIdSend: currentUser.uid,
-                text: '',
-                createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
-                seenBy: widget.chatModel.members,
-                chatId: widget.chatModel.id,
-                type: 'image',
-                imageFile: imageFile,
-              );
+                    userIdSend: currentUser.uid,
+                    userAvatarSend: currentUser.avatar,
+                    text: '',
+                    createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
+                    seenBy: widget.chatModel.members,
+                    chatId: widget.chatModel.id,
+                    type: 'image',
+                    imageFile: imageFile,
+                  );
             },
             child: Icon(
               FontAwesomeIcons.camera,
@@ -329,14 +305,15 @@ class _MessageScreenState extends State<MessageScreen> {
               final imageFile = await _pickImage();
               if (imageFile == null) return;
               context.read<MessageCubit>().sendMessage(
-                userIdSend: currentUser.uid,
-                text: '',
-                createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
-                seenBy: widget.chatModel.members,
-                chatId: widget.chatModel.id,
-                type: 'image',
-                imageFile: imageFile,
-              );
+                    userIdSend: currentUser.uid,
+                    userAvatarSend: currentUser.avatar,
+                    text: '',
+                    createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
+                    seenBy: widget.chatModel.members,
+                    chatId: widget.chatModel.id,
+                    type: 'image',
+                    imageFile: imageFile,
+                  );
             },
             child: Icon(
               FontAwesomeIcons.image,
@@ -353,6 +330,7 @@ class _MessageScreenState extends State<MessageScreen> {
                   if (_messageController.text.trim().isEmpty) return;
                   context.read<MessageCubit>().sendMessage(
                         userIdSend: currentUser.uid,
+                        userAvatarSend: currentUser.avatar,
                         text: _messageController.text,
                         createdAt: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now()),
                         seenBy: widget.chatModel.members,

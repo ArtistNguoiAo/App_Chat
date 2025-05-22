@@ -33,43 +33,54 @@ class ProfileScreen extends StatelessWidget {
           final user = state.user;
           return Scaffold(
             body: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: Column(
-                    children: [
-                      _basicInfo(context, user),
-                      const SizedBox(height: 16),
-                      _changeSetting(
-                        icon: FontAwesomeIcons.globe,
-                        title: context.language.language,
-                        content: InheritedLanguageWidget.of(context)?.languageModeEnum?.displayName ?? "English",
-                        onTap: () async {
-                          final selectedLanguage = await context.router.push(const LanguageSettingRoute());
-                          if (selectedLanguage != null && selectedLanguage is LanguageModeEnum) {
-                            context.read<LanguageCubit>().changeLanguage(selectedLanguage);
-                          }
-                        },
-                        context: context,
-                      ),
-                      const SizedBox(height: 16),
-                      _changeSetting(
-                        icon: FontAwesomeIcons.sun,
-                        title: context.language.theme,
-                        content: InheritedThemeWidget.of(context)?.themeModeEnum == ThemeModeEnum.light ? context.language.lightTheme : context.language.darkTheme,
-                        onTap: () async {
-                          final selectedTheme = await context.router.push(const ThemeSettingRoute());
-                          if (selectedTheme != null && selectedTheme is ThemeModeEnum) {
-                            context.read<ThemeCubit>().changeTheme(selectedTheme);
-                          }
-                        },
-                        context: context,
-                      ),
-                      const SizedBox(height: 16),
-                      _accountManagement(context, user),
-                    ],
+              child: Column(
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).padding.top,
+                    width: double.infinity,
+                    color: context.theme.primaryColor,
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          _basicInfo(context, user),
+                          const SizedBox(height: 16),
+                          _changeSetting(
+                            icon: FontAwesomeIcons.globe,
+                            title: context.language.language,
+                            content: InheritedLanguageWidget.of(context)?.languageModeEnum?.displayName ?? "English",
+                            onTap: () async {
+                              final selectedLanguage = await context.router.push(const LanguageSettingRoute());
+                              if (selectedLanguage != null && selectedLanguage is LanguageModeEnum) {
+                                context.read<LanguageCubit>().changeLanguage(selectedLanguage);
+                              }
+                            },
+                            context: context,
+                          ),
+                          const SizedBox(height: 16),
+                          _changeSetting(
+                            icon: FontAwesomeIcons.sun,
+                            title: context.language.theme,
+                            content: InheritedThemeWidget.of(context)?.themeModeEnum == ThemeModeEnum.light
+                                ? context.language.lightTheme
+                                : context.language.darkTheme,
+                            onTap: () async {
+                              final selectedTheme = await context.router.push(const ThemeSettingRoute());
+                              if (selectedTheme != null && selectedTheme is ThemeModeEnum) {
+                                context.read<ThemeCubit>().changeTheme(selectedTheme);
+                              }
+                            },
+                            context: context,
+                          ),
+                          const SizedBox(height: 16),
+                          _accountManagement(context, user),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
