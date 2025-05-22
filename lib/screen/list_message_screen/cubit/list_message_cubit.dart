@@ -44,9 +44,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
         }
       });
     } catch (e) {
-      if (!isClosed) {
-        emit(ListMessageError(message: e.toString()));
-      }
+      emit(ListMessageError(message: e.toString()));
     }
   }
 

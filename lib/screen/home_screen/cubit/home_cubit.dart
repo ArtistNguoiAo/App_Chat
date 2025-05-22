@@ -18,66 +18,66 @@ class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeInitial());
 
   Future<void> loadHomeData() async {
+    emit(HomeLoading());
     try {
-      emit(HomeLoading());
+      while(true) {
+        final currentUser = await _authRepository.getCurrentUser();
+        final allUsersList = await _authRepository.getAllUsers();
+        final allUsersMap = {for (var u in allUsersList) u.uid: u};
+        allUsersMap[currentUser.uid] = currentUser; // Add current user for convenience
 
-      final currentUser = await _authRepository.getCurrentUser();
-      final allUsersList = await _authRepository.getAllUsers();
-      final allUsersMap = {for (var u in allUsersList) u.uid: u};
-      allUsersMap[currentUser.uid] = currentUser; // Add current user for convenience
+        final allChatsSystem = await _chatRepository.getAllChats();
+        final currentUserChats = allChatsSystem
+            .where((chat) => chat.members.contains(currentUser.uid))
+            .toList();
 
-      final allChatsSystem = await _chatRepository.getAllChats();
-      final currentUserChats = allChatsSystem
-          .where((chat) => chat.members.contains(currentUser.uid))
-          .toList();
+        // Recent Chats (top 10 by ChatModel.createdAt)
+        // Assuming createdAt is in 'dd-MM-yyyy HH:mm:ss' format
+        final dateFormat = DateFormat('dd-MM-yyyy HH:mm:ss');
+        currentUserChats.sort((a, b) {
+          try {
+            final dateA = dateFormat.parse(a.createdAt);
+            final dateB = dateFormat.parse(b.createdAt);
+            return dateB.compareTo(dateA); // Descending for most recent
+          } catch (e) {
+            return b.createdAt.compareTo(a.createdAt); // Fallback to string sort
+          }
+        });
+        final recentChats = currentUserChats.take(10).toList();
 
-      // Recent Chats (top 10 by ChatModel.createdAt)
-      // Assuming createdAt is in 'dd-MM-yyyy HH:mm:ss' format
-      final dateFormat = DateFormat('dd-MM-yyyy HH:mm:ss');
-      currentUserChats.sort((a, b) {
-        try {
-          final dateA = dateFormat.parse(a.createdAt);
-          final dateB = dateFormat.parse(b.createdAt);
-          return dateB.compareTo(dateA); // Descending for most recent
-        } catch (e) {
-          print('Error parsing createdAt dates for sorting recent chats: $e. Chat A: ${a.createdAt}, Chat B: ${b.createdAt}');
-          return b.createdAt.compareTo(a.createdAt); // Fallback to string sort
+        // Favorite Chats (top 3 chats with the most messages)
+        Map<ChatModel, int> chatMessageCounts = {};
+        for (final chat in currentUserChats) {
+          try {
+            // Use the new repository method to get message count directly
+            final count = await _messageRepository.getMessagesCountInChat(chat.id);
+            chatMessageCounts[chat] = count;
+          } catch (e) {
+            chatMessageCounts[chat] = 0;
+          }
         }
-      });
-      final recentChats = currentUserChats.take(10).toList();
 
-      // Favorite Chats (top 3 chats with the most messages)
-      Map<ChatModel, int> chatMessageCounts = {};
-      for (final chat in currentUserChats) {
-        try {
-          // Use the new repository method to get message count directly
-          final count = await _messageRepository.getMessagesCountInChat(chat.id);
-          chatMessageCounts[chat] = count;
-        } catch (e) {
-          chatMessageCounts[chat] = 0;
-          print('Error fetching messages count for chat ${chat.id} for favorites: $e');
-        }
+        // Sort chats by message count in descending order
+        List<MapEntry<ChatModel, int>> sortedChatEntries = chatMessageCounts.entries
+            .toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+        // Take the top 3 chats as favorites
+        final favoriteChats = sortedChatEntries
+            .map((entry) => entry.key) // Extract ChatModel from MapEntry
+            .take(3)
+            .toList();
+
+        emit(HomeLoaded(
+          currentUser: currentUser,
+          recentChats: recentChats,
+          favoriteChats: favoriteChats,
+          allUsersMap: allUsersMap,
+        ));
+
+        await Future.delayed(const Duration(seconds: 3));
       }
-
-      // Sort chats by message count in descending order
-      List<MapEntry<ChatModel, int>> sortedChatEntries = chatMessageCounts.entries
-          .toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-
-      // Take the top 3 chats as favorites
-      final favoriteChats = sortedChatEntries
-          .map((entry) => entry.key) // Extract ChatModel from MapEntry
-          .take(3)
-          .toList();
-
-      emit(HomeLoaded(
-        currentUser: currentUser,
-        recentChats: recentChats,
-        favoriteChats: favoriteChats,
-        allUsersMap: allUsersMap,
-      ));
-    } catch (e, stackTrace) {
-      print('Error in loadHomeData: $e\n$stackTrace');
+    } catch (e) {
       emit(HomeError(message: 'Failed to load home data: $e'));
     }
   }

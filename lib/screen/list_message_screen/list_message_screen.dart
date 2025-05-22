@@ -44,6 +44,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                 content: Text(context.language.createGroupSuccess),
               ),
             );
+            context.read<ListMessageCubit>().getListUser();
           }
         },
         builder: (context, state) {
@@ -80,7 +81,11 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                     ),
                     onSelected: (value) {
                       if (value == 1) {
-                        AutoRouter.of(context).push(AddFriendRoute());
+                        AutoRouter.of(context).push(AddFriendRoute()).then((value) {
+                          if (value != null && value == true) {
+                            context.read<ListMessageCubit>().getListUser();
+                          }
+                        });
                       } else if (value == 2) {
                         DialogUtils.showListFriendDialog(
                           context: context,
@@ -215,7 +220,11 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                   chatModel: element,
                   friend: listFriend[index],
                 ),
-              );
+              ).then((value) {
+                if (value != null && value == true) {
+                  context.read<ListMessageCubit>().getListUser();
+                }
+              });
               return;
             }
           }

@@ -123,10 +123,17 @@ class _MessageScreenState extends State<MessageScreen> {
                     user: widget.friend!,
                     isFriend: true,
                     onDeleteFriend: () {
-                      context.read<MessageCubit>().deleteFriend(
-                            userModel: widget.friend!,
-                            chatId: widget.chatModel.id,
-                          );
+                      DialogUtils.showConfirmDialog(
+                        context: context,
+                        content: context.language.deleteFriendContent,
+                        confirmButton: context.language.delete,
+                        onConfirm: () {
+                          context.read<MessageCubit>().deleteFriend(
+                                userModel: widget.friend!,
+                                chatId: widget.chatModel.id,
+                              );
+                        },
+                      );
                     },
                   );
                 },
@@ -146,7 +153,7 @@ class _MessageScreenState extends State<MessageScreen> {
           child: BlocConsumer<MessageCubit, MessageState>(
             listener: (context, state) {
               if (state is MessageDeleteSuccess) {
-                AutoRouter.of(context).maybePop();
+                AutoRouter.of(context).maybePop(true);
               }
             },
             builder: (context, state) {
