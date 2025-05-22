@@ -46,4 +46,21 @@ class ChatRepository {
       throw Exception('Failed to delete chat: $e');
     }
   }
+
+  Stream<List<ChatModel>> streamAllChats() {
+    return _fireStore
+        .collection('chats')
+        .orderBy('lastMessageTime', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => ChatModel.fromMap(doc.data())).toList());
+  }
+
+  Stream<List<ChatModel>> streamUserChats(String userId) {
+    return _fireStore
+        .collection('chats')
+        .where('members', arrayContains: userId)
+        .orderBy('lastMessageTime', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => ChatModel.fromMap(doc.data())).toList());
+  }
 }
