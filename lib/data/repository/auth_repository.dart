@@ -28,6 +28,7 @@ class AuthRepository {
         firstName: firstName,
         lastName: lastName,
         email: email,
+        fcmToken: '',
       );
 
       await _fireStore.collection('users').doc(user.uid).set(user.toMap());

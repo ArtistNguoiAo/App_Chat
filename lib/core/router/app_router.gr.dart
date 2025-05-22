@@ -85,11 +85,15 @@ abstract class $AppRouter extends _i16.RootStackRouter {
       );
     },
     MessageRoute.name: (routeData) {
-      final args = routeData.argsAs<MessageRouteArgs>();
+      final pathParams = routeData.inheritedPathParams;
+      final args = routeData.argsAs<MessageRouteArgs>(
+          orElse: () =>
+              MessageRouteArgs(chatId: pathParams.optString('chatId')));
       return _i16.AutoRoutePage<dynamic>(
         routeData: routeData,
         child: _i8.MessageScreen(
           key: args.key,
+          chatId: args.chatId,
           chatModel: args.chatModel,
           friend: args.friend,
         ),
@@ -262,16 +266,19 @@ class LoginRoute extends _i16.PageRouteInfo<void> {
 class MessageRoute extends _i16.PageRouteInfo<MessageRouteArgs> {
   MessageRoute({
     _i17.Key? key,
-    required _i18.ChatModel chatModel,
+    String? chatId,
+    _i18.ChatModel? chatModel,
     _i19.UserModel? friend,
     List<_i16.PageRouteInfo>? children,
   }) : super(
           MessageRoute.name,
           args: MessageRouteArgs(
             key: key,
+            chatId: chatId,
             chatModel: chatModel,
             friend: friend,
           ),
+          rawPathParams: {'chatId': chatId},
           initialChildren: children,
         );
 
@@ -284,19 +291,22 @@ class MessageRoute extends _i16.PageRouteInfo<MessageRouteArgs> {
 class MessageRouteArgs {
   const MessageRouteArgs({
     this.key,
-    required this.chatModel,
+    this.chatId,
+    this.chatModel,
     this.friend,
   });
 
   final _i17.Key? key;
 
-  final _i18.ChatModel chatModel;
+  final String? chatId;
+
+  final _i18.ChatModel? chatModel;
 
   final _i19.UserModel? friend;
 
   @override
   String toString() {
-    return 'MessageRouteArgs{key: $key, chatModel: $chatModel, friend: $friend}';
+    return 'MessageRouteArgs{key: $key, chatId: $chatId, chatModel: $chatModel, friend: $friend}';
   }
 }
 

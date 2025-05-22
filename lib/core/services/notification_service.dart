@@ -1,10 +1,15 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get_it/get_it.dart';
+
+import '../router/app_router.dart';
+import '../router/app_router.gr.dart';
 
 class NotificationService {
-  static final FlutterLocalNotificationsPlugin _notificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   static Future<void> initialize() async {
@@ -21,15 +26,64 @@ class NotificationService {
       iOS: DarwinInitializationSettings(),
     );
 
-    await _notificationsPlugin.initialize(initializationSettings);
+    await _notificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        print("Notification clicked from foreground");
+        final payload = response.payload;
+        if (payload != null) {
+          print("Notification payload: $payload");
+          final appRouter = GetIt.instance<AppRouter>();
+          appRouter.push(MessageRoute(chatId: payload));
+        }
+      },
+    );
 
     // Handle background messages
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     // Handle foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      final appRouter = GetIt.instance<AppRouter>();
+      final currentRoute = appRouter.current;
+      final type = message.data['type'];
+      if(type == 'text' || type == 'image' || type == 'file') {
+        final incomingChatId = message.data['chatId'];
+        if (currentRoute.name == MessageRoute.name) {
+          final currentChatIdOnScreen = currentRoute.pathParams.optString('chatId');
+          if (currentChatIdOnScreen == incomingChatId) {
+            print("User is on the chat screen for $incomingChatId. Suppressing foreground notification.");
+            return;
+          }
+        }
+      }
       _showNotification(message);
     });
+
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        _handleNotificationClick(message);
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      _handleNotificationClick(message);
+    });
+  }
+
+  static void _handleNotificationClick(RemoteMessage message) {
+    if(message.data['type'] == 'friend_request') {
+      final appRouter = GetIt.instance<AppRouter>();
+      appRouter.push(const NotifyRoute());
+      return;
+    }
+    final chatId = message.data['chatId'];
+    if (chatId != null) {
+      final appRouter = GetIt.instance<AppRouter>();
+      appRouter.push(MessageRoute(
+        chatId: chatId,
+      ));
+    }
   }
 
   static Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -43,16 +97,46 @@ class NotificationService {
         'Messages',
         importance: Importance.max,
         priority: Priority.high,
+        enableLights: true,
+        enableVibration: true,
+        playSound: true,
+        showWhen: true,
       ),
-      iOS: DarwinNotificationDetails(),
+      iOS: DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      ),
     );
 
-    await _notificationsPlugin.show(
-      DateTime.now().millisecond,
-      message.notification?.title ?? 'New Message',
-      message.notification?.body ?? '',
-      notificationDetails,
-    );
+    final type = message.data['type'];
+    if (type == 'text') {
+      await _notificationsPlugin.show(
+        message.hashCode,
+        message.notification?.title ?? 'New Message',
+        message.notification?.body ?? '',
+        notificationDetails,
+        payload: message.data['chatId'],
+      );
+    } else if (type == 'image') {
+      await _notificationsPlugin.show(
+        message.hashCode,
+        message.notification?.title ?? 'New Image',
+        message.notification?.body ?? '',
+        notificationDetails,
+        payload: message.data['chatId'],
+      );
+    } else if (type == 'friend_request') {
+      await _notificationsPlugin.show(
+        message.hashCode,
+        message.notification?.title ?? 'New Friend Request',
+        message.notification?.body ?? '',
+        notificationDetails,
+        payload: 'friend_request',
+      );
+    } 
+
+
   }
 
   static Future<String?> getToken() async {
@@ -64,7 +148,7 @@ class NotificationService {
     required String body,
     required String token,
     String? chatId,
-    bool isFriendRequest = false,
+    String type = 'message',
   }) async {
     try {
       final dio = Dio();
@@ -77,7 +161,7 @@ class NotificationService {
           'message': body,
           'data': {
             'chatId': chatId,
-            'isFriendRequest': isFriendRequest,
+            'type': type,
           },
         },
         options: Options(

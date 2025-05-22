@@ -7,7 +7,8 @@ class UserModel {
   final String avatar;
   final List<String> friends;
   final List<String> friendRequests;
- final String status;
+  final String status;
+  final String fcmToken;
 
   String get fullName => '$firstName $lastName';
 
@@ -17,6 +18,7 @@ class UserModel {
     required this.firstName,
     required this.lastName,
     required this.email,
+    required this.fcmToken,
     this.avatar = '',
     this.friends = const [],
     this.friendRequests = const [],
@@ -33,6 +35,7 @@ class UserModel {
       'avatar': avatar,
       'friends': friends,
       'friendRequests': friendRequests,
+      'fcmToken': fcmToken,
       'status': status,
     };
   }
@@ -48,6 +51,7 @@ class UserModel {
       friends: List<String>.from(map['friends'] as List<dynamic>? ?? []),
       friendRequests: List<String>.from(map['friendRequests'] as List<dynamic>? ?? []),
       status: map['status'] as String? ?? '',
+      fcmToken: map['fcmToken'] as String? ?? '',
     );
   }
 }

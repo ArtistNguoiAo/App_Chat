@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:app_chat/core/services/notification_service.dart';
 import 'package:app_chat/data/model/message_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -20,44 +21,41 @@ class MessageRepository {
   }
 
   Future<void> sendMessageWithNotification({
+    required MessageModel messageModel,
     required String chatId,
-    required String message,
-    required String senderId,
-    required List<String> memberIds,
   }) async {
     try {
-      // Save message to Firestore
-      final messageRef = await _fireStore.collection('chats').doc(chatId).collection('messages').add({
-        'message': message,
-        'senderId': senderId,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+      final documentRef = _fireStore.collection('messages').doc(chatId).collection('messages').doc();
+      final updatedMessageModel = messageModel.copyWith(id: documentRef.id);
+      await documentRef.set(updatedMessageModel.toMap());
 
-      // Update last message
+      // Update last message in chat
       await _fireStore.collection('chats').doc(chatId).update({
-        'lastMessageId': messageRef.id,
+        'lastMessageId': documentRef.id,
         'lastMessageTime': FieldValue.serverTimestamp(),
       });
 
+      // Get chat members
+      final chatDoc = await _fireStore.collection('chats').doc(chatId).get();
+      final members = List<String>.from(chatDoc.data()?['members'] ?? []);
+
       // Get sender info
-      final senderDoc = await _fireStore.collection('users').doc(senderId).get();
-      final senderName = senderDoc.data()?['fullName'] ?? '';
+      final senderDoc = await _fireStore.collection('users').doc(messageModel.userIdSend).get();
+      final senderName = '${senderDoc.data()?['firstName']} ${senderDoc.data()?['lastName']}';
 
       // Send notification to other members
-      for (String memberId in memberIds) {
-        if (memberId != senderId) {
+      for (String memberId in members) {
+        if (memberId != messageModel.userIdSend) {
           final memberDoc = await _fireStore.collection('users').doc(memberId).get();
           final fcmToken = memberDoc.data()?['fcmToken'];
 
-          if (fcmToken != null) {
-            await _sendPushNotification(
+          if (fcmToken != null && fcmToken.isNotEmpty) {
+            await NotificationService.pushNotification(
               token: fcmToken,
               title: senderName,
-              body: message,
-              data: {
-                'chatId': chatId,
-                'type': 'message',
-              },
+              body: messageModel.type == 'text' ? messageModel.text : '',
+              chatId: chatId,
+              type: messageModel.type,
             );
           }
         }
@@ -65,15 +63,6 @@ class MessageRepository {
     } catch (e) {
       throw Exception('Failed to send message: $e');
     }
-  }
-
-  Future<void> _sendPushNotification({
-    required String token,
-    required String title,
-    required String body,
-    required Map<String, dynamic> data,
-  }) async {
-
   }
 
   Stream<List<MessageModel>> getMessage({
