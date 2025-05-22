@@ -48,7 +48,7 @@ class HomeScreen extends StatelessWidget {
                   return Scaffold(
                     body: Column(
                       children: [
-                        _header(authState.user, isLoading: true),
+                        _header(authState.user, null, isLoading: true),
                         const Expanded(child: BaseLoading()),
                       ],
                     ),
@@ -74,32 +74,27 @@ class HomeScreen extends StatelessWidget {
 
                 if (homeState is HomeLoaded) {
                   return Scaffold(
-                    body: RefreshIndicator(
-                      onRefresh: () async {
-                        homeContext.read<HomeCubit>().loadHomeData();
-                      },
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _header(homeState.currentUser),
-                            const SizedBox(height: 16),
-                            _recentChat(
-                              context: homeContext,
-                              recentChats: homeState.recentChats,
-                              allUsersMap: homeState.allUsersMap,
-                              currentUser: homeState.currentUser,
-                            ),
-                            const SizedBox(height: 16),
-                            _favoriteChat(
-                              context: homeContext,
-                              favoriteChats: homeState.favoriteChats,
-                              allUsersMap: homeState.allUsersMap,
-                              currentUser: homeState.currentUser,
-                            ),
-                          ],
-                        ),
+                    body: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _header(homeState.currentUser, homeState.currentUser),
+                          const SizedBox(height: 16),
+                          _recentChat(
+                            context: homeContext,
+                            recentChats: homeState.recentChats,
+                            allUsersMap: homeState.allUsersMap,
+                            currentUser: homeState.currentUser,
+                          ),
+                          const SizedBox(height: 16),
+                          _favoriteChat(
+                            context: homeContext,
+                            favoriteChats: homeState.favoriteChats,
+                            allUsersMap: homeState.allUsersMap,
+                            currentUser: homeState.currentUser,
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -114,7 +109,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _header(UserModel user, {bool isLoading = false}) {
+  Widget _header(UserModel user, UserModel? currentUser, {bool isLoading = false}) {
     return Builder(builder: (context) {
       return SizedBox(
         height: 200 + MediaQuery.of(context).padding.top,
@@ -147,9 +142,27 @@ class HomeScreen extends StatelessWidget {
                           onTap: () {
                             AutoRouter.of(context).push(const NotifyRoute());
                           },
-                          child: FaIcon(
-                            FontAwesomeIcons.bell,
-                            color: context.theme.backgroundColor,
+                          child: Stack(
+                            children: [
+                              FaIcon(
+                                Icons.notifications,
+                                color: context.theme.backgroundColor,
+                                size: 28,
+                              ),
+                              if ((currentUser?.friendRequests ?? []).isNotEmpty)
+                                Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: context.theme.redColor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ],
@@ -325,6 +338,7 @@ class HomeScreen extends StatelessWidget {
                     avatarUrl: displayAvatar,
                     id: displayId,
                     chat: chat,
+                    user: otherUser,
                   );
                 },
               ),
@@ -341,10 +355,15 @@ class HomeScreen extends StatelessWidget {
     required String avatarUrl,
     required String id,
     required ChatModel chat,
+    required UserModel? user,
   }) {
     return InkWell(
       onTap: () {
-        AutoRouter.of(context).push(MessageRoute(chatModel: chat));
+        if (user != null) {
+          AutoRouter.of(context).push(MessageRoute(friend: user, chatModel: chat));
+        } else {
+          AutoRouter.of(context).push(MessageRoute(chatModel: chat));
+        }
       },
       child: Container(
         width: 100,
@@ -460,6 +479,7 @@ class HomeScreen extends StatelessWidget {
                   avatarUrl: displayAvatar,
                   id: displayId,
                   chat: chat,
+                  user: otherUser
                 );
               },
             )
@@ -475,10 +495,16 @@ class HomeScreen extends StatelessWidget {
     required String avatarUrl,
     required String id,
     required ChatModel chat,
+    required UserModel? user,
   }) {
     return InkWell(
       onTap: () {
-        AutoRouter.of(context).push(MessageRoute(chatModel: chat));
+        if(user != null) {
+          AutoRouter.of(context).push(MessageRoute(friend: user, chatModel: chat));
+        }
+        else {
+          AutoRouter.of(context).push(MessageRoute(chatModel: chat));
+        }
       },
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -508,7 +534,7 @@ class HomeScreen extends StatelessWidget {
                 name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyleUtils.bold(
+                style: TextStyleUtils.normal(
                   fontSize: 16,
                   color: context.theme.textColor,
                   context: context,

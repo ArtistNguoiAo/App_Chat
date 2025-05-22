@@ -264,4 +264,10 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get updatePasswordSuccessContent => 'Password updated successfully';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deleteFriendContent => 'Are you sure you want to delete this friend? This will also delete your chat with them?';
 }

@@ -46,7 +46,7 @@ class AddFriendScreen extends StatelessWidget {
                 ),
                 leading: InkWell(
                   onTap: () {
-                    AutoRouter.of(context).maybePop();
+                    AutoRouter.of(context).maybePop(true);
                   },
                   child: Icon(
                     FontAwesomeIcons.chevronLeft,
@@ -101,7 +101,14 @@ class AddFriendScreen extends StatelessWidget {
               user: listUser[index],
               isFriend: isFriend,
               onDeleteFriend: () {
-                context.read<AddFriendCubit>().deleteFriend(listUser[index]);
+                DialogUtils.showConfirmDialog(
+                  context: context,
+                  content: context.language.deleteFriendContent,
+                  confirmButton: context.language.delete,
+                  onConfirm: () {
+                    context.read<AddFriendCubit>().deleteFriend(listUser[index]);
+                  },
+                );
               },
             );
           },

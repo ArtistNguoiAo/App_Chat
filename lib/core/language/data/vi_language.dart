@@ -264,4 +264,10 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get updatePasswordSuccessContent => 'Cập nhật mật khẩu thành công';
+
+  @override
+  String get delete => 'Xóa';
+
+  @override
+  String get deleteFriendContent => 'Bạn có chắc chắn muốn xóa bạn bè này không? Điều này sẽ bao gồm xóa cuộc trò chuyện của bạn với họ?';
 }

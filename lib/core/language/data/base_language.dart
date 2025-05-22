@@ -170,4 +170,8 @@ abstract class BaseLanguage {
   String get updateProfileSuccessContent;
 
   String get updatePasswordSuccessContent;
+
+  String get delete;
+
+  String get deleteFriendContent;
 }

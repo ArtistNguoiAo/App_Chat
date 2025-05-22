@@ -38,5 +38,5 @@ class DarkTheme extends BaseTheme {
   Color get yellowGold => const Color(0xFFFFDF00);
 
   @override
-  Color get grey300Color => Colors.grey[300]!;
+  Color get grey300Color => Colors.grey[600]!;
 }
