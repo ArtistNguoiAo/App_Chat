@@ -23,6 +23,7 @@ class BaseTextField extends StatefulWidget {
     this.validator,
     this.fillColor,
     this.onChanged,
+    this.readOnly,
   });
 
   final TextEditingController controller;
@@ -42,6 +43,7 @@ class BaseTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final Color? fillColor;
   final Function(String)? onChanged;
+  final bool? readOnly;
 
   @override
   State<BaseTextField> createState() => _BaseTextFieldState();
@@ -54,6 +56,7 @@ class _BaseTextFieldState extends State<BaseTextField> {
     return TextFormField( // Change to TextFormField
       controller: widget.controller,
       validator: widget.validator,
+      readOnly: widget.readOnly ?? false,
       decoration: InputDecoration(
         isDense: true,
         filled: widget.fillColor != null,

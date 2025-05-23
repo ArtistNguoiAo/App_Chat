@@ -29,5 +29,6 @@ class AppRouter extends $AppRouter {
         ),
         AutoRoute(page: AddFriendRoute.page, path: '/add-friend'),
         AutoRoute(page: NotifyRoute.page, path: '/notify'),
+        AutoRoute(page: QrScannerRoute.page, path: '/qr-scanner'),
       ];
 }

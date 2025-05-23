@@ -182,4 +182,12 @@ abstract class BaseLanguage {
   String get takePhoto;
 
   String get you;
+
+  String get edit;
+
+  String get save;
+
+  String get groupMembers;
+
+  String get yourQrCode;
 }

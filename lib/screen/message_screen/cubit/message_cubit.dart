@@ -99,6 +99,20 @@ class MessageCubit extends Cubit<MessageState> {
     emit(MessageDeleteSuccess());
   }
 
+  Future<void> updateGroup({
+    required String chatId,
+    required String groupName,
+    File? groupAvatar,
+  }) async {
+    await _chatRepository.updateChat(
+      chatId: chatId,
+      groupName: groupName,
+      groupAvatar: groupAvatar,
+    );
+
+
+  }
+
   @override
   Future<void> close() {
     _messageSubscription?.cancel();

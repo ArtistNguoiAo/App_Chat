@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_chat/core/utils/cloudinary_utils.dart';
 import 'package:app_chat/data/model/chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -43,7 +45,7 @@ class ChatRepository {
   Future<void> updateChat({
     required String chatId,
     String? groupName,
-    String? groupAvatar,
+    File? groupAvatar,
     String? lastMessage,
     DateTime? lastMessageTime,
     String? lastMessageSenderId,
@@ -53,11 +55,20 @@ class ChatRepository {
       final chatRef = _fireStore.collection('chats').doc(chatId);
       final chatData = <String, dynamic>{};
 
+      String avatar = '';
+
+      if (groupAvatar != null) {
+        final uploadedUrl = await _cloudinary.uploadFile(groupAvatar, 'avatars');
+        if (uploadedUrl != null) {
+          avatar = uploadedUrl;
+        }
+      }
+
       if (groupName != null) {
         chatData['groupName'] = groupName;
       }
       if (groupAvatar != null) {
-        chatData['groupAvatar'] = groupAvatar;
+        chatData['groupAvatar'] = avatar;
       }
       if (lastMessage != null) {
         chatData['lastMessage'] = lastMessage;

@@ -226,6 +226,18 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _accountItem(
+            icon: FontAwesomeIcons.qrcode,
+            title: context.language.yourQrCode,
+            onTap: () {
+              DialogUtils.showQrDialog(
+                context: context,
+                qrCode: user.uid,
+              );
+            },
+            context: context,
+          ),
+          const SizedBox(height: 16),
+          _accountItem(
             icon: FontAwesomeIcons.userPen,
             title: context.language.updateProfile,
             onTap: () => context.router.push(UpdateProfileRoute(user: user)),
@@ -242,6 +254,7 @@ class ProfileScreen extends StatelessWidget {
           _accountItem(
             icon: FontAwesomeIcons.arrowRightFromBracket,
             title: context.language.logout,
+            color: context.theme.redColor,
             onTap: () {
               DialogUtils.showConfirmDialog(
                 context: context,

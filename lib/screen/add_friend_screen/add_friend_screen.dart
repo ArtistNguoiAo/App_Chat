@@ -1,4 +1,5 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/router/app_router.gr.dart';
 import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/core/widget/base_loading.dart';
@@ -66,7 +67,7 @@ class AddFriendScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    _searchBar(context),
+                    _searchBar(context, state.listUser, state.currentUser),
                     Expanded(
                       child: _listUser(context, state.listUser, state.currentUser),
                     ),
@@ -81,15 +82,51 @@ class AddFriendScreen extends StatelessWidget {
     );
   }
 
-  Widget _searchBar(BuildContext context) {
-    return BaseTextField(
-      controller: searchController,
-      prefixIcon: const Icon(Icons.search),
-      fillColor: context.theme.backgroundColor,
-      hintText: context.language.search,
-      onChanged: (value) {
-        context.read<AddFriendCubit>().searchUser(searchController.text);
-      },
+  Widget _searchBar(BuildContext context, List<UserModel> listUser, UserModel currentUser) {
+    return Row(
+      children: [
+        Expanded(
+          child: BaseTextField(
+            controller: searchController,
+            prefixIcon: const Icon(Icons.search),
+            fillColor: context.theme.backgroundColor,
+            hintText: context.language.search,
+            onChanged: (value) {
+              context.read<AddFriendCubit>().searchUser(searchController.text);
+            },
+          ),
+        ),
+        const SizedBox(width: 16),
+        InkWell(
+          onTap: () {
+            AutoRouter.of(context).push(const QrScannerRoute()).then(
+              (value) {
+                if (value != null) {
+                  for(var user in listUser) {
+                    if (user.uid == value && !currentUser.friends.contains(user.uid)) {
+                      context.read<AddFriendCubit>().requestAddFriend(user);
+                      return;
+                    }
+                  }
+                }
+              },
+            );
+          },
+          child: Container(
+            height: 48,
+            width: 48,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: context.theme.primaryColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              FontAwesomeIcons.qrcode,
+              color: Colors.white,
+            ),
+          ),
+        )
+      ],
     );
   }
 

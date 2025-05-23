@@ -139,6 +139,19 @@ class AuthRepository {
     }
   }
 
+  Future<List<UserModel>> getAll() async {
+    try {
+      final querySnapshot = await _fireStore.collection('users').get();
+      final users = querySnapshot.docs.map((doc) {
+        return UserModel.fromMap(doc.data());
+      }).toList();
+
+      return users;
+    } catch (e) {
+      throw Exception('Lấy danh sách người dùng thất bại: $e');
+    }
+  }
+
   Future<UserModel> getCurrentUser() async {
     try {
       final querySnapshot = await _fireStore.collection('users').get();

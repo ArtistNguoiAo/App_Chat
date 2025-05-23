@@ -6,13 +6,17 @@ import 'package:app_chat/core/widget/base_loading.dart';
 import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/user_model.dart';
+import 'package:app_chat/data/repository/auth_repository.dart';
+import 'package:app_chat/data/repository/user_repository.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:qr_flutter_new/qr_flutter.dart';
 
 class DialogUtils {
   static bool _isShowing = false;
@@ -106,6 +110,27 @@ class DialogUtils {
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  static void showQrDialog({required BuildContext context, required String qrCode}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: 200,
+            height: 200,
+            child: Center(
+              child: QrImageView(
+                data: qrCode,
+                version: QrVersions.auto,
+                size: 200.0,
+              ),
+            ),
+          ),
         );
       },
     );
@@ -352,6 +377,8 @@ class DialogUtils {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
       backgroundColor: context.theme.backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -515,102 +542,198 @@ class DialogUtils {
   static Future<void> showGroupInfoDialog({
     required BuildContext context,
     required ChatModel chat,
-    required Function onFunction,
+    required List<UserModel> listMember,
+    required Function(String, File?) onFunction,
   }) {
     File? _imageFile;
+    final TextEditingController groupNameController = TextEditingController();
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
       backgroundColor: context.theme.backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
+        groupNameController.text = chat.groupName;
         return StatefulBuilder(
           builder: (context, setState) {
             return SingleChildScrollView(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  InkWell(
-                    onTap: () async {
-                      final result = await showDialog<String>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                leading: const Icon(FontAwesomeIcons.image),
-                                title: Text(context.language.pickFromGallery),
-                                onTap: () {
-                                  Navigator.pop(context, 'gallery');
-                                },
-                              ),
-                              ListTile(
-                                leading: const Icon(FontAwesomeIcons.camera),
-                                title: Text(context.language.takePhoto),
-                                onTap: () {
-                                  Navigator.pop(context, 'camera');
-                                },
-                              ),
-                            ],
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Container()),
+                        InkWell(
+                          onTap: () {
+                            AutoRouter.of(context).maybePop();
+                          },
+                          child: Icon(
+                            FontAwesomeIcons.circleXmark,
+                            size: 22,
+                            color: context.theme.redColor,
                           ),
                         ),
-                      );
+                      ],
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        final result = await showDialog<String>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: const Icon(FontAwesomeIcons.image),
+                                  title: Text(context.language.pickFromGallery),
+                                  onTap: () {
+                                    Navigator.pop(context, 'gallery');
+                                  },
+                                ),
+                                ListTile(
+                                  leading: const Icon(FontAwesomeIcons.camera),
+                                  title: Text(context.language.takePhoto),
+                                  onTap: () {
+                                    Navigator.pop(context, 'camera');
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
 
-                      if (result == 'gallery') {
-                        final picker = ImagePicker();
-                        final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-                        if (pickedFile != null) {
-                          setState(() => _imageFile = File(pickedFile.path));
+                        if (result == 'gallery') {
+                          final picker = ImagePicker();
+                          final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                          if (pickedFile != null) {
+                            setState(() => _imageFile = File(pickedFile.path));
+                          }
+                        } else if (result == 'camera') {
+                          final picker = ImagePicker();
+                          final pickedFile = await picker.pickImage(source: ImageSource.camera);
+                          if (pickedFile != null) {
+                            setState(() => _imageFile = File(pickedFile.path));
+                          }
                         }
-                      } else if (result == 'camera') {
-                        final picker = ImagePicker();
-                        final pickedFile = await picker.pickImage(source: ImageSource.camera);
-                        if (pickedFile != null) {
-                          setState(() => _imageFile = File(pickedFile.path));
-                        }
-                      }
-                    },
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: context.theme.borderColor,
-                        image: _imageFile != null
-                            ? DecorationImage(
-                          image: FileImage(_imageFile!),
-                          fit: BoxFit.cover,
-                        )
-                            : chat.groupAvatar.isNotEmpty
-                            ? DecorationImage(
-                          image: NetworkImage(chat.groupAvatar),
-                          fit: BoxFit.cover,
-                        )
-                            : null,
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.camera_alt,
-                          color: context.theme.backgroundColor,
-                          size: 40,
+                      },
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: context.theme.borderColor,
+                          image: _imageFile != null
+                              ? DecorationImage(
+                                  image: FileImage(_imageFile!),
+                                  fit: BoxFit.cover,
+                                )
+                              : chat.groupAvatar.isNotEmpty
+                                  ? DecorationImage(
+                                      image: NetworkImage(chat.groupAvatar),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.camera_alt,
+                            color: context.theme.backgroundColor,
+                            size: 40,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    BaseTextField(
+                      controller: groupNameController,
+                      fillColor: context.theme.backgroundColor,
+                      labelText: context.language.groupName,
+                      hintText: context.language.groupName,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      context.language.groupMembers,
+                      style: TextStyleUtils.normalItalic(
+                        fontSize: 20,
+                        color: context.theme.textColor,
+                        context: context,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 120,
+                      child: ListView.separated(
+                        itemBuilder: (context, index) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: context.theme.blueColor.withAlpha((255*0.1).round()),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              listMember[index].fullName,
+                              style: TextStyleUtils.normal(
+                                fontSize: 16,
+                                color: context.theme.textColor,
+                                context: context,
+                              ),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (_, __) => Container(height: 4),
+                        itemCount: listMember.length,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () {
+                        if (groupNameController.text.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(context.language.pleaseEnterGroupName),
+                            ),
+                          );
+                        } else {
+                          Navigator.of(context).maybePop(true);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: context.theme.primaryColor,
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: context.theme.primaryColor),
+                        ),
+                        child: Text(
+                          context.language.save,
+                          style: TextStyleUtils.normal(
+                            fontSize: 16,
+                            color: context.theme.backgroundColor,
+                            context: context,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
         );
       },
     ).then((value) {
-      if (value != null && value is bool && value) {}
+      if (value != null && value is bool && value) {
+        onFunction(groupNameController.text, _imageFile);
+      }
     });
   }
 }

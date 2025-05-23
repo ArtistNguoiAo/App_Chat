@@ -282,4 +282,16 @@ class ViLanguage extends BaseLanguage {
 
   @override
   String get you => 'Bạn';
+
+  @override
+  String get edit => 'Chỉnh sửa';
+
+  @override
+  String get save => 'Lưu';
+
+  @override
+  String get groupMembers => 'Thành viên nhóm';
+
+  @override
+  String get yourQrCode => 'Mã QR của bạn';
 }

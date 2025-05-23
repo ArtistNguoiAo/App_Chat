@@ -282,4 +282,16 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get you => 'You';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get groupMembers => 'Group Members';
+
+  @override
+  String get yourQrCode => 'Your QR Code';
 }

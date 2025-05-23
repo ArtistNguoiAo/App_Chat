@@ -8,6 +8,7 @@ import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/chat_model.dart';
 import 'package:app_chat/data/model/message_model.dart';
 import 'package:app_chat/data/model/user_model.dart';
+import 'package:app_chat/data/repository/auth_repository.dart';
 import 'package:app_chat/screen/message_screen/cubit/message_cubit.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
@@ -17,6 +18,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -165,7 +167,7 @@ class _MessageScreenState extends State<MessageScreen> {
           actions: [
             Builder(builder: (context) {
               return InkWell(
-                onTap: () {
+                onTap: () async {
                   if (widget.friend != null) {
                     DialogUtils.showUserInfoDialog(
                       context: context,
@@ -186,11 +188,19 @@ class _MessageScreenState extends State<MessageScreen> {
                       },
                     );
                   } else {
+                    final AuthRepository authRepository = GetIt.instance<AuthRepository>();
+                    final list = await authRepository.getAll();
+                    final listMember = list.where((user) => widget.chatModel!.members.contains(user.uid)).toList();
                     DialogUtils.showGroupInfoDialog(
                       context: context,
                       chat: chatModel,
-                      onFunction: () {
-
+                      listMember: listMember,
+                      onFunction: (groupName, groupAvatar) {
+                        context.read<MessageCubit>().updateGroup(
+                              chatId: widget.chatModel?.id ?? '',
+                              groupName: groupName,
+                              groupAvatar: groupAvatar,
+                            );
                       },
                     );
                   }
