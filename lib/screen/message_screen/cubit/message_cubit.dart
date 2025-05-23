@@ -51,13 +51,6 @@ class MessageCubit extends Cubit<MessageState> {
     required String type,
     File? imageFile,
   }) async {
-    print("Sending message...");
-    print(userIdSend);
-    print(text);
-    print(createdAt);
-    print(seenBy);
-    print(chatId);
-    print(type);
 
     if(imageFile != null) {
       final uploadedUrl = await _cloudinary.uploadFile(imageFile, 'messages');
@@ -74,6 +67,12 @@ class MessageCubit extends Cubit<MessageState> {
       createdAt: createdAt,
       seenBy: seenBy,
       type: type,
+    );
+
+    await _chatRepository.updateChat(
+      chatId: chatId,
+      lastMessage: text,
+      lastMessageSenderId: userIdSend,
     );
 
     await _messageRepository.sendMessageWithNotification(

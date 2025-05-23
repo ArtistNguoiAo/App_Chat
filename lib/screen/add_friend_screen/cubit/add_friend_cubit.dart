@@ -56,6 +56,7 @@ class AddFriendCubit extends Cubit<AddFriendState> {
       emit(AddFriendLoaded(listUser: currentState.listUser, currentUser: currentState.currentUser));
     } catch (e) {
       emit(AddFriendError(message: e.toString()));
+      emit(currentState);
     }
   }
 
@@ -67,6 +68,7 @@ class AddFriendCubit extends Cubit<AddFriendState> {
       emit(AddFriendLoaded(listUser: currentState.listUser, currentUser: currentState.currentUser));
     } catch (e) {
       emit(AddFriendError(message: e.toString()));
+      emit(currentState);
     }
   }
 

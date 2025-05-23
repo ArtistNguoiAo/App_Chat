@@ -1,4 +1,5 @@
 import 'package:app_chat/data/model/message_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatModel {
   final String id;
@@ -7,6 +8,9 @@ class ChatModel {
   final String groupName;
   final String groupAvatar;
   final String createdAt;
+  final String lastMessage;
+  final String lastMessageTime;
+  final String lastMessageSenderId;
   final String lastMessageId;
 
   ChatModel({
@@ -16,6 +20,9 @@ class ChatModel {
     required this.groupName,
     required this.groupAvatar,
     required this.createdAt,
+    required this.lastMessage,
+    required this.lastMessageTime,
+    required this.lastMessageSenderId,
     required this.lastMessageId,
   });
 
@@ -27,6 +34,11 @@ class ChatModel {
       groupName: map['groupName'] as String,
       groupAvatar: map['groupAvatar'] as String,
       createdAt: map['createdAt'] as String,
+      lastMessage: map['lastMessage'] as String,
+      lastMessageTime: (map['lastMessageTime'] is Timestamp)
+          ? (map['lastMessageTime'] as Timestamp).toDate().toIso8601String()
+          : map['lastMessageTime'].toString(),
+      lastMessageSenderId: map['lastMessageSenderId'] as String,
       lastMessageId: map['lastMessageId'] as String,
     );
   }
@@ -39,6 +51,9 @@ class ChatModel {
       'groupName': groupName,
       'groupAvatar': groupAvatar,
       'createdAt': createdAt,
+      'lastMessage': lastMessage,
+      'lastMessageTime': lastMessageTime,
+      'lastMessageSenderId': lastMessageSenderId,
       'lastMessageId': lastMessageId,
     };
   }

@@ -13,6 +13,7 @@ import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 @RoutePage()
 class ListMessageScreen extends StatefulWidget {
@@ -151,6 +152,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                       listChatFriend: state.listChatFriend,
                       listChatGroup: state.listChatGroup,
                       listFriend: state.listFriend,
+                      currentUser: state.currentUser,
                     ),
                   ),
                 ],
@@ -204,6 +206,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     required List<ChatModel> listChatFriend,
     required List<ChatModel> listChatGroup,
     required List<UserModel> listFriend,
+    required UserModel currentUser,
   }) {
     return SizedBox(
       child: TabBarView(
@@ -229,7 +232,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                   ),
                 ),
               ),
-              Expanded(child: _listFriend(context, listFriend, listChatFriend)),
+              Expanded(child: _listFriend(context, listFriend, listChatFriend, currentUser)),
             ],
           ),
           Column(
@@ -260,19 +263,21 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _listFriend(BuildContext context, List<UserModel> listFriend, List<ChatModel> listChat) {
+  Widget _listFriend(BuildContext context, List<UserModel> listFriend, List<ChatModel> listChat, UserModel currentUser) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) => InkWell(
         onTap: () {
           for (var element in listChat) {
             if (element.members.contains(listFriend[index].uid) && element.members.length == 2) {
-              AutoRouter.of(context).push(
+              AutoRouter.of(context)
+                  .push(
                 MessageRoute(
                   chatModel: element,
                   friend: listFriend[index],
                 ),
-              ).then((value) {
+              )
+                  .then((value) {
                 if (value != null && value == true) {
                   context.read<ListMessageCubit>().getListUser();
                 }
@@ -322,13 +327,42 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                 ],
               ),
               const SizedBox(width: 16),
-              Text(
-                listFriend[index].fullName,
-                style: TextStyleUtils.normal(
-                  fontSize: 16,
-                  color: context.theme.textColor,
-                  context: context,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    listFriend[index].fullName,
+                    style: TextStyleUtils.normal(
+                      fontSize: 16,
+                      color: context.theme.textColor,
+                      context: context,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        listChat[index].lastMessageSenderId == currentUser.uid ? '${context.language.you}: ${listChat[index].lastMessage}' : listChat[index].lastMessage,
+                        style: TextStyleUtils.normal(
+                          fontSize: 12,
+                          color: context.theme.textColor,
+                          context: context,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormat('hh:mm a').format(DateTime.parse(listChat[index].lastMessageTime)),
+                        style: TextStyleUtils.normal(
+                          fontSize: 12,
+                          color: context.theme.textColor,
+                          context: context,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

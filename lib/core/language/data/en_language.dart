@@ -279,4 +279,7 @@ class EnLanguage extends BaseLanguage {
 
   @override
   String get takePhoto => 'Take photo';
+
+  @override
+  String get you => 'You';
 }

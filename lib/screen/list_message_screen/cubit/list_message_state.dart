@@ -11,11 +11,13 @@ final class ListMessageLoaded extends ListMessageState {
   final List<ChatModel> listChatFriend;
   final List<ChatModel> listChatGroup;
   final List<UserModel> listFriend;
+  final UserModel currentUser;
 
   ListMessageLoaded({
     required this.listChatFriend,
     required this.listChatGroup,
     required this.listFriend,
+    required this.currentUser,
   });
 }
 

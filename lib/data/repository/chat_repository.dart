@@ -2,6 +2,7 @@ import 'package:app_chat/core/utils/cloudinary_utils.dart';
 import 'package:app_chat/data/model/chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class ChatRepository {
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
@@ -18,9 +19,7 @@ class ChatRepository {
   Future<void> addNewChat({
     required List<String> members,
     required String groupName,
-    required String groupAvatar,
     required String createdAt,
-    required String lastMessageId,
   }) async {
     final documentRef = _fireStore.collection('chats').doc();
 
@@ -29,12 +28,49 @@ class ChatRepository {
       type: members.length > 2 ? 'group' : 'private',
       members: members,
       groupName: groupName,
-      groupAvatar: groupAvatar,
+      groupAvatar: '',
       createdAt: createdAt,
-      lastMessageId: lastMessageId,
+      lastMessage: '',
+      lastMessageTime: '',
+      lastMessageSenderId: '',
+      lastMessageId: '',
     );
 
     await documentRef.set(chatModel.toMap());
+  }
+
+  Future<void> updateChat({
+    required String chatId,
+    String? groupName,
+    String? groupAvatar,
+    String? lastMessage,
+    DateTime? lastMessageTime,
+    String? lastMessageSenderId,
+  }) async {
+    try {
+      final chatRef = _fireStore.collection('chats').doc(chatId);
+      final chatData = <String, dynamic>{};
+
+      if (groupName != null) {
+        chatData['groupName'] = groupName;
+      }
+      if (groupAvatar != null) {
+        chatData['groupAvatar'] = groupAvatar;
+      }
+      if (lastMessage != null) {
+        chatData['lastMessage'] = lastMessage;
+      }
+      if (lastMessageTime != null) {
+        chatData['lastMessageTime'] = lastMessageTime;
+      }
+      if (lastMessageSenderId != null) {
+        chatData['lastMessageSenderId'] = lastMessageSenderId;
+      }
+
+      await chatRef.update(chatData);
+    } catch (e) {
+      throw Exception('Failed to update chat: $e');
+    }
   }
 
   Future<void> deleteChat({

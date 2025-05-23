@@ -35,13 +35,13 @@ class NotifyCubit extends Cubit<NotifyState> {
       currentState.listUser.removeWhere((element) => element.uid == user.uid);
       emit(NotifyLoaded(listUser: currentState.listUser, currentUser: currentState.currentUser));
       await _userRepository.acceptFriend(user, check);
-      await _chatRepository.addNewChat(
-        members: [currentState.currentUser.uid, user.uid],
-        groupName: '',
-        groupAvatar: '',
-        createdAt: DateFormat('yyyy-MM-dd – hh:mm').format(DateTime.now()),
-        lastMessageId: '',
-      );
+      if(check) {
+        await _chatRepository.addNewChat(
+          members: [currentState.currentUser.uid, user.uid],
+          groupName: '',
+          createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+        );
+      }
     } catch (e) {
       emit(NotifyError(message: e.toString()));
     }

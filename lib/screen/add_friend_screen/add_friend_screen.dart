@@ -1,6 +1,7 @@
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
+import 'package:app_chat/core/widget/base_loading.dart';
 import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/screen/add_friend_screen/cubit/add_friend_cubit.dart';
@@ -23,14 +24,17 @@ class AddFriendScreen extends StatelessWidget {
       create: (context) => AddFriendCubit()..getListUser(),
       child: BlocConsumer<AddFriendCubit, AddFriendState>(
         listener: (context, state) {
-          // TODO: implement listener
+          if (state is AddFriendError) {
+            DialogUtils.showErrorDialog(
+              context: context,
+              message: state.message,
+            );
+          }
         },
         builder: (context, state) {
           if (state is AddFriendLoading) {
             return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
+              body: BaseLoading(),
             );
           }
           if (state is AddFriendLoaded) {
