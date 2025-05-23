@@ -18,6 +18,13 @@ class AuthCubit extends Cubit<AuthState> {
 
   AuthCubit() : super(AuthInitial());
 
+  Stream<List<String>> get friendRequestsStream =>
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser?.uid)
+          .snapshots()
+          .map((doc) => List<String>.from(doc.data()?['friendRequests'] ?? []));
+
   Future<void> checkAuthState() async {
     emit(AuthLoading());
     try {

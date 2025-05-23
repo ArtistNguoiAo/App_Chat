@@ -149,19 +149,26 @@ class HomeScreen extends StatelessWidget {
                                 color: context.theme.backgroundColor,
                                 size: 28,
                               ),
-                              if ((currentUser?.friendRequests ?? []).isNotEmpty)
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: context.theme.redColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
+                              StreamBuilder<List<String>>(
+                                stream: context.read<AuthCubit>().friendRequestsStream,
+                                builder: (context, snapshot) {
+                                  if ((snapshot.data ?? []).isNotEmpty) {
+                                    return Positioned(
+                                      right: 0,
+                                      top: 0,
+                                      child: Container(
+                                        width: 8,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          color: context.theme.redColor,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              )
                             ],
                           ),
                         ),
