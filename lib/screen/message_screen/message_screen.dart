@@ -64,10 +64,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   Future<void> _loadChatData() async {
     if (widget.chatId != null && widget.chatModel == null) {
-      final chatDoc = await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(widget.chatId)
-          .get();
+      final chatDoc = await FirebaseFirestore.instance.collection('chats').doc(widget.chatId).get();
 
       if (chatDoc.exists) {
         setState(() {
@@ -75,13 +72,9 @@ class _MessageScreenState extends State<MessageScreen> {
         });
 
         if (_chatModel!.type == 'private') {
-          final otherUserId = _chatModel!.members
-              .firstWhere((id) => id != FirebaseAuth.instance.currentUser?.uid);
+          final otherUserId = _chatModel!.members.firstWhere((id) => id != FirebaseAuth.instance.currentUser?.uid);
 
-          final userDoc = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(otherUserId)
-              .get();
+          final userDoc = await FirebaseFirestore.instance.collection('users').doc(otherUserId).get();
 
           if (userDoc.exists) {
             setState(() {
@@ -157,7 +150,7 @@ class _MessageScreenState extends State<MessageScreen> {
           leading: InkWell(
             onTap: () async {
               final router = AutoRouter.of(context);
-              final didPop = await router.maybePop();
+              final didPop = await router.maybePop(true);
               if (!didPop && mounted) {
                 router.replace(const OverViewRoute());
               }
@@ -184,15 +177,14 @@ class _MessageScreenState extends State<MessageScreen> {
                           confirmButton: context.language.delete,
                           onConfirm: () {
                             context.read<MessageCubit>().deleteFriend(
-                              userModel: widget.friend!,
-                              chatId: chatModel.id,
-                            );
+                                  userModel: widget.friend!,
+                                  chatId: chatModel.id,
+                                );
                           },
                         );
                       },
                     );
-                  }
-                  else {
+                  } else {
                     DialogUtils.showUserInfoDialog(
                       context: context,
                       user: widget.friend!,
@@ -204,9 +196,9 @@ class _MessageScreenState extends State<MessageScreen> {
                           confirmButton: context.language.delete,
                           onConfirm: () {
                             context.read<MessageCubit>().deleteFriend(
-                              userModel: widget.friend!,
-                              chatId: chatModel.id,
-                            );
+                                  userModel: widget.friend!,
+                                  chatId: chatModel.id,
+                                );
                           },
                         );
                       },
@@ -369,6 +361,7 @@ class _MessageScreenState extends State<MessageScreen> {
               context.read<MessageCubit>().sendMessage(
                     userIdSend: currentUser.uid,
                     userAvatarSend: currentUser.avatar,
+                    userNameSend: currentUser.lastName,
                     text: '',
                     createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
                     seenBy: chatModel.members,
@@ -390,6 +383,7 @@ class _MessageScreenState extends State<MessageScreen> {
               context.read<MessageCubit>().sendMessage(
                     userIdSend: currentUser.uid,
                     userAvatarSend: currentUser.avatar,
+                    userNameSend: currentUser.lastName,
                     text: '',
                     createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
                     seenBy: chatModel.members,
@@ -414,6 +408,7 @@ class _MessageScreenState extends State<MessageScreen> {
                   context.read<MessageCubit>().sendMessage(
                         userIdSend: currentUser.uid,
                         userAvatarSend: currentUser.avatar,
+                        userNameSend: currentUser.lastName,
                         text: _messageController.text,
                         createdAt: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
                         seenBy: chatModel.members,

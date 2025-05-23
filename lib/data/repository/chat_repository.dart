@@ -34,6 +34,7 @@ class ChatRepository {
       lastMessageTime: '',
       lastMessageSenderId: '',
       lastMessageId: '',
+      lastMessageSenderName: '',
     );
 
     await documentRef.set(chatModel.toMap());
@@ -46,6 +47,7 @@ class ChatRepository {
     String? lastMessage,
     DateTime? lastMessageTime,
     String? lastMessageSenderId,
+    String? lastMessageSenderName,
   }) async {
     try {
       final chatRef = _fireStore.collection('chats').doc(chatId);
@@ -65,6 +67,9 @@ class ChatRepository {
       }
       if (lastMessageSenderId != null) {
         chatData['lastMessageSenderId'] = lastMessageSenderId;
+      }
+      if (lastMessageSenderName != null) {
+        chatData['lastMessageSenderName'] = lastMessageSenderName;
       }
 
       await chatRef.update(chatData);

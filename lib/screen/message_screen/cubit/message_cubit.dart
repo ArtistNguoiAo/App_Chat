@@ -44,6 +44,7 @@ class MessageCubit extends Cubit<MessageState> {
   Future<void> sendMessage({
     required String userIdSend,
     required String userAvatarSend,
+    required String userNameSend,
     required String text,
     required String createdAt,
     required List<String> seenBy,
@@ -73,6 +74,7 @@ class MessageCubit extends Cubit<MessageState> {
       chatId: chatId,
       lastMessage: text,
       lastMessageSenderId: userIdSend,
+      lastMessageSenderName: userNameSend,
     );
 
     await _messageRepository.sendMessageWithNotification(

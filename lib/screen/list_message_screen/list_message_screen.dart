@@ -255,7 +255,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                   ),
                 ),
               ),
-              Expanded(child: _listMessage(context, listChatGroup)),
+              Expanded(child: _listMessage(context, listChatGroup, currentUser)),
             ],
           ),
         ],
@@ -327,42 +327,46 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                 ],
               ),
               const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    listFriend[index].fullName,
-                    style: TextStyleUtils.normal(
-                      fontSize: 16,
-                      color: context.theme.textColor,
-                      context: context,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      listFriend[index].fullName,
+                      style: TextStyleUtils.normal(
+                        fontSize: 16,
+                        color: context.theme.textColor,
+                        context: context,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        listChat[index].lastMessageSenderId == currentUser.uid ? '${context.language.you}: ${listChat[index].lastMessage}' : listChat[index].lastMessage,
-                        style: TextStyleUtils.normal(
-                          fontSize: 12,
-                          color: context.theme.textColor,
-                          context: context,
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            listChat[index].lastMessageSenderId == currentUser.uid ? '${context.language.you}: ${listChat[index].lastMessage}' : listChat[index].lastMessage,
+                            style: TextStyleUtils.normal(
+                              fontSize: 12,
+                              color: context.theme.textColor,
+                              context: context,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        DateFormat('hh:mm a').format(DateTime.parse(listChat[index].lastMessageTime)),
-                        style: TextStyleUtils.normal(
-                          fontSize: 12,
-                          color: context.theme.textColor,
-                          context: context,
+                        const SizedBox(width: 4),
+                        Text(
+                          listChat[index].lastMessageTime.isNotEmpty ? DateFormat('yyyy-MM-dd hh:mm a').format(DateTime.parse(listChat[index].lastMessageTime)) : '',
+                          style: TextStyleUtils.normal(
+                            fontSize: 12,
+                            color: context.theme.textColor,
+                            context: context,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -373,7 +377,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _listMessage(BuildContext context, List<ChatModel> listChat) {
+  Widget _listMessage(BuildContext context, List<ChatModel> listChat, UserModel currentUser) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) => InkWell(
@@ -382,7 +386,11 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
             MessageRoute(
               chatModel: listChat[index],
             ),
-          );
+          ).then((value) {
+            if (value != null && value == true) {
+              context.read<ListMessageCubit>().getListUser();
+            }
+          });
         },
         child: Container(
             padding: const EdgeInsets.all(8),
@@ -405,12 +413,47 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                   size: 40,
                 ),
                 const SizedBox(width: 16),
-                Text(
-                  listChat[index].groupName,
-                  style: TextStyleUtils.normal(
-                    fontSize: 16,
-                    color: context.theme.textColor,
-                    context: context,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        listChat[index].groupName,
+                        style: TextStyleUtils.normal(
+                          fontSize: 16,
+                          color: context.theme.textColor,
+                          context: context,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              listChat[index].lastMessageSenderId == currentUser.uid
+                                  ? '${context.language.you}: ${listChat[index].lastMessage}'
+                                  : '${listChat[index].lastMessageSenderName}: ${listChat[index].lastMessage}',
+                              style: TextStyleUtils.normal(
+                                fontSize: 12,
+                                color: context.theme.textColor,
+                                context: context,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            listChat[index].lastMessageTime.isNotEmpty ? DateFormat('yyyy-MM-dd hh:mm a').format(DateTime.parse(listChat[index].lastMessageTime)) : '',
+                            style: TextStyleUtils.normal(
+                              fontSize: 12,
+                              color: context.theme.textColor,
+                              context: context,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
