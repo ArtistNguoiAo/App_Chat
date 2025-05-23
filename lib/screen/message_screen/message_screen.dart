@@ -234,7 +234,7 @@ class _MessageScreenState extends State<MessageScreen> {
               }
             },
             builder: (context, state) {
-              if (state is MessageLoaded) {
+              if (state is MessageUpdateGroupSuccess) {
                 final currentUser = state.currentUser;
                 return Column(
                   children: [
@@ -249,7 +249,8 @@ class _MessageScreenState extends State<MessageScreen> {
                     _sendMessage(currentUser, chatModel),
                   ],
                 );
-              } else if (state is MessageUpdateGroupSuccess) {
+              }
+              else if (state is MessageLoaded) {
                 final currentUser = state.currentUser;
                 return Column(
                   children: [
