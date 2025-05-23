@@ -11,6 +11,7 @@ final class ListMessageLoaded extends ListMessageState {
   final List<ChatModel> listChatFriend;
   final List<ChatModel> listChatGroup;
   final List<UserModel> listFriend;
+  final Map<String, UserModel> mapFriend;
   final UserModel currentUser;
 
   ListMessageLoaded({
@@ -18,6 +19,7 @@ final class ListMessageLoaded extends ListMessageState {
     required this.listChatGroup,
     required this.listFriend,
     required this.currentUser,
+    required this.mapFriend,
   });
 }
 

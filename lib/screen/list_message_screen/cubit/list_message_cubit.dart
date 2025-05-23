@@ -5,6 +5,7 @@ import 'package:app_chat/data/model/user_model.dart';
 import 'package:app_chat/data/repository/auth_repository.dart';
 import 'package:app_chat/data/repository/chat_repository.dart';
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
@@ -15,37 +16,78 @@ class ListMessageCubit extends Cubit<ListMessageState> {
   ListMessageCubit() : super(ListMessageInitial());
 
   StreamSubscription? _listFriendSubscription;
+  StreamSubscription? _friendChatSubscription;
+  StreamSubscription? _groupChatSubscription;
   final AuthRepository _authRepository = GetIt.instance<AuthRepository>();
   final ChatRepository _chatRepository = GetIt.instance<ChatRepository>();
+  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
 
   var listChatFriend = <ChatModel>[];
   var listChatGroup = <ChatModel>[];
   var listFriend = <UserModel>[];
+  var mapFriend = <String, UserModel>{};
   var currentUser;
 
   Future<void> getListUser() async {
     emit(ListMessageLoading());
 
     try {
-      final listChat = await _chatRepository.getAllChats();
       currentUser = await _authRepository.getCurrentUser();
-
-      // Lọc danh sách chat riêng tư và nhóm
-      listChatFriend = listChat.where((chat) => chat.type == 'private').toList();
-      listChatGroup = listChat.where((chat) => chat.type == 'group').toList().where((chat) => chat.members.contains(currentUser.uid)).toList();
-
-      // Hủy lắng nghe cũ nếu tồn tại
+      final allUsers = await _authRepository.getAllUsers();
+      // Cancel old subscriptions if exist
+      _friendChatSubscription?.cancel();
+      _groupChatSubscription?.cancel();
       _listFriendSubscription?.cancel();
 
-      // Lắng nghe thay đổi bạn bè qua Stream
-      _listFriendSubscription = _authRepository.getListFriendStream(currentUser).listen((listFriendStream) {
-        listFriend = listFriendStream;
+      // Stream friend (private) chats
+      _friendChatSubscription = _chatRepository.streamUserChats(currentUser.uid).listen((chats) {
+        listChatFriend = chats.where((chat) => chat.type == 'private').toList();
+        var listFriend = <UserModel>[];
+        for (var chat in listChatFriend) {
+          final otherUserId = chat.members.firstWhere((id) => id != currentUser.uid);
+          final otherUser = allUsers.firstWhere((user) => user.uid == otherUserId);
+          mapFriend[chat.id] = otherUser;
+          listFriend.add(otherUser);
+        }
+
         if (!isClosed) {
           emit(ListMessageLoaded(
             listChatFriend: listChatFriend,
             listChatGroup: listChatGroup,
-            listFriend: listFriendStream,
+            listFriend: listFriend,
+            mapFriend: mapFriend,
             currentUser: currentUser,
+          ));
+        }
+      });
+
+      // Stream group chats
+      _groupChatSubscription = _chatRepository.streamUserChats(currentUser.uid).listen((chats) {
+        listChatGroup = chats.where((chat) => chat.type == 'group').toList();
+        if (!isClosed) {
+          emit(ListMessageLoaded(
+            listChatFriend: listChatFriend,
+            listChatGroup: listChatGroup,
+            listFriend: listFriend,
+            mapFriend: mapFriend,
+            currentUser: currentUser,
+          ));
+        }
+      });
+
+      // Stream users collection and filter by friends list
+      _listFriendSubscription = _fireStore.collection('users').snapshots().listen((snapshot) {
+        final allUsers = snapshot.docs.map((doc) => UserModel.fromMap(doc.data())).toList();
+        final curUser = allUsers.firstWhere((user) => user.uid == currentUser.uid);
+        listFriend = allUsers.where((user) => curUser.friends.contains(user.uid)).toList();
+        print('listFriend: $listFriend');
+        if (!isClosed) {
+          emit(ListMessageLoaded(
+            listChatFriend: listChatFriend,
+            listChatGroup: listChatGroup,
+            listFriend: listFriend,
+            mapFriend: mapFriend,
+            currentUser: curUser,
           ));
         }
       });
@@ -61,16 +103,17 @@ class ListMessageCubit extends Cubit<ListMessageState> {
           listChatFriend: listChatFriend,
           listChatGroup: listChatGroup,
           listFriend: listFriend,
+          mapFriend: mapFriend,
           currentUser: currentUser,
         ));
       } else {
-        final filteredListFriend = listFriend.where((user) {
-          return user.fullName.toLowerCase().contains(query.toLowerCase());
-        }).toList();
+        final filteredMapFriend = Map<String, UserModel>.from(mapFriend)..removeWhere((_, user) => !user.fullName.toLowerCase().contains(query.toLowerCase()));
+
         emit(ListMessageLoaded(
           listChatFriend: listChatFriend,
           listChatGroup: listChatGroup,
-          listFriend: filteredListFriend,
+          listFriend: filteredMapFriend.values.toList(),
+          mapFriend: filteredMapFriend,
           currentUser: currentUser,
         ));
       }
@@ -79,13 +122,14 @@ class ListMessageCubit extends Cubit<ListMessageState> {
     }
   }
 
- Future<void> searchGroup(String query) async {
+  Future<void> searchGroup(String query) async {
     try {
       if (query.isEmpty) {
         emit(ListMessageLoaded(
           listChatFriend: listChatFriend,
           listChatGroup: listChatGroup,
           listFriend: listFriend,
+          mapFriend: mapFriend,
           currentUser: currentUser,
         ));
       } else {
@@ -96,6 +140,7 @@ class ListMessageCubit extends Cubit<ListMessageState> {
           listChatFriend: listChatFriend,
           listChatGroup: filteredListGroup,
           listFriend: listFriend,
+          mapFriend: mapFriend,
           currentUser: currentUser,
         ));
       }
@@ -107,9 +152,10 @@ class ListMessageCubit extends Cubit<ListMessageState> {
   @override
   Future<void> close() {
     _listFriendSubscription?.cancel();
+    _friendChatSubscription?.cancel();
+    _groupChatSubscription?.cancel();
     return super.close();
   }
-
 
   Future<void> createGroup({
     required String groupName,

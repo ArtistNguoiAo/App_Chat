@@ -91,7 +91,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                       } else if (value == 2) {
                         DialogUtils.showListFriendDialog(
                           context: context,
-                          listFriend: state.listFriend,
+                          listFriend: context.read<ListMessageCubit>().listFriend,
                           onSelected: (listFriend, groupName) {
                             context.read<ListMessageCubit>().createGroup(
                                   groupName: groupName,
@@ -217,7 +217,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
               Container(
                 decoration: BoxDecoration(
                   color: context.theme.grey300Color,
-                  borderRadius: BorderRadius.circular(32), // Độ bo góc
+                  borderRadius: BorderRadius.circular(32),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 margin: const EdgeInsets.all(8),
@@ -232,7 +232,14 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                   ),
                 ),
               ),
-              Expanded(child: _listFriend(context, listFriend, listChatFriend, currentUser)),
+              Expanded(
+                child: _listFriend(
+                  context,
+                  listChatFriend,
+                  currentUser,
+                  context.read<ListMessageCubit>().mapFriend,
+                ),
+              ),
             ],
           ),
           Column(
@@ -263,28 +270,21 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
     );
   }
 
-  Widget _listFriend(BuildContext context, List<UserModel> listFriend, List<ChatModel> listChat, UserModel currentUser) {
+  Widget _listFriend(BuildContext context, List<ChatModel> listChat, UserModel currentUser, Map<String, UserModel> mapFriend) {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) => InkWell(
         onTap: () {
-          for (var element in listChat) {
-            if (element.members.contains(listFriend[index].uid) && element.members.length == 2) {
-              AutoRouter.of(context)
-                  .push(
-                MessageRoute(
-                  chatModel: element,
-                  friend: listFriend[index],
-                ),
-              )
-                  .then((value) {
-                if (value != null && value == true) {
-                  context.read<ListMessageCubit>().getListUser();
-                }
-              });
-              return;
+          AutoRouter.of(context).push(
+            MessageRoute(
+              chatModel: listChat[index],
+              friend: mapFriend[listChat[index].id],
+            ),
+          ).then((value) {
+            if (value != null && value == true) {
+              context.read<ListMessageCubit>().getListUser();
             }
-          }
+          });
         },
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -304,8 +304,8 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
               Stack(
                 children: [
                   BaseAvatar(
-                    url: listFriend[index].avatar,
-                    randomText: listFriend[index].uid,
+                    url: mapFriend[listChat[index].id]?.avatar ?? '',
+                    randomText: mapFriend[listChat[index].id]?.uid ?? '',
                     size: 40,
                   ),
                   Positioned(
@@ -316,7 +316,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                       height: 12,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: listFriend[index].status == 'online' ? context.theme.greenColor : context.theme.redColor,
+                        color: mapFriend[listChat[index].id]?.status == 'online' ? context.theme.greenColor : context.theme.redColor,
                         border: Border.all(
                           color: context.theme.backgroundColor,
                           width: 2,
@@ -332,7 +332,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      listFriend[index].fullName,
+                      mapFriend[listChat[index].id]?.fullName ?? '',
                       style: TextStyleUtils.normal(
                         fontSize: 16,
                         color: context.theme.textColor,
@@ -373,7 +373,7 @@ class _ListMessageScreenState extends State<ListMessageScreen> with SingleTicker
         ),
       ),
       separatorBuilder: (context, index) => Container(height: 4),
-      itemCount: listFriend.length,
+      itemCount: listChat.length,
     );
   }
 
