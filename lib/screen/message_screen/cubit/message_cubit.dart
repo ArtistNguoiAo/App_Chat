@@ -24,6 +24,8 @@ class MessageCubit extends Cubit<MessageState> {
   final MessageRepository _messageRepository = GetIt.instance<MessageRepository>();
   final ChatRepository _chatRepository = GetIt.instance<ChatRepository>();
   final UserRepository _userRepository = GetIt.instance<UserRepository>();
+  var currentUser;
+  var listMessage = <MessageModel>[];
 
   Future<void> loadMessage({
     required List<String> seenBy,
@@ -31,12 +33,13 @@ class MessageCubit extends Cubit<MessageState> {
   }) async {
     _messageSubscription?.cancel();
 
-    final currentUser = await _authRepository.getCurrentUser();
+    currentUser = await _authRepository.getCurrentUser();
 
     _messageSubscription = _messageRepository.getMessage(
       chatId: chatId,
       targetSeenBy: seenBy,
     ).listen((listMessage) {
+      this.listMessage = listMessage;
       emit(MessageLoaded(listMessage: listMessage, currentUser: currentUser));
     });
   }
@@ -104,13 +107,17 @@ class MessageCubit extends Cubit<MessageState> {
     required String groupName,
     File? groupAvatar,
   }) async {
-    await _chatRepository.updateChat(
+    ChatModel updatedChat = await _chatRepository.updateChat(
       chatId: chatId,
       groupName: groupName,
       groupAvatar: groupAvatar,
     );
-
-
+    emit(MessageUpdateGroupSuccess(
+      groupName: updatedChat.groupName,
+      groupAvatar: updatedChat.groupAvatar,
+      listMessage: listMessage,
+      currentUser: currentUser,
+    ));
   }
 
   @override

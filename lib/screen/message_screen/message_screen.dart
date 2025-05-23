@@ -45,6 +45,8 @@ class _MessageScreenState extends State<MessageScreen> {
   final _messageController = TextEditingController();
   ChatModel? _chatModel;
   UserModel? _friend;
+  String? _updatedGroupName;
+  String? _updatedGroupAvatar;
 
   @override
   void initState() {
@@ -119,34 +121,36 @@ class _MessageScreenState extends State<MessageScreen> {
                       size: 40,
                     )
                   : BaseAvatar(
-                      url: chatModel.groupAvatar,
+                      url: _updatedGroupAvatar ?? chatModel.groupAvatar,
                       randomText: chatModel.id,
                       size: 40,
                     ),
               const SizedBox(width: 8),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.friend != null ? widget.friend!.fullName : chatModel!.groupName,
-                    style: TextStyleUtils.bold(
-                      fontSize: 20,
-                      color: context.theme.backgroundColor,
-                      context: context,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      widget.friend != null ? widget.friend!.fullName : (_updatedGroupName ?? chatModel.groupName),
+                      style: TextStyleUtils.bold(
+                        fontSize: 20,
+                        color: context.theme.backgroundColor,
+                        context: context,
+                      ),
                     ),
-                  ),
-                  widget.friend == null
-                      ? const SizedBox()
-                      : Text(
-                          widget.friend!.status,
-                          style: TextStyleUtils.normal(
-                            fontSize: 14,
-                            color: widget.friend!.status == 'online' ? context.theme.backgroundColor : context.theme.textColor,
-                            context: context,
+                    widget.friend == null
+                        ? const SizedBox()
+                        : Text(
+                            widget.friend!.status,
+                            style: TextStyleUtils.normal(
+                              fontSize: 14,
+                              color: widget.friend!.status == 'online' ? context.theme.backgroundColor : context.theme.textColor,
+                              context: context,
+                            ),
                           ),
-                        ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -222,6 +226,11 @@ class _MessageScreenState extends State<MessageScreen> {
             listener: (context, state) {
               if (state is MessageDeleteSuccess) {
                 AutoRouter.of(context).maybePop(true);
+              } else if (state is MessageUpdateGroupSuccess) {
+                setState(() {
+                  _updatedGroupName = state.groupName;
+                  _updatedGroupAvatar = state.groupAvatar;
+                });
               }
             },
             builder: (context, state) {
@@ -237,7 +246,22 @@ class _MessageScreenState extends State<MessageScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _sendMessage(currentUser, chatModel!),
+                    _sendMessage(currentUser, chatModel),
+                  ],
+                );
+              } else if (state is MessageUpdateGroupSuccess) {
+                final currentUser = state.currentUser;
+                return Column(
+                  children: [
+                    Expanded(
+                      child: _listMessage(
+                        state.listMessage,
+                        currentUser,
+                        widget.friend,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _sendMessage(currentUser, chatModel),
                   ],
                 );
               }

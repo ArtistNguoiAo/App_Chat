@@ -42,7 +42,7 @@ class ChatRepository {
     await documentRef.set(chatModel.toMap());
   }
 
-  Future<void> updateChat({
+  Future<ChatModel> updateChat({
     required String chatId,
     String? groupName,
     File? groupAvatar,
@@ -84,6 +84,11 @@ class ChatRepository {
       }
 
       await chatRef.update(chatData);
+      final updatedChatDoc = await chatRef.get();
+      if (!updatedChatDoc.exists) {
+        throw Exception('Chat not found after update');
+      }
+      return ChatModel.fromMap(updatedChatDoc.data()!);
     } catch (e) {
       throw Exception('Failed to update chat: $e');
     }
@@ -111,8 +116,16 @@ class ChatRepository {
     return _fireStore
         .collection('chats')
         .where('members', arrayContains: userId)
-        .orderBy('lastMessageTime', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => ChatModel.fromMap(doc.data())).toList());
+        .map((snapshot) {
+      var chats = snapshot.docs.map((doc) => ChatModel.fromMap(doc.data())).toList();
+      chats.sort((a, b) {
+        if (a.lastMessageTime.isEmpty && b.lastMessageTime.isEmpty) return 0;
+        if (a.lastMessageTime.isEmpty) return 1;
+        if (b.lastMessageTime.isEmpty) return -1;
+        return b.lastMessageTime.compareTo(a.lastMessageTime);
+      });
+      return chats;
+    });
   }
 }

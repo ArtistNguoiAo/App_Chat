@@ -17,3 +17,17 @@ class MessageLoaded extends MessageState {
 }
 
 class MessageDeleteSuccess extends MessageState {}
+
+class MessageUpdateGroupSuccess extends MessageState {
+  final String groupName;
+  final String groupAvatar;
+  final List<MessageModel> listMessage;
+  final UserModel currentUser;
+
+  MessageUpdateGroupSuccess({
+    required this.groupName,
+    required this.groupAvatar,
+    required this.listMessage,
+    required this.currentUser,
+  });
+}
