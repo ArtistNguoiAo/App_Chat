@@ -88,6 +88,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('Chat ID: ${widget.chatId}');
     final chatModel = widget.chatModel ?? _chatModel;
     final friend = widget.friend ?? _friend;
 
@@ -185,22 +186,11 @@ class _MessageScreenState extends State<MessageScreen> {
                       },
                     );
                   } else {
-                    DialogUtils.showUserInfoDialog(
+                    DialogUtils.showGroupInfoDialog(
                       context: context,
-                      user: widget.friend!,
-                      isFriend: true,
-                      onDeleteFriend: () {
-                        DialogUtils.showConfirmDialog(
-                          context: context,
-                          content: context.language.deleteFriendContent,
-                          confirmButton: context.language.delete,
-                          onConfirm: () {
-                            context.read<MessageCubit>().deleteFriend(
-                                  userModel: widget.friend!,
-                                  chatId: chatModel.id,
-                                );
-                          },
-                        );
+                      chat: chatModel,
+                      onFunction: () {
+
                       },
                     );
                   }

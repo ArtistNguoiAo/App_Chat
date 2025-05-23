@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_chat/core/ext_context/ext_context.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/core/widget/base_loading.dart';
@@ -9,6 +11,7 @@ import 'package:avatar_plus/avatar_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class DialogUtils {
@@ -514,6 +517,7 @@ class DialogUtils {
     required ChatModel chat,
     required Function onFunction,
   }) {
+    File? _imageFile;
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -522,25 +526,91 @@ class DialogUtils {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return SingleChildScrollView(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      final result = await showDialog<String>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                leading: const Icon(FontAwesomeIcons.image),
+                                title: Text(context.language.pickFromGallery),
+                                onTap: () {
+                                  Navigator.pop(context, 'gallery');
+                                },
+                              ),
+                              ListTile(
+                                leading: const Icon(FontAwesomeIcons.camera),
+                                title: Text(context.language.takePhoto),
+                                onTap: () {
+                                  Navigator.pop(context, 'camera');
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
 
-              ],
-            ),
-          ),
+                      if (result == 'gallery') {
+                        final picker = ImagePicker();
+                        final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                        if (pickedFile != null) {
+                          setState(() => _imageFile = File(pickedFile.path));
+                        }
+                      } else if (result == 'camera') {
+                        final picker = ImagePicker();
+                        final pickedFile = await picker.pickImage(source: ImageSource.camera);
+                        if (pickedFile != null) {
+                          setState(() => _imageFile = File(pickedFile.path));
+                        }
+                      }
+                    },
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: context.theme.borderColor,
+                        image: _imageFile != null
+                            ? DecorationImage(
+                          image: FileImage(_imageFile!),
+                          fit: BoxFit.cover,
+                        )
+                            : chat.groupAvatar.isNotEmpty
+                            ? DecorationImage(
+                          image: NetworkImage(chat.groupAvatar),
+                          fit: BoxFit.cover,
+                        )
+                            : null,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.camera_alt,
+                          color: context.theme.backgroundColor,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     ).then((value) {
-      if (value != null && value is bool && value) {
-
-      }
+      if (value != null && value is bool && value) {}
     });
   }
 }
