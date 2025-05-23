@@ -227,7 +227,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _accountItem(
             icon: FontAwesomeIcons.qrcode,
-            title: context.language.yourQrCode,
+            title: context.language.myQrCode,
             onTap: () {
               DialogUtils.showQrDialog(
                 context: context,

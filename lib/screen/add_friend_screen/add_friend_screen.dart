@@ -103,11 +103,24 @@ class AddFriendScreen extends StatelessWidget {
               (value) {
                 if (value != null) {
                   for(var user in listUser) {
-                    if (user.uid == value && !currentUser.friends.contains(user.uid)) {
-                      context.read<AddFriendCubit>().requestAddFriend(user);
-                      return;
+                    if (user.uid == value) {
+                      if(!currentUser.friends.contains(user.uid)){
+                        context.read<AddFriendCubit>().requestAddFriend(user);
+                        return;
+                      }
+                      else{
+                        DialogUtils.showErrorDialog(
+                          context: context,
+                          message: context.language.alreadyFriend,
+                        );
+                        return;
+                      }
                     }
                   }
+                  DialogUtils.showErrorDialog(
+                    context: context,
+                    message: context.language.notFoundUser,
+                  );
                 }
               },
             );

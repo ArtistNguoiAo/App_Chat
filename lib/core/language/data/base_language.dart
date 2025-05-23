@@ -189,5 +189,9 @@ abstract class BaseLanguage {
 
   String get groupMembers;
 
-  String get yourQrCode;
+  String get myQrCode;
+
+  String get alreadyFriend;
+
+  String get notFoundUser;
 }

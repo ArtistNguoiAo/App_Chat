@@ -293,5 +293,11 @@ class EnLanguage extends BaseLanguage {
   String get groupMembers => 'Group Members';
 
   @override
-  String get yourQrCode => 'Your QR Code';
+  String get myQrCode => 'My QR Code';
+
+  @override
+  String get alreadyFriend => 'You are already friends with this user';
+
+  @override
+  String get notFoundUser => 'User not found';
 }

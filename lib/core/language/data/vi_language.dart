@@ -293,5 +293,11 @@ class ViLanguage extends BaseLanguage {
   String get groupMembers => 'Thành viên nhóm';
 
   @override
-  String get yourQrCode => 'Mã QR của bạn';
+  String get myQrCode => 'Mã QR của tôi';
+
+  @override
+  String get alreadyFriend => 'Bạn đã là bạn bè với người này';
+
+  @override
+  String get notFoundUser => 'Không tìm thấy người dùng';
 }
