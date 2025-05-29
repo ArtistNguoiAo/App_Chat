@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:app_chat/core/ext_context/ext_context.dart';
+import 'package:app_chat/core/utils/dialog_utils.dart';
 import 'package:app_chat/core/utils/text_style_utils.dart';
 import 'package:app_chat/core/widget/base_text_field.dart';
 import 'package:app_chat/data/model/chat_model.dart';
@@ -106,31 +107,29 @@ class _MessageScreenState extends State<MessageScreen> {
           actions: [
             Builder(
               builder: (context) {
-                return PopupMenuButton(
-                  icon: Icon(
-                    FontAwesomeIcons.ellipsisVertical,
+                return InkWell(
+                  onTap: () {
+                    DialogUtils.showUserInfoDialog(
+                      context: context,
+                      user: widget.friend!,
+                      isFriend: true,
+                      onDeleteFriend: () {
+                        context.read<MessageCubit>().deleteFriend(
+                          userModel: widget.friend!,
+                          chatId: widget.chatModel.id,
+                        );
+                      },
+                    );
+                  },
+                  child: Icon(
+                    FontAwesomeIcons.circleInfo,
                     color: context.theme.backgroundColor,
                     size: 18,
                   ),
-                  onSelected: (value) {
-                    if (value == 1) {
-                      context.read<MessageCubit>().deleteFriend(
-                            userModel: widget.friend!,
-                            chatId: widget.chatModel.id,
-                          );
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 1,
-                      child: Text(
-                        context.language.deleteFriend,
-                      ),
-                    ),
-                  ],
                 );
               }
             ),
+            const SizedBox(width: 16),
           ],
           backgroundColor: context.theme.primaryColor,
         ),
